@@ -4,7 +4,6 @@ import 'pages/signup.dart';
 import 'pages/login_screen.dart';
 import 'pages/welcome.dart';
 import 'shared_prefs.dart';
-import 'shared_prefs.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

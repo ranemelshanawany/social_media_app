@@ -19,17 +19,15 @@ class _WalkThroughState extends State {
 
   String next = "Next";
 
-  void nextPage ()  {
-    setState(() async {
+  void nextPage () {
+     setState(() {
       curPage += 1;
 
       if(curPage == 4 ){
         next = "  Go to Welcome Screen  ";
-        curPage = 4;
       }
       else if(curPage == 5)
       {
-        await MySharedPreferences.setBooleanValue(true);
         Navigator.of(context).pushNamed('/welcome');
         curPage = 4;
       }
@@ -38,6 +36,7 @@ class _WalkThroughState extends State {
 
     print('You have navigated to the next page');
   }
+
   void prevPage() {
     setState(() {
 
@@ -108,7 +107,7 @@ class _WalkThroughState extends State {
                   child: Text(next,
                     style: labelLogin,
                   ),
-                  onPressed: nextPage,
+                  onPressed:  nextPage,
                   padding: EdgeInsets.fromLTRB(1.0,2.0,1.0,2.0),
                 )
               ],

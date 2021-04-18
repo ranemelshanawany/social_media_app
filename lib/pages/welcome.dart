@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/background.dart';
 import '../utils/color.dart';
 import 'package:project_socialmedia/utils/styles.dart';
+import '../shared_prefs.dart';
 
 
 class WelcomeScreen extends StatefulWidget {
@@ -10,6 +11,14 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    MySharedPreferences.setBooleanValue(true);
+    print(MySharedPreferences.getBooleanValue());
+  }
 
   @override
   Widget build(BuildContext context) {
