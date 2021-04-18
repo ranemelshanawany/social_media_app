@@ -61,6 +61,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   _password.text.isEmpty || _password.text.length<8 ? _passValidate = true : _passValidate = false;
                   _email.text.isEmpty || !EmailValidator.validate(_email.text.trim()) ? _emailValidate = true : _emailValidate = false;
                 });
+
+                if(!_passValidate && !_emailValidate)
+                {
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil('/navigation', (Route<dynamic> route) => false);
+                }
+
               }),
               SizedBox(height: size.height * 0.03),
               _buildSignUpText()

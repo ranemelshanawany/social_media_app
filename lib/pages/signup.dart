@@ -108,6 +108,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           if (_formKey.currentState.validate())
           {
             _formKey.currentState.save();
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil('/navigation', (Route<dynamic> route) => false);
             //TODO add actual signup
           }
         },
