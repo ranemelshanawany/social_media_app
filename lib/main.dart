@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_socialmedia/pages/bottomNavigationWidget.dart';
+import 'package:project_socialmedia/pages/searchpage.dart';
 import 'pages/walkthrough.dart';
 import 'pages/signup.dart';
 import 'pages/login_screen.dart';
@@ -39,7 +40,9 @@ class _MyAppState extends State<MyApp> {
         '/login': (context) => LoginScreen(),
         '/welcome': (context) => WelcomeScreen(),
         '/navigation': (context) => BottomNavigator(),
+        '/explore/search': (context) => SearchPage()
       },
+      debugShowCheckedModeBanner: false,
     );
   }
 }
