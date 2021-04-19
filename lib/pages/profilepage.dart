@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/utils/styles.dart';
-import '../utils/background.dart';
 import '../utils/color.dart';
-import '../utils/Post.dart';
 import 'package:project_socialmedia/postCard.dart';
+import '../models/Post.dart';
 
 class Profile extends StatefulWidget {
   @override

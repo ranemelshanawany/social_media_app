@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/pages/bottomNavigationWidget.dart';
-import 'package:project_socialmedia/pages/searchpage.dart';
-import 'pages/walkthrough.dart';
-import 'pages/signup.dart';
-import 'pages/login_screen.dart';
-import 'pages/welcome.dart';
-import 'shared_prefs.dart';
+import 'pages/bottomNavigationWidget.dart';
+import 'pages/exploreandsearch/searchpage.dart';
+import 'pages/loginSignupWelcome/walkthrough.dart';
+import 'pages/loginSignupWelcome/signup.dart';
+import 'pages/loginSignupWelcome/login_screen.dart';
+import 'pages/loginSignupWelcome/welcome.dart';
+import 'utils/shared_prefs.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,17 +23,19 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool openedBefore = false;
+  bool loggedIn = false;
 
   @override
   void initState() {
     super.initState();
-    openedBefore = MySharedPreferences.getBooleanValue() ?? false;
+    openedBefore = MySharedPreferences.getWalkthroughBooleanValue() ?? false;
+    loggedIn = MySharedPreferences.getLoginBooleanValue() ?? false;
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: openedBefore? '/welcome': '/walkthrough',
+      initialRoute: getInitialRoute(),
       routes: {
         '/walkthrough': (context) => WalkThrough(),
         '/signup': (context) => SignUpScreen(),
@@ -45,4 +47,15 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
     );
   }
+
+  String getInitialRoute()
+  {
+    if (openedBefore) {
+      if (loggedIn)
+        return '/navigation';
+      return '/welcome';
+    }
+    return '/walkthrough';
+  }
+
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../utils/color.dart';
+import '../../utils/color.dart';
 import 'package:project_socialmedia/utils/styles.dart';
-import '../shared_prefs.dart';
+import '../../utils/shared_prefs.dart';
 
 class WalkThrough extends StatefulWidget {
   @override

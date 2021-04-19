@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/utils/Post.dart';
 import 'package:project_socialmedia/utils/color.dart';
 import 'package:animations/animations.dart';
-import 'postpage.dart';
+import '../postpage.dart';
+import '../../models/Post.dart';
 
 class Explore extends StatefulWidget {
   @override

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:project_socialmedia/utils/color.dart';
-import 'explorepage.dart';
+import 'exploreandsearch/explorepage.dart';
 import 'feedpage.dart';
 import 'notificationspage.dart';
 import 'profilepage.dart';
+import '../utils/shared_prefs.dart';
 
 class BottomNavigator extends StatefulWidget {
   @override
@@ -11,6 +12,13 @@ class BottomNavigator extends StatefulWidget {
 }
 
 class _BottomNavigatorState extends State<BottomNavigator> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    MySharedPreferences.setLoginBooleanValue(true);
+  }
 
   int _selectedIndex = 0;
 

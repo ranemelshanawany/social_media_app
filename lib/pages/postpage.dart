@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_socialmedia/utils/color.dart';
-import '../utils/Post.dart';
+import '../models/Post.dart';
 
 class PostPage extends StatefulWidget {
 

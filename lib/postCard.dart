@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/utils/background.dart';
 import 'package:project_socialmedia/utils/color.dart';
-import 'package:project_socialmedia/utils/styles.dart';
-import 'package:project_socialmedia/utils/Post.dart';
+import 'models/Post.dart';
 
 
 

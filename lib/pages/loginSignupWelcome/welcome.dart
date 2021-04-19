@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../utils/background.dart';
-import '../utils/color.dart';
+import '../../utils/background.dart';
+import '../../utils/color.dart';
 import 'package:project_socialmedia/utils/styles.dart';
-import '../shared_prefs.dart';
+import '../../utils/shared_prefs.dart';
 
 
 class WelcomeScreen extends StatefulWidget {
@@ -16,8 +16,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    MySharedPreferences.setBooleanValue(true);
-    print(MySharedPreferences.getBooleanValue());
+    MySharedPreferences.setWalkthroughBooleanValue(true);
+    print(MySharedPreferences.getWalkthroughBooleanValue());
   }
 
   @override
