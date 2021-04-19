@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/utils/color.dart';
+import 'package:project_socialmedia/models/Comments.dart';
+import 'package:project_socialmedia/models/User.dart';
+import 'package:project_socialmedia/pages/exploreAndSearch/textPosts.dart';
+import '../../utils/color.dart';
 import 'package:animations/animations.dart';
-import '../postpage.dart';
 import '../../models/Post.dart';
+import 'postpage.dart';
 
 class Explore extends StatefulWidget {
   @override
@@ -12,17 +15,41 @@ class Explore extends StatefulWidget {
 class _ExploreState extends State<Explore> {
   List<bool> _selection = [true, false];
 
+  static List<Comment> commentsList = [
+    Comment(
+        content: "I agree!",
+        user: User(
+            username: "username2",
+            photoUrl:
+                "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png")),
+    Comment(
+        content: "The best",
+        user: User(
+            username: "username3",
+            photoUrl:
+                "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png")),
+  ];
+
   List<ImagePost> imagePosts = List.generate(
       30,
       (_) => ImagePost(
           text: "My dog is so cute!",
           date: "1w",
           likes: 65,
-          comments: 5,
-          imageURL: "https://picsum.photos/id/237/400"));
+          comments: 2,
+          imageURL: "https://picsum.photos/id/237/400",
+          commentsList: commentsList,
+      user: User(
+          username: "username",
+          photoUrl:
+          "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg")));
 
   List<Post> Posts = List.generate(
-      10, (_) => Post(text: "I'm tired", date: "2d", likes: 4, comments: 2));
+      10, (_) => Post(text: "I'm tired", date: "2d", likes: 4, comments: 2, commentsList: commentsList,
+      user: User(
+          username: "username",
+          photoUrl:
+          "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg")));
 
   @override
   Widget build(BuildContext context) {
@@ -98,19 +125,21 @@ class _ExploreState extends State<Explore> {
   _buildContentDisplay(Size size) {
     if (_selection[0]) //images selected
     {
-
       return Expanded(
         child: Container(
           padding: EdgeInsets.all(8),
           height: (200 * imagePosts.length).toDouble(),
           child: GridView.count(
-            children: List.generate(imagePosts.length, (indexx) => OpenContainer(
-              openBuilder: (context, index) => PostPage(imagePosts[indexx]),
-              closedBuilder: (context, VoidCallback openContainer) => _buildGridItem(indexx, openContainer),
-              transitionType: ContainerTransitionType.fade,
-              transitionDuration: Duration(seconds: 1),
-            )
-            ),
+            children: List.generate(
+                imagePosts.length,
+                (indexx) => OpenContainer(
+                      openBuilder: (context, index) =>
+                          PostPage(imagePosts[indexx]),
+                      closedBuilder: (context, VoidCallback openContainer) =>
+                          _buildGridItem(indexx, openContainer),
+                      transitionType: ContainerTransitionType.fade,
+                      transitionDuration: Duration(seconds: 1),
+                    )),
             crossAxisCount: 3,
             shrinkWrap: true,
             scrollDirection: Axis.vertical,
@@ -121,16 +150,18 @@ class _ExploreState extends State<Explore> {
       );
     } else //text posts selected
     {
-      return Container(
-        padding: EdgeInsets.all(8),
-        child: Center(child: Text("Text")),
+      return Expanded(
+        child: Container(
+          padding: EdgeInsets.all(8),
+          child: ListView.builder(
+            itemCount: Posts.length,
+              itemBuilder: (context, index) => TextPostCard(Posts[index])),
+        ),
       );
     }
   }
 
-
-  _buildGridItem(int index, Function openContainer)
-  {
+  _buildGridItem(int index, Function openContainer) {
     return Container(
       width: 200,
       height: 200,
@@ -144,6 +175,4 @@ class _ExploreState extends State<Explore> {
       ),
     );
   }
-
-
 }

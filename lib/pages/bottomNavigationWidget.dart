@@ -42,6 +42,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
 
     return Scaffold(
       appBar: appBars[_selectedIndex],
+      backgroundColor: Colors.grey[100],
       body: _widgetOptions[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,

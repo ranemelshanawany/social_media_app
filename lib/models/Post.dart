@@ -1,16 +1,21 @@
+import 'Comments.dart';
+import 'User.dart';
+
 class Post {
   String text;
   String date;
   int likes;
   int comments;
+  List<Comment> commentsList;
+  User user;
 
-  Post({ this.text, this.date, this.likes, this.comments });
+  Post({ this.text, this.date, this.likes, this.comments, this.commentsList, this.user });
 }
 
 class ImagePost extends Post {
   String imageURL;
 
-  ImagePost({ text, date, likes, comments, this.imageURL }):
-    super(text: text, date: date, likes: likes, comments: comments);
+  ImagePost({ text, date, likes, comments, this.imageURL, commentsList, user }):
+    super(text: text, date: date, likes: likes, comments: comments, commentsList: commentsList, user: user);
 
 }
