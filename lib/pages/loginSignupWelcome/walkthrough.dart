@@ -90,13 +90,16 @@ class _WalkThroughState extends State {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                OutlineButton(
-                  child: Text('Prev',
-                    style: labelLogin,
-                  ),
-                  onPressed: prevPage,
-                  padding: EdgeInsets.fromLTRB(1.0,2.0,1.0,2.0),
+                Visibility(
+                  visible: curPage == 1? false : true,
+                  child: OutlineButton(
+                    child: Text('Prev',
+                      style: labelLogin,
+                    ),
+                    onPressed: prevPage,
+                    padding: EdgeInsets.fromLTRB(1.0,2.0,1.0,2.0),
 
+                  ),
                 ),
                 Center(child: Text('$curPage/$totalPage',
                   style: labelLogin,

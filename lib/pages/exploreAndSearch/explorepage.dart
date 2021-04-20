@@ -45,7 +45,7 @@ class _ExploreState extends State<Explore> {
           "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg")));
 
   List<Post> Posts = List.generate(
-      10, (_) => Post(text: "I'm tired", date: "2d", likes: 4, comments: 2, commentsList: commentsList,
+      10, (_) => Post(text: "This is a text post", date: "2d", likes: 4, comments: 2, commentsList: commentsList,
       user: User(
           username: "username",
           photoUrl:
