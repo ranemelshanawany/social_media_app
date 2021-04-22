@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:project_socialmedia/utils/color.dart';
 import 'models/Post.dart';
 
-
-
-
-
 class PostCard extends StatelessWidget {
 
   final Post post;
@@ -27,7 +23,8 @@ class PostCard extends StatelessWidget {
                 fontFamily: 'BrandonText',
                 fontSize: 20.0,
                 fontWeight: FontWeight.w400,
-                color: AppColors.textColor,
+                color: Colors.grey,
+                //color: AppColors.textColor,
               ),
             ),
 
@@ -40,7 +37,7 @@ class PostCard extends StatelessWidget {
                     fontFamily: 'BrandonText',
                     fontSize: 16.0,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.textColor,
+                    color: Colors.grey,
                   ),
                 ),
 
@@ -57,7 +54,7 @@ class PostCard extends StatelessWidget {
                     fontFamily: 'BrandonText',
                     fontSize: 16.0,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.textColor,
+                    color: Colors.grey,
                   ),
                 ),
 
@@ -74,7 +71,7 @@ class PostCard extends StatelessWidget {
                     fontFamily: 'BrandonText',
                     fontSize: 16.0,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.textColor,
+                    color: Colors.grey,
                   ),
                 ),
 
