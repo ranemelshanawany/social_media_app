@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/pages/editProfile.dart';
 import 'package:project_socialmedia/utils/color.dart';
 import 'package:project_socialmedia/pages/feed/feedpage.dart';
 import 'package:project_socialmedia/pages/feed/newpostpage.dart';
@@ -49,6 +50,7 @@ class _MyAppState extends State<MyApp> {
         '/explore/search': (context) => SearchPage(),
         '/newpost': (context) => NewPost(),
         '/feed': (context) => Feed(),
+        '/editProfile' : (context) => EditProfilePage(),
       },
       debugShowCheckedModeBanner: false,
     );
