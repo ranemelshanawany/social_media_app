@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/pages/feed/feedpage.dart';
+import 'package:project_socialmedia/pages/feed/newpostpage.dart';
 import 'pages/bottomNavigationWidget.dart';
 import 'pages/exploreandsearch/searchpage.dart';
 import 'pages/loginSignupWelcome/walkthrough.dart';
@@ -42,7 +44,9 @@ class _MyAppState extends State<MyApp> {
         '/login': (context) => LoginScreen(),
         '/welcome': (context) => WelcomeScreen(),
         '/navigation': (context) => BottomNavigator(),
-        '/explore/search': (context) => SearchPage()
+        '/explore/search': (context) => SearchPage(),
+        '/newpost': (context) => NewPost(),
+        '/feed': (context) => Feed(),
       },
       debugShowCheckedModeBanner: false,
     );
