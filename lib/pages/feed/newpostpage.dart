@@ -8,13 +8,12 @@ class NewPost extends StatefulWidget {
 
 class _NewPostState extends State<NewPost> {
 
-
-
+  Size size;
 
   @override
   Widget build(BuildContext context) {
 
-    Size size = MediaQuery.of(context).size;
+    size = MediaQuery.of(context).size;
     return Scaffold(
     body: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,66 +50,56 @@ class _NewPostState extends State<NewPost> {
           margin: EdgeInsets.fromLTRB(12.0,15.0,12.0,15.0),
           shadowColor: Colors.grey[50],
           child: Container(
-            width: 400,
+            width: size.width,
             child:
             Column(
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 10,),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                Container(
+                  width: size.width-24,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 10,),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                              CircleAvatar(backgroundImage: AssetImage('assets/images/John.jpeg'), radius: 20,),
+                              SizedBox(width: 10,),
+                              Column(
                                 children: [
-                                  CircleAvatar(backgroundImage: AssetImage('assets/images/John.jpeg'), radius: 20,),
-                                  SizedBox(width: 10,),
-                                  Column(
-                                    children: [
-                                      Text('John F.', style: TextStyle(color: Colors.grey[700] ,fontWeight: FontWeight.bold, fontSize: 18),),
-                                      SizedBox(height: 4),
-                                      Text('@JohnF', style: TextStyle(color: Colors.grey[500] ,fontWeight: FontWeight.bold, fontSize: 14),),
-                                    ],
-                                  ),
-                                  SizedBox(width: 120,),
-                                  SizedBox(
-                                    width: 30,
-                                    child: FloatingActionButton(
-                                        backgroundColor: AppColors.primary,
-                                        child: Icon(Icons.add_a_photo),
-                                        onPressed: () {} ),
-                                  ),
-                                  SizedBox(width: 20,),
-
-                                  SizedBox(
-                                    width: 80,
-                                    child: RaisedButton(
-                                        color: AppColors.primary,
-                                        child: Text('Post',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        //child: Icon(Icons.add),
-                                        onPressed: () => Navigator.of(context).pop()),
-                                  )
+                                  Text('John F.', style: TextStyle(color: Colors.grey[700] ,fontWeight: FontWeight.bold, fontSize: 18),),
+                                  SizedBox(height: 4),
+                                  Text('@JohnF', style: TextStyle(color: Colors.grey[500] ,fontWeight: FontWeight.bold, fontSize: 14),),
                                 ],
                               ),
+                              Spacer(),
+                              SizedBox(
+                                width: 30,
+                                child: FloatingActionButton(
+                                    backgroundColor: AppColors.primary,
+                                    child: Icon(Icons.add_a_photo),
+                                    onPressed: () {} ),
+                              ),
+                              SizedBox(width: 20,),
+                              RaisedButton(
+                                  color: AppColors.primary,
+                                  child: Text('Post',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  //child: Icon(Icons.add),
+                                  onPressed: () => Navigator.of(context).pop()),
                             ],
                           ),
-                        ],
-                      ),
-                    )
-                  ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 Container(
                   width: 360,

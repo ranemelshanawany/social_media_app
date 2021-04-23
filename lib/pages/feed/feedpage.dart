@@ -88,24 +88,21 @@ class _FeedState extends State<Feed> {
                                     ],
                                   ),
                                   SizedBox(width: 80,),
-                                  SizedBox(
-                                      width: 150,
-                                      child: RaisedButton(
-                                          color: AppColors.primary,
-                                          child: Row(
-                                            children: [
-                                              Text(' New Post',
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                color: Colors.white,
-                                              ),
-                                              ),
-                                              SizedBox(width: 5,),
-                                              Icon(Icons.add,color: Colors.white,),
-                                            ],
+                                  RaisedButton(
+                                      color: AppColors.primary,
+                                      child: Row(
+                                        children: [
+                                          Text(' New Post',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.white,
                                           ),
-                                          onPressed: () {Navigator.of(context).pushNamed("/newpost");} ),
-                                  )
+                                          ),
+                                          SizedBox(width: 5,),
+                                          Icon(Icons.add,color: Colors.white,),
+                                        ],
+                                      ),
+                                      onPressed: () {Navigator.of(context).pushNamed("/newpost");} )
                                 ],
                               ),
                             ],
