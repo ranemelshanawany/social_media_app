@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_socialmedia/utils/color.dart';
 import 'exploreandsearch/explorepage.dart';
-import 'feedpage.dart';
+import '../pages/feed/feedpage.dart';
 import 'notificationspage.dart';
 import 'profilepage.dart';
 import '../utils/shared_prefs.dart';
