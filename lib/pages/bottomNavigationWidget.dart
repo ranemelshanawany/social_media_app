@@ -28,7 +28,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
     final List<Widget> _widgetOptions = <Widget>[
       Feed(),
       Explore(),
-      Notifications(),
+      NotificationsPage(),
       Profile()
     ];
 
