@@ -106,7 +106,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               buildTextField("Full Name", "John F.", false),
               buildTextField("Username", "@JohnF.", false),
-              buildTextField("Biography", "This is my Bio", false),
+              buildTextField("Biography", "Satan se cache dans les détails", false),
               buildTextField("Password", "********", true),
 
               SizedBox(
