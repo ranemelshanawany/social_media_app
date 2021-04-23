@@ -177,7 +177,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             hintStyle: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppColors.textColor,
+              color: AppColors.hintText,
             )),
       ),
     );

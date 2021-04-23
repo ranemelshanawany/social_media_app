@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/pages/editProfile.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:project_socialmedia/utils/color.dart';
 import 'exploreandsearch/explorepage.dart';
 import 'feedpage.dart';
 import 'notificationspage.dart';
 import 'profilepage.dart';
 import '../utils/shared_prefs.dart';
-import 'package:project_socialmedia/pages/editProfile.dart';
 
 class BottomNavigator extends StatefulWidget {
   @override
@@ -14,6 +13,8 @@ class BottomNavigator extends StatefulWidget {
 }
 
 class _BottomNavigatorState extends State<BottomNavigator> {
+
+  DateTime currentBackPressTime;
 
   @override
   void initState() {
@@ -32,7 +33,6 @@ class _BottomNavigatorState extends State<BottomNavigator> {
       Explore(),
       Notifications(),
       Profile(),
-      EditProfilePage(),
     ];
 
     final List<Widget> appBars = [
@@ -40,14 +40,13 @@ class _BottomNavigatorState extends State<BottomNavigator> {
       AppBar(title: Center(child: Text("Explore")), backgroundColor: AppColors.primary,),
       AppBar(title: Center(child: Text("Notifications")), backgroundColor: AppColors.primary,),
       AppBar(title: Center(child: Text("Profile")), backgroundColor: AppColors.primary,),
-      AppBar(title: Center(child: Text("Edit Profile")), backgroundColor: AppColors.primary,),
     ];
 
 
     return Scaffold(
       appBar: appBars[_selectedIndex],
       backgroundColor: Colors.grey[100],
-      body: _widgetOptions[_selectedIndex],
+      body: WillPopScope(child :_widgetOptions[_selectedIndex], onWillPop: onWillPop),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         type: BottomNavigationBarType.fixed,
@@ -72,12 +71,6 @@ class _BottomNavigatorState extends State<BottomNavigator> {
             icon: Icon(Icons.person_rounded ),
             label: ""
           ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.edit ),
-              label: ""
-          )
-
-
         ],
         onTap: (index) {
           setState(() {
@@ -92,4 +85,15 @@ class _BottomNavigatorState extends State<BottomNavigator> {
       ),
     );
   }
-}
+
+  Future<bool> onWillPop() {
+    DateTime now = DateTime.now();
+    if (currentBackPressTime == null ||
+        now.difference(currentBackPressTime) > Duration(seconds: 2)) {
+      currentBackPressTime = now;
+      Fluttertoast.showToast(msg: "Press back again to exit");
+      return Future.value(false);
+    }
+    return Future.value(true);
+  }
+ }

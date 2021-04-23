@@ -7,4 +7,5 @@ class AppColors {
   static const Color textColor = const Color(0xFF081C15);
   static const Color headingColor = const Color(0xFF30977C);
   static const Color captionColor = const Color(0xFF2D3A3A);
+  static const Color hintText = const Color(0xFF757575);
 }

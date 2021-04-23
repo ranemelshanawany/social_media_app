@@ -9,7 +9,6 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-
   int postCount = 0;
 
   List<Post> posts = [
@@ -24,11 +23,13 @@ class _ProfileState extends State<Profile> {
     });
   }
 
+  Size size;
+
   @override
   Widget build(BuildContext context) {
+    size = MediaQuery.of(context).size;
     return Scaffold(
         backgroundColor: Colors.grey[200],
-
         floatingActionButton: FloatingActionButton(
           backgroundColor: AppColors.primary,
           child: Icon(Icons.add),
@@ -38,173 +39,211 @@ class _ProfileState extends State<Profile> {
           padding: EdgeInsets.fromLTRB(20.0, 24.0, 20.0, 0.0),
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/John.jpeg'),
-                    radius: 40.0,
-                  ),
-
-                  SizedBox(width: 8,),
-
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-
-                      Text(
-                        'John F.',
-                        style: TextStyle(
-                          fontFamily: 'BrandonText',
-                          fontSize: 28.0,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.headingColor,
-                        ),
-                      ),
-
-                      SizedBox(height: 10.0,),
-
-                      Text(
-                        '@JohnF',
-                        style: TextStyle(
-                          fontFamily: 'BrandonText',
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.textColor,
-                        ),
-                      ),
-
-                      Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.email,
-                            color: AppColors.primary,
-                          ),
-
-                          SizedBox(width: 8.0),
-
-                          Text(
-                            'JohnF@gmail.com',
-                            style: TextStyle(
-                              fontFamily: 'BrandonText',
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.textColor,
-                            ),
-                          )
-                        ],
-                      ),
-
-                    ],
-                  ),
-
-                ],
-              ),
-
+              _buildUserInformationRow(),
               Divider(
                 color: AppColors.primary,
                 height: 30,
                 thickness: 2.0,
               ),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Text(
-                        'Posts',
-                        style: TextStyle(
-                          color: AppColors.textColor,
-                          fontFamily: 'BrandonText',
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-
-                      Text(
-                        '$postCount',
-                        style: TextStyle(
-                          fontFamily: 'BrandonText',
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: <Widget>[
-                      Text(
-                        'Followers',
-                        style: TextStyle(
-                          fontFamily: 'BrandonText',
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.textColor,
-                        ),
-                      ),
-
-                      Text(
-                        '215',
-                        style: TextStyle(
-                          fontFamily: 'BrandonText',
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: <Widget>[
-                      Text(
-                        'Following',
-                        style: TextStyle(
-                          fontFamily: 'BrandonText',
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.textColor,
-                        ),
-                      ),
-
-                      Text(
-                        '679',
-                        style: TextStyle(
-                          fontFamily: 'BrandonText',
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
+              _buildStatisticRow(),
               Divider(
                 color: AppColors.primary,
                 height: 30,
                 thickness: 2.0,
               ),
-
-              Column(
-                children: posts.map((post) => PostCard(
-                    post: post,
-                    delete: () {
-                      setState(() {
-                        posts.remove(post);
-                      });
-                    }
-                )).toList(),
-              ),
+              _buildPostsList(),
             ],
           ),
-        )
+        ));
+  }
+
+  _buildUserInformationRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        CircleAvatar(
+          backgroundImage: AssetImage('assets/images/John.jpeg'),
+          radius: 40.0,
+        ),
+        SizedBox(
+          width: 8,
+        ),
+        _buildTextColumnAndEditProfile(),
+      ],
+    );
+  }
+
+  _buildTextColumnAndEditProfile()
+  {
+    return Stack(
+      children: [
+        _buildEditProfileButton(),
+        _buildInformationTextColumn()
+      ],
+    );
+  }
+
+  _buildEditProfileButton()
+  {
+    return Positioned(
+        top: 0,
+        right: 0,
+        child: IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: (){
+              Navigator.of(context).pushNamed('/editProfile');
+            }));
+  }
+
+  _buildInformationTextColumn() {
+    return Container(
+      width: size.width - 130,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'John F.',
+            style: TextStyle(
+              fontFamily: 'BrandonText',
+              fontSize: 28.0,
+              fontWeight: FontWeight.w500,
+              color: AppColors.headingColor,
+            ),
+          ),
+          SizedBox(
+            height: 10.0,
+          ),
+          Text(
+            '@JohnF',
+            style: TextStyle(
+              fontFamily: 'BrandonText',
+              fontSize: 18.0,
+              fontWeight: FontWeight.w400,
+              color: AppColors.textColor,
+            ),
+          ),
+          Row(
+            children: <Widget>[
+              Icon(
+                Icons.email,
+                color: AppColors.primary,
+              ),
+              SizedBox(width: 8.0),
+              Text(
+                'JohnF@gmail.com',
+                style: TextStyle(
+                  fontFamily: 'BrandonText',
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.textColor,
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  _buildStatisticRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: <Widget>[
+        _buildPostNumberColumn(),
+        _buildFollowersColumn(),
+        _buildFollowingColumn(),
+      ],
+    );
+  }
+
+  _buildPostsList() {
+    return Column(
+      children: posts
+          .map((post) => PostCard(
+              post: post,
+              delete: () {
+                setState(() {
+                  posts.remove(post);
+                });
+              }))
+          .toList(),
+    );
+  }
+
+  _buildPostNumberColumn() {
+    return Column(
+      children: <Widget>[
+        Text(
+          'Posts',
+          style: TextStyle(
+            color: AppColors.textColor,
+            fontFamily: 'BrandonText',
+            fontSize: 18.0,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        Text(
+          '$postCount',
+          style: TextStyle(
+            fontFamily: 'BrandonText',
+            fontSize: 24.0,
+            fontWeight: FontWeight.w800,
+            color: AppColors.primary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  _buildFollowersColumn() {
+    return Column(
+      children: <Widget>[
+        Text(
+          'Followers',
+          style: TextStyle(
+            fontFamily: 'BrandonText',
+            fontSize: 18.0,
+            fontWeight: FontWeight.w400,
+            color: AppColors.textColor,
+          ),
+        ),
+        Text(
+          '215',
+          style: TextStyle(
+            fontFamily: 'BrandonText',
+            fontSize: 24.0,
+            fontWeight: FontWeight.w800,
+            color: AppColors.primary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  _buildFollowingColumn() {
+    return Column(
+      children: <Widget>[
+        Text(
+          'Following',
+          style: TextStyle(
+            fontFamily: 'BrandonText',
+            fontSize: 18.0,
+            fontWeight: FontWeight.w400,
+            color: AppColors.textColor,
+          ),
+        ),
+        Text(
+          '679',
+          style: TextStyle(
+            fontFamily: 'BrandonText',
+            fontSize: 24.0,
+            fontWeight: FontWeight.w800,
+            color: AppColors.primary,
+          ),
+        ),
+      ],
     );
   }
 }
-
