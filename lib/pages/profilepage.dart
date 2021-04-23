@@ -35,7 +35,7 @@ class _ProfileState extends State<Profile> {
           child: Icon(Icons.add),
           onPressed: buttonPressed,
         ),
-        body: Padding(
+        body: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(20.0, 24.0, 20.0, 0.0),
           child: Column(
             children: [
