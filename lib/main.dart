@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/pages/editProfile.dart';
 import 'package:project_socialmedia/utils/color.dart';
+import 'package:project_socialmedia/pages/feed/feedpage.dart';
+import 'package:project_socialmedia/pages/feed/newpostpage.dart';
 import 'pages/bottomNavigationWidget.dart';
 import 'pages/exploreandsearch/searchpage.dart';
 import 'pages/loginSignupWelcome/walkthrough.dart';
@@ -46,7 +47,8 @@ class _MyAppState extends State<MyApp> {
         '/welcome': (context) => WelcomeScreen(),
         '/navigation': (context) => BottomNavigator(),
         '/explore/search': (context) => SearchPage(),
-        '/editProfile': (context) => EditProfilePage()
+        '/newpost': (context) => NewPost(),
+        '/feed': (context) => Feed(),
       },
       debugShowCheckedModeBanner: false,
     );

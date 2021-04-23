@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:project_socialmedia/utils/color.dart';
 import 'exploreandsearch/explorepage.dart';
-import 'feedpage.dart';
+import '../pages/feed/feedpage.dart';
 import 'notificationspage.dart';
 import 'profilepage.dart';
 import '../utils/shared_prefs.dart';
@@ -31,7 +31,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
     final List<Widget> _widgetOptions = <Widget>[
       Feed(),
       Explore(),
-      Notifications(),
+      NotificationsPage(),
       Profile(),
     ];
 
