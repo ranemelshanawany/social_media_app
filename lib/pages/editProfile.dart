@@ -4,8 +4,6 @@ import 'package:project_socialmedia/utils/color.dart';
 import 'package:project_socialmedia/pages/settings.dart';
 
 
-
-
 class SettingsUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -30,13 +28,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 1,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: AppColors.primary,
-          ),
-          onPressed: () {},
-        ),
+
         actions: [
           IconButton(
             icon: Icon(
@@ -85,7 +77,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           shape: BoxShape.circle,
                           image: DecorationImage(
                               fit: BoxFit.cover,
-                              image: AssetImage('assets/images/john.jpeg'))),
+                              image: AssetImage('assets/images/John.jpeg'))),
                     ),
                     Positioned(
                         bottom: 0,
@@ -113,8 +105,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 height: 35,
               ),
               buildTextField("Full Name", "John F.", false),
-              buildTextField("E-mail", "JohnF@gmail.com", false),
               buildTextField("Username", "@JohnF.", false),
+              buildTextField("Biography", "This is my Bio", false),
               buildTextField("Password", "********", true),
 
               SizedBox(
@@ -136,7 +128,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                   RaisedButton(
                     onPressed: () {},
-                    color: Colors.green,
+                    color: AppColors.primary,
                     padding: EdgeInsets.symmetric(horizontal: 50),
                     elevation: 2,
                     shape: RoundedRectangleBorder(

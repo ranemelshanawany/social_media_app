@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/pages/editProfile.dart';
 import 'package:project_socialmedia/utils/color.dart';
 import 'exploreandsearch/explorepage.dart';
 import 'feedpage.dart';
 import 'notificationspage.dart';
 import 'profilepage.dart';
 import '../utils/shared_prefs.dart';
+import 'package:project_socialmedia/pages/editProfile.dart';
 
 class BottomNavigator extends StatefulWidget {
   @override
@@ -29,14 +31,16 @@ class _BottomNavigatorState extends State<BottomNavigator> {
       Feed(),
       Explore(),
       Notifications(),
-      Profile()
+      Profile(),
+      EditProfilePage(),
     ];
 
     final List<Widget> appBars = [
       AppBar(title: Center(child: Text("Feed")), backgroundColor: AppColors.primary,),
       AppBar(title: Center(child: Text("Explore")), backgroundColor: AppColors.primary,),
       AppBar(title: Center(child: Text("Notifications")), backgroundColor: AppColors.primary,),
-      AppBar(title: Center(child: Text("Profile")), backgroundColor: AppColors.primary,)
+      AppBar(title: Center(child: Text("Profile")), backgroundColor: AppColors.primary,),
+      AppBar(title: Center(child: Text("Edit Profile")), backgroundColor: AppColors.primary,),
     ];
 
 
@@ -51,6 +55,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
         selectedFontSize: 17,
         iconSize: 30,
         items: [
+
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: ""
@@ -66,7 +71,13 @@ class _BottomNavigatorState extends State<BottomNavigator> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person_rounded ),
             label: ""
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.edit ),
+              label: ""
           )
+
+
         ],
         onTap: (index) {
           setState(() {
