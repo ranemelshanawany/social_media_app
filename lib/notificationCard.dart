@@ -37,15 +37,6 @@ class NotificationCard extends StatelessWidget {
                       color: AppColors.textColor,
                     ),
                   ),
-                  Text(
-                    notification.type,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.textColor,
-                    ),
-                  ),
                 ],
               ),
             ),

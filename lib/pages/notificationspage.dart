@@ -17,11 +17,11 @@ List <String> avatarURLs =[
 ];
 
 List <Notifications> notifications =[
-  Notifications(avatar: NetworkImage(avatarURLs[0]), username: users[0], type: 'is now following you.', date: DateTime.now()),
-  Notifications(avatar: NetworkImage(avatarURLs[1]), username: users[1], type: 'is now following you.', date: DateTime.now()),
-  Notifications(avatar: NetworkImage(avatarURLs[2]), username: users[2], type: 'is now following you.', date: DateTime.now()),
-  Notifications(avatar: NetworkImage(avatarURLs[3]), username: users[3], type: 'is now following you.', date: DateTime.now()),
-  Notifications(avatar: NetworkImage(avatarURLs[4]), username: users[4], type: 'is now following you.', date: DateTime.now()),
+  //Notifications(avatar: NetworkImage(avatarURLs[0]), username: users[0], type: 'is now following you.', date: DateTime.now()),
+  //Notifications(avatar: NetworkImage(avatarURLs[1]), username: users[1], type: 'is now following you.', date: DateTime.now()),
+  //Notifications(avatar: NetworkImage(avatarURLs[2]), username: users[2], type: 'is now following you.', date: DateTime.now()),
+  //Notifications(avatar: NetworkImage(avatarURLs[3]), username: users[3], type: 'is now following you.', date: DateTime.now()),
+  //Notifications(avatar: NetworkImage(avatarURLs[4]), username: users[4], type: 'is now following you.', date: DateTime.now()),
 ];
 
 class _NotificationsState extends State<NotificationsPage> {
