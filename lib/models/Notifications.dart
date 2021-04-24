@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-enum NotificationType {follows, liked, commented, reshare, message}
+enum NotificationType {followBack, message, like, comment, reshare, newFollow}
 
 class Notifications{
 
   NetworkImage avatar;
   String username;
-  DateTime date;
+  String date;
   NotificationType type;
 
   Notifications({this.avatar, this.username, this.type, this.date})
