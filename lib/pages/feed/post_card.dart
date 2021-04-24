@@ -104,7 +104,10 @@ class _PostTitleAndSummary extends StatelessWidget {
             SizedBox(height: 2.0),
             Text(titles[index], style: TextStyle(fontWeight: FontWeight.w600,fontSize: 18, color: Colors.grey[900])),
             SizedBox(height: 4.0),
-            Text(summaries[index], style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15, color: Colors.grey[600])),
+            Expanded(
+              child: Text(summaries[index],
+                  style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15, color: Colors.grey[600]),),
+            ),
           ],
         ),
       ),
