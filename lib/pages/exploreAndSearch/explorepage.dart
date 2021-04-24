@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/models/Comments.dart';
-import 'package:project_socialmedia/models/User.dart';
-import 'package:project_socialmedia/pages/exploreAndSearch/textPosts.dart';
+import '../../models/Comments.dart';
+import '../../models/User.dart';
+import 'textPosts.dart';
 import '../../utils/color.dart';
 import 'package:animations/animations.dart';
 import '../../models/Post.dart';

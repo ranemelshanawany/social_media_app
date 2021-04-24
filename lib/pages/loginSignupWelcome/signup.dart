@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/utils/styles.dart';
+import '../../utils/styles.dart';
 import '../../utils/background.dart';
 import '../../utils/color.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:project_socialmedia/utils/color.dart';
 
 class SignUpScreen extends StatefulWidget {
   @override

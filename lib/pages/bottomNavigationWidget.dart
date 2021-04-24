@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:project_socialmedia/utils/color.dart';
+import '../utils/color.dart';
 import 'exploreandsearch/explorepage.dart';
 import '../pages/feed/feedpage.dart';
-import 'notificationspage.dart';
-import 'profilepage.dart';
+import 'notifications/notificationspage.dart';
+import 'profile/profilepage.dart';
 import '../utils/shared_prefs.dart';
 
 class BottomNavigator extends StatefulWidget {

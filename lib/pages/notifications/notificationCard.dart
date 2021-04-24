@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_socialmedia/utils/color.dart';
-import 'models/Notifications.dart';
+import '../../models/Notifications.dart';
 
 class NotificationCard extends StatelessWidget {
 

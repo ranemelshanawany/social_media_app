@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../utils/background.dart';
 import '../../utils/color.dart';
-import 'package:project_socialmedia/utils/styles.dart';
+import '../../utils/styles.dart';
 import '../../utils/shared_prefs.dart';
 
 

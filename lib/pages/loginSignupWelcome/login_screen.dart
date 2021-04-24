@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../utils/shared_prefs.dart';
 import '../../utils/background.dart';
 import 'package:flutter_svg/svg.dart';
 import '../../utils/color.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:project_socialmedia/utils/styles.dart';
+import '../../utils/styles.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -17,6 +18,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final _password = TextEditingController();
   bool _passValidate = false;
   bool _emailValidate = false;
+
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    MySharedPreferences.setLoginBooleanValue(false);
+  }
 
   void dispose() {
     _email.dispose();

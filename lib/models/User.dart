@@ -1,6 +1,3 @@
-//Preferably used when firebase is implemented
-
-
 class User {
   final String username;
   final String email;

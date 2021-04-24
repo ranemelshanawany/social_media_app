@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/pages/editProfile.dart';
-import 'package:project_socialmedia/utils/color.dart';
-import 'package:project_socialmedia/pages/feed/feedpage.dart';
-import 'package:project_socialmedia/pages/feed/newpostpage.dart';
+import 'pages/profile/editProfile.dart';
+import 'utils/color.dart';
+import 'pages/feed/feedpage.dart';
+import 'pages/feed/newpostpage.dart';
 import 'pages/bottomNavigationWidget.dart';
 import 'pages/exploreandsearch/searchpage.dart';
 import 'pages/loginSignupWelcome/walkthrough.dart';

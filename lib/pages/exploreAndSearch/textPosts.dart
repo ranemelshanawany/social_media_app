@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/utils/color.dart';
+import '../../utils/color.dart';
 import '../../models/Post.dart';
 
 class TextPostCard extends StatefulWidget {

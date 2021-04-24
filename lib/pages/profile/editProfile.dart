@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/utils/background.dart';
-import 'package:project_socialmedia/utils/color.dart';
-import 'package:project_socialmedia/pages/settings.dart';
+import '../../utils/color.dart';
+import '../settings.dart';
 
 
 class SettingsUI extends StatelessWidget {

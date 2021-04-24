@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/utils/color.dart';
+import 'color.dart';
 
 final appBarTitleText = TextStyle(
   color: AppColors.headingColor,

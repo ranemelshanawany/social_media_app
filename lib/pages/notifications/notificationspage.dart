@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_socialmedia/models/Notifications.dart';
-import 'package:project_socialmedia/NotificationCard.dart';
+import '../../models/Notifications.dart';
+import 'NotificationCard.dart';
 
 class NotificationsPage extends StatefulWidget {
   @override
@@ -26,6 +26,7 @@ List <Notifications> notifications =[
   Notifications(avatar: NetworkImage(avatarURLs[4]), username: users[4], type: NotificationType.reshare, date: '4d'),
   Notifications(avatar: NetworkImage(avatarURLs[5]), username: users[5], type: NotificationType.newFollow, date: '1w'),
   Notifications(avatar: NetworkImage(avatarURLs[6]), username: users[6], type: NotificationType.followBack, date: '2w'),
+
 ];
 
 class _NotificationsState extends State<NotificationsPage> {
