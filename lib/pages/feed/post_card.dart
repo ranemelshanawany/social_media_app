@@ -9,14 +9,16 @@ class PostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
-      aspectRatio: 6 / 3,
+      aspectRatio: 7 /4,
       child: Card(
-        elevation: 2,
+        elevation: 1,
         child: Container(
           margin: const EdgeInsets.all(3.0),
           padding: const EdgeInsets.all(2.0),
           child: Column(
             children: <Widget>[
+              _LocationAndTime(index),
+              Divider(color: Colors.grey),
               _Post(index),
               Divider(color: Colors.grey),
               _PostDetails(index),
@@ -41,6 +43,31 @@ class _Post extends StatelessWidget {
     );
   }
 }
+
+class _LocationAndTime extends StatelessWidget {
+  final int index;
+
+  _LocationAndTime(this.index);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      //width: 400,
+      height: 20,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          _Location(index),
+          SizedBox(width: 170),
+          _PostTimeStamp(index)
+        ],
+      ),
+    );
+  }
+}
+
 
 class _PostTitleAndSummary extends StatelessWidget {
   final int index;
@@ -75,9 +102,9 @@ class _PostTitleAndSummary extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             SizedBox(height: 2.0),
-            Text(titles[index], style: titleTheme),
+            Text(titles[index], style: TextStyle(fontWeight: FontWeight.w600,fontSize: 18, color: Colors.grey[900])),
             SizedBox(height: 4.0),
-            Text(summaries[index], style: summaryTheme),
+            Text(summaries[index], style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15, color: Colors.grey[600])),
           ],
         ),
       ),
@@ -111,11 +138,13 @@ class _PostDetails extends StatelessWidget {
         children: <Widget>[
           _UserImage(index),
           _NameAndUsername(index),
+          SizedBox(width: 5,),
+          SizedBox(width: 5,),
           Container(color: AppColors.primary, height: 48, width: 1.5,),
           _LikesAndComments(index),
-          Container(color: AppColors.primary, height: 48, width: 1.5,),
-          SizedBox(width:30.0,),
-          _PostTimeStamp(index),
+          //Container(color: AppColors.primary, height: 48, width: 1.5,),
+          SizedBox(width:10.0,),
+          //_PostTimeStamp(index),
         ],
       ),
     );
@@ -177,15 +206,24 @@ class _LikesAndComments extends StatelessWidget {
     return Expanded(
       //width: 50,
       //height: 50,
-      flex: 6,
+      flex: 7,
       child:Row(
         children: [
-          SizedBox(width: 10,),
+          //SizedBox(width: 10,),
+          SizedBox(width: 5,),
           IconButton(icon: Icon(Icons.thumb_up_alt_outlined,size: 27, color: AppColors.primary,), onPressed: () {}),
-          SizedBox(width: 10,),
+          SizedBox(width: 5,),
           Container(color: AppColors.primary, height: 48, width: 1.5,),
-          SizedBox(width: 10,),
-          IconButton(icon: Icon(Icons.mode_comment_outlined,size: 27, color: AppColors.primary,), onPressed: (){})
+          SizedBox(width: 5,),
+          IconButton(icon: Icon(Icons.mode_comment_outlined,size: 27, color: AppColors.primary,), onPressed: (){}),
+          SizedBox(width: 5,),
+          Container(color: AppColors.primary, height: 48, width: 1.5,),
+          SizedBox(width: 5,),
+          IconButton(icon: Icon(Icons.share,size: 27, color: AppColors.primary,), onPressed: (){}),
+          SizedBox(width: 5,),
+
+          Container(color: AppColors.primary, height: 48, width: 1.5,),
+
         ]
       ),
 
@@ -219,13 +257,53 @@ class _PostTimeStamp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      flex:2,
+    return SizedBox(
+      //flex:2,
+      height: 20,
+      width: 100,
       child: Text(postTimes[index], style: TextStyle(
-        fontSize: 12,
+        fontSize: 14,
         fontWeight: FontWeight.w500,
         color: Colors.green[900],
       ),),
+    );
+  }
+}
+
+class _Location extends StatelessWidget {
+  final int index;
+  _Location(this.index);
+
+  List<String> postTimes = ["İstanbul","Berlin","İstanbul","London","Barcelona","İstanbul","London",];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      height: 20,
+      padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+      //flex: 1,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+              width: 20.0,
+              child: IconButton(icon: Icon(Icons.location_on,size: 20, color: AppColors.primary,), onPressed: (){}, )),
+          SizedBox(width:10,),
+          Container(
+            padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
+            child: Text(postTimes[index], style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.green[900],
+            ),),
+          ),
+
+        ],
+
+      ),
     );
   }
 }

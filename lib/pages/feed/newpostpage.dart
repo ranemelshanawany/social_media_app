@@ -80,10 +80,18 @@ class _NewPostState extends State<NewPost> {
                                 width: 30,
                                 child: FloatingActionButton(
                                     backgroundColor: AppColors.primary,
+                                    child: Icon(Icons.location_on),
+                                    onPressed: () {} ),
+                              ),
+                              SizedBox(width: 15,),
+                              SizedBox(
+                                width: 30,
+                                child: FloatingActionButton(
+                                    backgroundColor: AppColors.primary,
                                     child: Icon(Icons.add_a_photo),
                                     onPressed: () {} ),
                               ),
-                              SizedBox(width: 20,),
+                              SizedBox(width: 15,),
                               RaisedButton(
                                   color: AppColors.primary,
                                   child: Text('Post',
