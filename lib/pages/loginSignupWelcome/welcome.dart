@@ -18,7 +18,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     super.initState();
     MySharedPreferences.setWalkthroughBooleanValue(true);
     print(MySharedPreferences.getWalkthroughBooleanValue());
+    MySharedPreferences.setLoginBooleanValue(false);
   }
+
 
   @override
   Widget build(BuildContext context) {

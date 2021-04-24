@@ -19,12 +19,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _passValidate = false;
   bool _emailValidate = false;
 
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    MySharedPreferences.setLoginBooleanValue(false);
-  }
-
   void dispose() {
     _email.dispose();
     _password.dispose();

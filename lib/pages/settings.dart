@@ -99,7 +99,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20)),
                 onPressed: () {
-                  Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route r) => r == null);
+                  Navigator.of(context).pushNamedAndRemoveUntil('/welcome', (Route r) => r == null);
                 },
                 child: Text("SIGN OUT",
                     style: TextStyle(
