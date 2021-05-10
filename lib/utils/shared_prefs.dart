@@ -6,7 +6,11 @@ class MySharedPreferences {
   static const _walkthroughkey = "openedbefore";
   static const _login = "login";
 
-  static Future init() async => _myPrefs = await SharedPreferences.getInstance();
+  static Future<bool> init() async
+  {
+    _myPrefs = await SharedPreferences.getInstance();
+    return true;
+  }
 
 
   static setWalkthroughBooleanValue(bool value) async {
