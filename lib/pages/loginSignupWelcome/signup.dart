@@ -6,6 +6,8 @@ import '../../utils/background.dart';
 import '../../utils/color.dart';
 import 'package:email_validator/email_validator.dart';
 
+import '../google_signup.dart';
+
 class SignUpScreen extends StatefulWidget {
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
@@ -120,6 +122,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                   ),
+                  Text("Or"),
+                  GoogleSignUp(),
                   _buildLoginText(),
                 ],
               ),

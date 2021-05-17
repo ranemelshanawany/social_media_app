@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import '../../utils/color.dart';
 import 'package:email_validator/email_validator.dart';
 import '../../utils/styles.dart';
+import '../google_signup.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -97,6 +98,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
               }),
               SizedBox(height: size.height * 0.03),
+              Text("Or"),
+              GoogleSignUp(),
               _buildSignUpText()
             ],
           ),
