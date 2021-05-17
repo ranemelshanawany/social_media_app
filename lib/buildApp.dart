@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_socialmedia/utils/shared_prefs.dart';
@@ -55,6 +56,8 @@ class _BuildAppState extends State<BuildApp> {
       if (loggedIn) return '/navigation';
       return '/welcome';
     }
+    // FirebaseCrashlytics.instance.crash(); // will crash the currently running application.
+    // Need to manually re-run your application on your emulator for Crashlytics to submit the crash report.
     return '/walkthrough';
   }
 }
