@@ -1,5 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../utils/shared_prefs.dart';
+import 'package:project_socialmedia/utils/dialog_widget.dart';
 import '../../utils/background.dart';
 import 'package:flutter_svg/svg.dart';
 import '../../utils/color.dart';
@@ -19,10 +20,37 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _passValidate = false;
   bool _emailValidate = false;
 
+  FirebaseAuth auth = FirebaseAuth.instance;
+
+  Future<void> logInUser() async {
+    try {
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(email: _email.text, password: _password.text);
+      print(userCredential);
+      Navigator.of(context).pushNamedAndRemoveUntil('/navigation', (Route<dynamic> route) => false);
+
+    } on FirebaseAuthException catch (e) {
+      showMyDialog(title: "Cannot Login", context: context, closer: "Ok", message: e.message);
+    }
+  }
+
   void dispose() {
     _email.dispose();
     _password.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    auth.authStateChanges().listen((User user) {
+      if (user == null)
+        print("User is signed out");
+      else {
+        print("User is signed in");
+      }
+    });
   }
 
   @override
@@ -65,9 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 if(!_passValidate && !_emailValidate)
                 {
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil('/navigation', (Route<dynamic> route) => false);
-                }
+                  logInUser();}
 
               }),
               SizedBox(height: size.height * 0.03),

@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/utils/dialog_widget.dart';
 import '../../utils/styles.dart';
 import '../../utils/background.dart';
 import '../../utils/color.dart';
@@ -19,6 +21,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String Username;
   String pass2;
   final _formKey = GlobalKey<FormState>();
+
+  FirebaseAuth auth = FirebaseAuth.instance;
+
+  Future<void> signUpUser() async {
+    try {
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(email: mail, password: pass);
+      print(userCredential);
+      var user = FirebaseAuth.instance.currentUser;
+      user.updateProfile(
+        displayName: name,
+      );
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil('/navigation', (Route<dynamic> route) => false);
+    } on FirebaseAuthException catch (e) {
+      showMyDialog(title: "Cannot Sign Up", context: context, closer: "Ok", message: e.message);
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    auth.authStateChanges().listen((User user) {
+      if (user == null)
+        print("User is signed out");
+      else {
+        print("User is signed in");
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,8 +140,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           if (_formKey.currentState.validate())
           {
             _formKey.currentState.save();
-            Navigator.of(context)
-                .pushNamedAndRemoveUntil('/navigation', (Route<dynamic> route) => false);
+            signUpUser();
             //TODO add actual signup
           }
         },
