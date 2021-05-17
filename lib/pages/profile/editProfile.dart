@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../utils/color.dart';
 import '../settings.dart';
@@ -20,9 +21,16 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
+
+  FirebaseAuth auth = FirebaseAuth.instance;
+  User user;
+
   bool showPassword = false;
   @override
   Widget build(BuildContext context) {
+
+    user = auth.currentUser;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -103,7 +111,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               SizedBox(
                 height: 35,
               ),
-              buildTextField("Full Name", "John F.", false),
+              buildTextField("Full Name", user.displayName, false),
               buildTextField("Username", "@JohnF.", false),
               buildTextField("Biography", "Satan se cache dans les détails", false),
               buildTextField("Password", "********", true),

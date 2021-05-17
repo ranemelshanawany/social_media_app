@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../utils/color.dart';
 import 'postCard.dart';
@@ -10,6 +11,9 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   int postCount = 0;
+
+  FirebaseAuth auth = FirebaseAuth.instance;
+  User user;
 
   List<Post> posts = [
     Post(text: 'First post', date: '18 April 21', likes: 50, comments: 5),
@@ -30,6 +34,8 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
+    user = auth.currentUser;
+
     return Scaffold(
         backgroundColor: Colors.grey[200],
         floatingActionButton: FloatingActionButton(
@@ -78,25 +84,9 @@ class _ProfileState extends State<Profile> {
 
   _buildTextColumnAndEditProfile()
   {
-    return Stack(
-      children: [
-        _buildEditProfileButton(),
-        _buildInformationTextColumn()
-      ],
-    );
+    return _buildInformationTextColumn();
   }
 
-  _buildEditProfileButton()
-  {
-    return Positioned(
-        top: 0,
-        right: 0,
-        child: IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: (){
-              Navigator.of(context).pushNamed('/editProfile');
-            }));
-  }
 
   _buildInformationTextColumn() {
     return Container(
@@ -105,7 +95,7 @@ class _ProfileState extends State<Profile> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'John F.',
+            user.displayName,
             style: TextStyle(
               fontFamily: 'BrandonText',
               fontSize: 28.0,
@@ -133,7 +123,7 @@ class _ProfileState extends State<Profile> {
               ),
               SizedBox(width: 8.0),
               Text(
-                'JohnF@gmail.com',
+                user.email,
                 style: TextStyle(
                   fontFamily: 'BrandonText',
                   fontSize: 14.0,

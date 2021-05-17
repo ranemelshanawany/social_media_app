@@ -39,7 +39,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
       AppBar(title: Center(child: Text("Feed")), backgroundColor: AppColors.primary,),
       AppBar(title: Center(child: Text("Explore")), backgroundColor: AppColors.primary,),
       AppBar(title: Center(child: Text("Notifications")), backgroundColor: AppColors.primary,),
-      AppBar(title: Center(child: Text("Profile")), backgroundColor: AppColors.primary,),
+      AppBar(title: Center(child: Text("Profile")), backgroundColor: AppColors.primary, actions: <Widget>[_buildEditProfileButton()],),
     ];
 
 
@@ -96,4 +96,14 @@ class _BottomNavigatorState extends State<BottomNavigator> {
     }
     return Future.value(true);
   }
- }
+
+  _buildEditProfileButton()
+  {
+    return IconButton(
+        icon: Icon(Icons.edit, color: Colors.white,),
+        onPressed: (){
+          Navigator.of(context).pushNamed('/editProfile');
+        });
+  }
+
+}
