@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +12,36 @@ import '../../utils/styles.dart';
 import '../google_signup.dart';
 
 class LoginScreen extends StatefulWidget {
+
+  const LoginScreen({this.analytics,this.observer});
+
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
+  String _message = '';
+
+  void setMessage(String msg){
+    setState(() {
+      _message = msg;
+    });
+  }
+  Future<void> _setLogEvent() async{
+    await widget.analytics.logEvent(
+        name: 'Login_Page',
+        parameters: <String,dynamic> {
+          'string': 'login'
+        }
+    );
+    setMessage('Login page log event succeeded');
+
+  }
+
   bool _isObscured = true;
 
   final _email = TextEditingController();

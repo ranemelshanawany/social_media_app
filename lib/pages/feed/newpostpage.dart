@@ -1,7 +1,15 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import '../../utils/color.dart';
 
 class NewPost extends StatefulWidget {
+
+  const NewPost({this.analytics,this.observer});
+
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   @override
   _NewPostState createState() => _NewPostState();
 }

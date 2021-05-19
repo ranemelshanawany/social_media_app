@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import '../../utils/background.dart';
 import '../../utils/color.dart';
@@ -6,11 +8,34 @@ import '../../utils/shared_prefs.dart';
 
 
 class WelcomeScreen extends StatefulWidget {
+
+  const WelcomeScreen({this.analytics,this.observer});
+
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
+
+  String _message = '';
+
+  void setMessage(String msg){
+    setState(() {
+      _message = msg;
+    });
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Welcome_Page',
+        parameters: <String, dynamic>{
+          'string': 'welcome'
+        }
+    );
+    setMessage('Welcome page log event succeeded');
+  }
 
   @override
   void initState() {

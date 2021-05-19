@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,12 @@ import '../../utils/color.dart';
 import 'post_card.dart';
 
 class Feed extends StatefulWidget {
+
+  Feed({this.analytics,this.observer});
+
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   TextEditingController textController = TextEditingController();
 
   @override
@@ -12,6 +20,35 @@ class Feed extends StatefulWidget {
 }
 
 class _FeedState extends State<Feed> {
+
+  String _message = '';
+
+  void setMessage(String msg){
+    setState(() {
+      _message = msg;
+    });
+
+  }
+
+  Future<void> _setLogEvent() async{
+    await widget.analytics.logEvent(
+        name: 'new_post_page',
+        parameters: <String,dynamic> {
+          'string': 'new_post'
+        }
+    );
+    setMessage('New post page log event succeeded');
+  }
+
+  Future<void> _firebase_event_origin() async{
+    await widget.analytics.logEvent(
+        name: 'new_post_page',
+        parameters: <String,dynamic> {
+          'string': 'new_post'
+        }
+    );
+    setMessage('New post page log event succeeded');
+  }
 
   List<bool> _selection = [true, false];
   final _formKey = GlobalKey<FormState>();

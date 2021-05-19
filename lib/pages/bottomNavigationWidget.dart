@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../utils/color.dart';
@@ -8,6 +10,12 @@ import 'profile/profilepage.dart';
 import '../utils/shared_prefs.dart';
 
 class BottomNavigator extends StatefulWidget {
+
+  const BottomNavigator({this.analytics,this.observer});
+
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   @override
   _BottomNavigatorState createState() => _BottomNavigatorState();
 }

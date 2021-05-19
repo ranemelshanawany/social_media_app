@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
@@ -5,6 +7,12 @@ import 'package:flutter/material.dart';
 import '../utils/color.dart';
 
 class SettingsPage extends StatefulWidget {
+
+  const SettingsPage({this.analytics,this.observer});
+
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }

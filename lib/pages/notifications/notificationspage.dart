@@ -1,8 +1,16 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import '../../models/Notifications.dart';
 import 'NotificationCard.dart';
 
 class NotificationsPage extends StatefulWidget {
+
+  const NotificationsPage({this.analytics,this.observer});
+
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   @override
   _NotificationsState createState() => _NotificationsState();
 }
@@ -30,6 +38,24 @@ List <Notifications> notifications =[
 ];
 
 class _NotificationsState extends State<NotificationsPage> {
+
+  String _message = '';
+
+  void setMessage(String msg){
+    setState(() {
+      _message = msg;
+    });
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Notifications_Page',
+        parameters: <String, dynamic>{
+          'string': 'notifications'
+        }
+    );
+    setMessage('Notifications page log event succeeded');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

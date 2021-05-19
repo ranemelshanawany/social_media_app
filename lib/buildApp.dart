@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +17,7 @@ import 'pages/profile/editProfile.dart';
 import 'utils/color.dart';
 
 class BuildApp extends StatefulWidget {
+
   @override
   _BuildAppState createState() => _BuildAppState();
 }
@@ -23,6 +26,10 @@ class _BuildAppState extends State<BuildApp> {
 
   bool openedBefore = false;
   bool loggedIn = false;
+
+  static FirebaseAnalytics analytics = FirebaseAnalytics();
+  static FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
+
 
   @override
   void initState() {
@@ -37,15 +44,15 @@ class _BuildAppState extends State<BuildApp> {
             initialRoute: getInitialRoute(),
             theme: ThemeData(primaryColor: AppColors.primary),
             routes: {
-              '/walkthrough': (context) => WalkThrough(),
-              '/signup': (context) => SignUpScreen(),
-              '/login': (context) => LoginScreen(),
-              '/welcome': (context) => WelcomeScreen(),
-              '/navigation': (context) => BottomNavigator(),
-              '/explore/search': (context) => SearchPage(),
-              '/newpost': (context) => NewPost(),
-              '/feed': (context) => Feed(),
-              '/editProfile': (context) => EditProfilePage(),
+              '/walkthrough': (context) => WalkThrough(analytics: analytics,observer: observer),
+              '/signup': (context) => SignUpScreen(analytics: analytics,observer: observer),
+              '/login': (context) => LoginScreen(analytics: analytics,observer: observer),
+              '/welcome': (context) => WelcomeScreen(analytics: analytics,observer: observer),
+              '/navigation': (context) => BottomNavigator(analytics: analytics,observer: observer),
+              '/explore/search': (context) => SearchPage(analytics: analytics,observer: observer),
+              '/newpost': (context) => NewPost(analytics: analytics,observer: observer),
+              '/feed': (context) => Feed(analytics: analytics,observer: observer),
+              '/editProfile': (context) => EditProfilePage(analytics: analytics,observer: observer),
             },
             debugShowCheckedModeBanner: false,
           );

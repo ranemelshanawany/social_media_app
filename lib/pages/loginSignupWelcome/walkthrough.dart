@@ -1,13 +1,38 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import '../../utils/color.dart';
 import '../../utils/styles.dart';
 
 class WalkThrough extends StatefulWidget {
+
+  const WalkThrough({this.analytics,this.observer});
+
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
   @override
   _WalkThroughState createState() => _WalkThroughState();
 }
 
-class _WalkThroughState extends State {
+class _WalkThroughState extends State<WalkThrough> {
+
+  String _message = '';
+
+  void setMessage(String msg){
+    setState(() {
+      _message = msg;
+    });
+  }
+  Future<void> _setLogEvent() async {
+    await widget.analytics.logEvent(
+        name: 'Walkthrough',
+        parameters: <String, dynamic>{
+          'string': 'walkthrough'
+        }
+    );
+    setMessage('Walkthrough page log event succeeded');
+  }
+
   int totalPage = 4;
   int curPage = 1;
 

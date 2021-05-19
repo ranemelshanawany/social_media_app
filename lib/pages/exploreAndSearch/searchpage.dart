@@ -1,11 +1,39 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 
 class SearchPage extends StatefulWidget {
+
+  const SearchPage({this.analytics,this.observer});
+
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   @override
   _SearchPageState createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
+
+  String _message = '';
+
+  void setMessage(String msg){
+    setState(() {
+      _message = msg;
+    });
+
+  }
+
+  Future<void> _setLogEvent() async{
+    await widget.analytics.logEvent(
+        name: 'Search_Page',
+        parameters: <String,dynamic> {
+          'string': 'search'
+        }
+    );
+    setMessage('Search page log event succeeded');
+
+  }
 
   String query = "";
   final searchController = TextEditingController();

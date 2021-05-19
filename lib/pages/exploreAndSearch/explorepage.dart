@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import '../../models/Comments.dart';
 import '../../models/User.dart';
@@ -8,6 +10,12 @@ import '../../models/Post.dart';
 import 'postpage.dart';
 
 class Explore extends StatefulWidget {
+
+  const Explore({this.analytics,this.observer});
+
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   @override
   _ExploreState createState() => _ExploreState();
 }
