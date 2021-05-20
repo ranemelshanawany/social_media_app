@@ -3,6 +3,7 @@ import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/utils/crashlytics.dart';
 import 'package:project_socialmedia/utils/dialog_widget.dart';
 import '../../utils/background.dart';
 import 'package:flutter_svg/svg.dart';
@@ -25,6 +26,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
 
   String _message = '';
+  FirebaseCrashlytics crashlytics = FirebaseCrashlytics.instance;
 
   void setMessage(String msg){
     setState(() {
@@ -54,6 +56,10 @@ class _LoginScreenState extends State<LoginScreen> {
     // TODO: implement initState
     super.initState();
     _setLogEvent();
+    //enableCrashlytics();
+    crashlytics.setUserIdentifier('anonymous');
+    crashlytics.setCustomKey('isLoggedIn', false);
+    crashlytics.setCustomKey('userID', 202002);
     _setCurrentScreen();
     auth.authStateChanges().listen((User user) {
       if (user == null)
@@ -179,6 +185,11 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: EdgeInsets.symmetric(vertical: 20, horizontal: 40),
           color: AppColors.primary,
           onPressed: press,
+          /* onPressed: (){
+            //crashlytics.crash();
+            customCrashLog("Login button crushed!");
+            crashApp();
+          },*/
           child: Text(
             text,
             style: buttonSignup,
