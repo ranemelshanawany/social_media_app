@@ -39,7 +39,29 @@ class _LoginScreenState extends State<LoginScreen> {
         }
     );
     setMessage('Login page log event succeeded');
+  }
 
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'Login_Page',
+        screenClassOverride: 'Login_Page'
+
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
+    auth.authStateChanges().listen((User user) {
+      if (user == null)
+        print("User is signed out");
+      else {
+        print("User is signed in");
+      }
+    });
   }
 
   bool _isObscured = true;
@@ -68,22 +90,10 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-
-    auth.authStateChanges().listen((User user) {
-      if (user == null)
-        print("User is signed out");
-      else {
-        print("User is signed in");
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
+    
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: Background(

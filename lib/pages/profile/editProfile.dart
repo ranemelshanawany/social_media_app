@@ -33,6 +33,31 @@ class _EditProfilePageState extends State<EditProfilePage> {
   FirebaseAuth auth = FirebaseAuth.instance;
   User user;
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
+  }
+
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'Edit_Profile_Page',
+        screenClassOverride: 'Edit_Profile_Page'
+
+    );
+  }
+
+  Future<void> _setLogEvent() async{
+    await widget.analytics.logEvent(
+        name: 'Edit_Profile_Page',
+        parameters: <String,dynamic> {
+          'string': 'Edit_Profile_Page'
+        }
+    );
+  }
+
   bool showPassword = false;
   @override
   Widget build(BuildContext context) {

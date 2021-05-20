@@ -1,3 +1,5 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
@@ -6,11 +8,43 @@ import 'postCard.dart';
 import '../../models/Post.dart';
 
 class Profile extends StatefulWidget {
+
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   @override
   _ProfileState createState() => _ProfileState();
+
+  Profile({this.analytics, this.observer});
 }
 
 class _ProfileState extends State<Profile> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
+  }
+
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'Profile_Page',
+        screenClassOverride: 'Profile_Page'
+
+    );
+  }
+
+  Future<void> _setLogEvent() async{
+    await widget.analytics.logEvent(
+        name: 'Profile_Page',
+        parameters: <String,dynamic> {
+          'string': 'Profile_Page'
+        }
+    );
+  }
+
   int postCount = 0;
 
   FirebaseAuth auth = FirebaseAuth.instance;

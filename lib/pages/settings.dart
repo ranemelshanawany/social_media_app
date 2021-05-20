@@ -22,6 +22,31 @@ class _SettingsPageState extends State<SettingsPage> {
   FirebaseAuth auth = FirebaseAuth.instance;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
+  }
+
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'Settings_Page',
+        screenClassOverride: 'Settings_Page'
+
+    );
+  }
+
+  Future<void> _setLogEvent() async{
+    await widget.analytics.logEvent(
+        name: 'Settings_Page',
+        parameters: <String,dynamic> {
+          'string': 'Settings_Page'
+        }
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

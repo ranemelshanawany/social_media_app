@@ -23,6 +23,31 @@ class Explore extends StatefulWidget {
 class _ExploreState extends State<Explore> {
   List<bool> _selection = [true, false];
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
+  }
+
+  Future<void> _setLogEvent() async{
+    await widget.analytics.logEvent(
+        name: 'Explore_page',
+        parameters: <String,dynamic> {
+          'string': 'Explore_page'
+        }
+    );
+  }
+
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'Explore_page',
+        screenClassOverride: 'Explore_page'
+
+    );
+  }
+
   static List<Comment> commentsList = [
     Comment(
         content: "I agree!",
@@ -142,7 +167,7 @@ class _ExploreState extends State<Explore> {
                 imagePosts.length,
                 (indexx) => OpenContainer(
                       openBuilder: (context, index) =>
-                          PostPage(imagePosts[indexx]),
+                          PostPage(imagePosts[indexx], widget.analytics, widget.observer),
                       closedBuilder: (context, VoidCallback openContainer) =>
                           _buildGridItem(indexx, openContainer),
                       transitionType: ContainerTransitionType.fade,

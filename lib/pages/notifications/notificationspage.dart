@@ -39,21 +39,29 @@ List <Notifications> notifications =[
 
 class _NotificationsState extends State<NotificationsPage> {
 
-  String _message = '';
-
-  void setMessage(String msg){
-    setState(() {
-      _message = msg;
-    });
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
   }
-  Future<void> _setLogEvent() async {
+
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'Notifications_Page',
+        screenClassOverride: 'Notifications_Page'
+
+    );
+  }
+
+  Future<void> _setLogEvent() async{
     await widget.analytics.logEvent(
         name: 'Notifications_Page',
-        parameters: <String, dynamic>{
+        parameters: <String,dynamic> {
           'string': 'notifications'
         }
     );
-    setMessage('Notifications page log event succeeded');
   }
 
   @override

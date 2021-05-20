@@ -23,21 +23,21 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
 
-  String _message = '';
-
-  void setMessage(String msg){
-    setState(() {
-      _message = msg;
-    });
-  }
-  Future<void> _setLogEvent() async {
+  Future<void> _setLogEvent() async{
     await widget.analytics.logEvent(
-        name: 'Signup_Page',
-        parameters: <String, dynamic>{
+        name: 'SignUp_page',
+        parameters: <String,dynamic> {
           'string': 'signup'
         }
     );
-    setMessage('Signup page log event succeeded');
+  }
+
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'SignUp_page',
+        screenClassOverride: 'SignUp_page'
+
+    );
   }
 
   bool _isObscured = true;
@@ -70,6 +70,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
 
     auth.authStateChanges().listen((User user) {
       if (user == null)

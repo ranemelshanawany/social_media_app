@@ -17,10 +17,14 @@ class BottomNavigator extends StatefulWidget {
   final FirebaseAnalyticsObserver observer;
 
   @override
-  _BottomNavigatorState createState() => _BottomNavigatorState();
+  _BottomNavigatorState createState() => _BottomNavigatorState(analytics, observer);
 }
 
 class _BottomNavigatorState extends State<BottomNavigator> {
+  _BottomNavigatorState(this.analytics,this.observer);
+
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
 
   DateTime currentBackPressTime;
 
@@ -37,10 +41,10 @@ class _BottomNavigatorState extends State<BottomNavigator> {
   Widget build(BuildContext context) {
 
     final List<Widget> _widgetOptions = <Widget>[
-      Feed(),
-      Explore(),
-      NotificationsPage(),
-      Profile(),
+      Feed(analytics: analytics,observer: observer),
+      Explore(analytics: analytics,observer: observer),
+      NotificationsPage(analytics: analytics,observer: observer),
+      Profile(analytics: analytics,observer: observer),
     ];
 
     final List<Widget> appBars = [

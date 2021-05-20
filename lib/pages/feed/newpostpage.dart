@@ -18,6 +18,31 @@ class _NewPostState extends State<NewPost> {
 
   Size size;
 
+  Future<void> _setLogEvent() async{
+    await widget.analytics.logEvent(
+        name: 'New_Post_Page',
+        parameters: <String,dynamic> {
+          'string': 'new_post'
+        }
+    );
+  }
+
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'New_Post_Page',
+        screenClassOverride: 'New_Post_Page'
+
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
+  }
+
   @override
   Widget build(BuildContext context) {
 

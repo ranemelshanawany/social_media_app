@@ -15,23 +15,31 @@ class WalkThrough extends StatefulWidget {
 }
 
 class _WalkThroughState extends State<WalkThrough> {
-
-  String _message = '';
-
-  void setMessage(String msg){
-    setState(() {
-      _message = msg;
-    });
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
   }
-  Future<void> _setLogEvent() async {
+
+  Future<void> _setLogEvent() async{
     await widget.analytics.logEvent(
-        name: 'Walkthrough',
-        parameters: <String, dynamic>{
-          'string': 'walkthrough'
+        name: 'walkthrough_page',
+        parameters: <String,dynamic> {
+          'string': 'walkthrough_page'
         }
     );
-    setMessage('Walkthrough page log event succeeded');
   }
+
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'walkthrough_page',
+        screenClassOverride: 'walkthrough_page'
+
+    );
+  }
+
 
   int totalPage = 4;
   int curPage = 1;

@@ -41,6 +41,7 @@ class _BuildAppState extends State<BuildApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+            navigatorObservers: <NavigatorObserver>[observer],
             initialRoute: getInitialRoute(),
             theme: ThemeData(primaryColor: AppColors.primary),
             routes: {

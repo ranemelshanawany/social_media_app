@@ -32,7 +32,22 @@ class _SearchPageState extends State<SearchPage> {
         }
     );
     setMessage('Search page log event succeeded');
+  }
 
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'Search_Page',
+        screenClassOverride: 'Search_Page'
+
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
   }
 
   String query = "";

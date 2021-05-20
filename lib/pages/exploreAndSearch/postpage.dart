@@ -1,12 +1,17 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import '../../utils/color.dart';
 import '../../models/Post.dart';
 
 class PostPage extends StatefulWidget {
 
+  final FirebaseAnalytics analytics;
+  final FirebaseAnalyticsObserver observer;
+
   final ImagePost post;
 
-  PostPage(this.post);
+  PostPage(this.post, this.analytics,this.observer);
 
   @override
   _PostPageState createState() => _PostPageState(post);
@@ -14,6 +19,31 @@ class PostPage extends StatefulWidget {
 
 class _PostPageState extends State<PostPage> {
   ImagePost post;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
+  }
+
+  Future<void> _setLogEvent() async{
+    await widget.analytics.logEvent(
+        name: 'Image_post_Page',
+        parameters: <String,dynamic> {
+          'string': 'Image_post_Page'
+        }
+    );
+  }
+
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'Image_post_Page',
+        screenClassOverride: 'Image_post_Page'
+
+    );
+  }
 
   _PostPageState(this.post);
 

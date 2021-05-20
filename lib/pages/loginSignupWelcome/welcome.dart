@@ -20,27 +20,29 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
 
-  String _message = '';
-
-  void setMessage(String msg){
-    setState(() {
-      _message = msg;
-    });
-  }
-  Future<void> _setLogEvent() async {
+  Future<void> _setLogEvent() async{
     await widget.analytics.logEvent(
         name: 'Welcome_Page',
-        parameters: <String, dynamic>{
-          'string': 'welcome'
+        parameters: <String,dynamic> {
+          'string': 'Welcome_Page'
         }
     );
-    setMessage('Welcome page log event succeeded');
+  }
+
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'Welcome_Page',
+        screenClassOverride: 'Welcome_Page'
+
+    );
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
     MySharedPreferences.setWalkthroughBooleanValue(true);
     print(MySharedPreferences.getWalkthroughBooleanValue());
     MySharedPreferences.setLoginBooleanValue(false);

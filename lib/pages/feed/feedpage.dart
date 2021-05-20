@@ -21,33 +21,30 @@ class Feed extends StatefulWidget {
 
 class _FeedState extends State<Feed> {
 
-  String _message = '';
 
-  void setMessage(String msg){
-    setState(() {
-      _message = msg;
-    });
-
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _setLogEventFeed();
+    _setCurrentScreen();
   }
 
-  Future<void> _setLogEvent() async{
+  Future<void> _setLogEventFeed() async{
     await widget.analytics.logEvent(
-        name: 'new_post_page',
+        name: 'Feed_Page',
         parameters: <String,dynamic> {
-          'string': 'new_post'
+          'string': 'feed_page'
         }
     );
-    setMessage('New post page log event succeeded');
   }
 
-  Future<void> _firebase_event_origin() async{
-    await widget.analytics.logEvent(
-        name: 'new_post_page',
-        parameters: <String,dynamic> {
-          'string': 'new_post'
-        }
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'Feed_Page',
+        screenClassOverride: 'Feed_Page'
+
     );
-    setMessage('New post page log event succeeded');
   }
 
   List<bool> _selection = [true, false];
