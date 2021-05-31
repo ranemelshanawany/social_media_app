@@ -1,11 +1,11 @@
-class User {
+class AppUser {
   final String username;
   final String email;
   final String photoUrl;
   final String displayName;
   final String bio;
 
-  User ({
+  AppUser ({
     this.username,
     this.email,
     this.photoUrl,

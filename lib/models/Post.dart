@@ -7,7 +7,7 @@ class Post {
   int likes;
   int comments;
   List<Comment> commentsList;
-  User user;
+  AppUser user;
 
   Post({ this.text, this.date, this.likes, this.comments, this.commentsList, this.user });
 }

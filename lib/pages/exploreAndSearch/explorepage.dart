@@ -52,13 +52,13 @@ class _ExploreState extends State<Explore> {
   static List<Comment> commentsList = [
     Comment(
         content: "I agree!",
-        user: User(
+        user: AppUser(
             username: "username2",
             photoUrl:
                 "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png")),
     Comment(
         content: "The best",
-        user: User(
+        user: AppUser(
             username: "username3",
             photoUrl:
                 "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png")),
@@ -73,14 +73,14 @@ class _ExploreState extends State<Explore> {
           comments: 2,
           imageURL: "https://picsum.photos/id/237/400",
           commentsList: commentsList,
-      user: User(
+      user: AppUser(
           username: "username",
           photoUrl:
           "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg")));
 
   List<Post> Posts = List.generate(
       10, (_) => Post(text: "This is a text post", date: "2d", likes: 4, comments: 2, commentsList: commentsList,
-      user: User(
+      user: AppUser(
           username: "username",
           photoUrl:
           "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg")));

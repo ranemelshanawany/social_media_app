@@ -3,6 +3,9 @@ import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/models/User.dart';
+import 'package:project_socialmedia/services/database.dart';
+import 'package:provider/provider.dart';
 import '../../utils/color.dart';
 import 'post_card.dart';
 
@@ -60,17 +63,20 @@ class _FeedState extends State<Feed> {
     Size size = MediaQuery.of(context).size;
     user = auth.currentUser;
 
-      return Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildNewPostCard(size),
-            ],
-          ),
-          Divider(color: AppColors.primary, thickness: 1.0,),
-          _buildContentDisplay(size),
-        ],
+      return StreamProvider<List<AppUser>>.value(
+        value: DatabaseService().users,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildNewPostCard(size),
+              ],
+            ),
+            Divider(color: AppColors.primary, thickness: 1.0,),
+            _buildContentDisplay(size),
+          ],
+        ),
       );
   }
 
