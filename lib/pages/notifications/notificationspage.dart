@@ -1,9 +1,13 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import '../../models/Notifications.dart';
-import 'NotificationCard.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'notificationCard.dart';
+import 'package:project_socialmedia/services/database.dart';
+import 'package:project_socialmedia/pages/notifications/notificationStreamWrap.dart';
 
 class NotificationsPage extends StatefulWidget {
 
@@ -13,32 +17,10 @@ class NotificationsPage extends StatefulWidget {
   final FirebaseAnalyticsObserver observer;
 
   @override
-  _NotificationsState createState() => _NotificationsState();
+  _NotificationsPageState createState() => _NotificationsPageState();
 }
 
-List <String> users =['timmyturner1', 'sasukee', 'kim.possible', 'sandy1234', 'realjohnnybravo', 'ickyvicky', 'agent_p'];
-List <String> avatarURLs =[
-  'https://64.media.tumblr.com/80d49aa9c3feb0c44e911e6bc0564f57/tumblr_poffei5gem1w9meb1_540.jpg',
-  'https://pbs.twimg.com/media/CR2mwYGWsAAkEcs.jpg',
-  'https://64.media.tumblr.com/0b4efddda44b92aa600275a2029243d9/tumblr_pm5fr8r0mx1vt10pl_500.jpg',
-  'https://i.pinimg.com/originals/89/e1/23/89e123ed7fae5caa265cb6d4ac675da8.png',
-  'https://pbs.twimg.com/profile_images/2519861683/3hec14ac0k5178ouzeko_400x400.jpeg',
-  'https://i.pinimg.com/originals/86/33/17/8633173f0a5766c853c0db727a84dbc4.png',
-  'https://i.pinimg.com/originals/d2/f7/62/d2f762cb45b347768b6a569e2d20307a.png'
-];
-
-List <Notifications> notifications =[
-  Notifications(avatar: NetworkImage(avatarURLs[0]), username: users[0], type: NotificationType.followBack, date: '8m'),
-  Notifications(avatar: NetworkImage(avatarURLs[1]), username: users[1], type: NotificationType.message, date: '3h'),
-  Notifications(avatar: NetworkImage(avatarURLs[2]), username: users[2], type: NotificationType.like, date: '2d'),
-  Notifications(avatar: NetworkImage(avatarURLs[3]), username: users[3], type: NotificationType.comment, date: '3d'),
-  Notifications(avatar: NetworkImage(avatarURLs[4]), username: users[4], type: NotificationType.reshare, date: '4d'),
-  Notifications(avatar: NetworkImage(avatarURLs[5]), username: users[5], type: NotificationType.newFollow, date: '1w'),
-  Notifications(avatar: NetworkImage(avatarURLs[6]), username: users[6], type: NotificationType.followBack, date: '2w'),
-
-];
-
-class _NotificationsState extends State<NotificationsPage> {
+class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   void initState() {
@@ -73,9 +55,9 @@ class _NotificationsState extends State<NotificationsPage> {
         child: ListView(
           children: <Widget>[
             Column(
-            children: notifications.map((notification) => NotificationCard(
-              notification: notification,
-            )).toList(),
+            children: [
+              getNotifications(),
+            ],
           ),
           ]
         ),
@@ -83,3 +65,33 @@ class _NotificationsState extends State<NotificationsPage> {
     );
   }
 }
+  getNotifications() {
+    return NotificationStreamWrapper(
+        shrinkWrap: true,
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        stream: DatabaseService(uid: firebaseAuth.currentUser.uid).notificationCollection
+            .doc(firebaseAuth.currentUser.uid)
+            .collection('notifications')
+            .orderBy('date', descending: true)
+            .limit(20)
+            .snapshots(),
+        physics: NeverScrollableScrollPhysics(),
+        itemBuilder: (_, DocumentSnapshot snapshot) {
+          Notifications notifications = Notifications.fromJson(snapshot.data());
+          return NotificationCard(
+            notifications: notifications
+          );
+        });
+  }
+
+  deleteAllItems() async {
+    QuerySnapshot notificationsSnap = await DatabaseService(uid: firebaseAuth.currentUser.uid).notificationCollection
+        .doc(firebaseAuth.currentUser.uid)
+        .collection('notifications')
+        .get();
+    notificationsSnap.docs.forEach((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+  }

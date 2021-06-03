@@ -1,11 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project_socialmedia/models/User.dart'; // add user package
+import 'package:firebase_auth/firebase_auth.dart';
+
+FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
 class DatabaseService{
 
   final String uid;
   DatabaseService({this.uid});
+
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
+  final CollectionReference notificationCollection = FirebaseFirestore.instance.collection('notifications');
 
   Future<void> createUserData(String username, String email, String photoUrl, String displayName, String bio) async{
     return await userCollection.doc(uid).set({
