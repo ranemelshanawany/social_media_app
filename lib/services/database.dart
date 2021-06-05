@@ -6,6 +6,7 @@ class DatabaseService{
   final String uid;
   DatabaseService({this.uid});
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
+  final CollectionReference postsCollection = FirebaseFirestore.instance.collection('posts');
 
   Future<void> createUserData(String username, String email, String photoUrl, String displayName, String bio) async{
     return await userCollection.doc(uid).set({
