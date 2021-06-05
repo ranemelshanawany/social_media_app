@@ -1,5 +1,7 @@
 import 'Comments.dart';
 import 'User.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class Post {
   String text;

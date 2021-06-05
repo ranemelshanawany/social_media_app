@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project_socialmedia/models/User.dart'; // add user package
 import 'package:firebase_auth/firebase_auth.dart';
 
+
 FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
 class DatabaseService{
@@ -9,6 +10,7 @@ class DatabaseService{
   final String uid;
   DatabaseService({this.uid});
 
+  final CollectionReference postCollection = FirebaseFirestore.instance.collection('posts');
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
   final CollectionReference notificationCollection = FirebaseFirestore.instance.collection('notifications');
 
@@ -22,6 +24,17 @@ class DatabaseService{
     });
 
   }
+
+  List<AppUser> _usernameFromSnapshot (QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc){
+      return AppUser(
+        username: doc['name'] ?? '',
+      );
+    }).toList();
+
+  }
+
+
 
   List<AppUser> _userListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc){
@@ -38,4 +51,7 @@ class DatabaseService{
   Stream<List<AppUser>> get users {
     return userCollection.snapshots().map(_userListFromSnapshot);
   }
+
+
 }
+

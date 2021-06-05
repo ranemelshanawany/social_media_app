@@ -1,9 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+
+
 class AppUser {
-  final String username;
-  final String email;
-  final String photoUrl;
-  final String displayName;
-  final String bio;
+   String username;
+   String email;
+   String photoUrl;
+   String displayName;
+   String bio;
 
   AppUser ({
     this.username,
@@ -12,5 +16,27 @@ class AppUser {
     this.displayName,
     this.bio,
     }
-   );
+    );
+
+   AppUser.fromJson(Map<String, dynamic> json) {
+     username = json['username'];
+     email = json['email'];
+     photoUrl = json['photoUrl'];
+     bio = json['bio'];
+     displayName = json['displayname'];
+   }
+
+   Map<String, dynamic> toJson() {
+     final Map<String, dynamic> data = new Map<String, dynamic>();
+     data['username'] = this.username;
+     data['email'] = this.email;
+     data['photoUrl'] = this.photoUrl;
+     data['bio'] = this.bio;
+     data['displayName'] = this.displayName;
+
+     return data;
+   }
+
+
+
  }

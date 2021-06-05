@@ -3,9 +3,14 @@ import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/models/User.dart';
 import '../../utils/color.dart';
 import 'postCard.dart';
 import '../../models/Post.dart';
+import 'package:project_socialmedia/models/User.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project_socialmedia/services/database.dart';
+
 
 class Profile extends StatefulWidget {
 
@@ -51,6 +56,7 @@ class _ProfileState extends State<Profile> {
 
   FirebaseAuth auth = FirebaseAuth.instance;
   User user;
+  AppUser users;
 
   List<Post> posts = [
     Post(text: 'First post', date: '18 April 21', likes: 50, comments: 5),
@@ -126,52 +132,62 @@ class _ProfileState extends State<Profile> {
 
 
   _buildInformationTextColumn() {
-    return Container(
-      width: size.width - 130,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            user.displayName,
-            style: TextStyle(
-              fontFamily: 'BrandonText',
-              fontSize: 28.0,
-              fontWeight: FontWeight.w500,
-              color: AppColors.headingColor,
-            ),
-          ),
-          SizedBox(
-            height: 10.0,
-          ),
-          Text(
-            '@JohnF',
-            style: TextStyle(
-              fontFamily: 'BrandonText',
-              fontSize: 18.0,
-              fontWeight: FontWeight.w400,
-              color: AppColors.textColor,
-            ),
-          ),
-          Row(
-            children: <Widget>[
-              Icon(
-                Icons.email,
-                color: AppColors.primary,
-              ),
-              SizedBox(width: 8.0),
-              Text(
-                user.email,
-                style: TextStyle(
-                  fontFamily: 'BrandonText',
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.w400,
-                  color: AppColors.textColor,
+    return StreamBuilder(
+      stream: DatabaseService(uid: firebaseAuth.currentUser.uid).userCollection.doc(firebaseAuth.currentUser.uid).snapshots(),
+      builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasData) {
+          AppUser user = AppUser.fromJson(snapshot.data.data());}
+
+
+          return Container(
+            width: size.width - 130,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  user.displayName,
+                  style: TextStyle(
+                    fontFamily: 'BrandonText',
+                    fontSize: 28.0,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.headingColor,
+                  ),
                 ),
-              )
-            ],
-          ),
-        ],
-      ),
+                SizedBox(
+                  height: 10.0,
+                ),
+                Text(
+                  user?.uid,
+                  style: TextStyle(
+                    fontFamily: 'BrandonText',
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textColor,
+                  ),
+                ),
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.email,
+                      color: AppColors.primary,
+                    ),
+                    SizedBox(width: 8.0),
+                    Text(
+                      user.email,
+                      style: TextStyle(
+                        fontFamily: 'BrandonText',
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.textColor,
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          );
+
+        }
     );
   }
 
