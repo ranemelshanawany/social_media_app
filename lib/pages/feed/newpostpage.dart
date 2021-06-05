@@ -1,8 +1,12 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/models/User.dart';
+import 'package:project_socialmedia/services/database.dart';
 import '../../utils/color.dart';
+import 'package:intl/intl.dart';
 
 class NewPost extends StatefulWidget {
 
@@ -18,6 +22,60 @@ class NewPost extends StatefulWidget {
 class _NewPostState extends State<NewPost> {
 
   Size size;
+
+  AppUser getUser()
+  {
+    DatabaseService(uid: user.uid).userCollection.doc(user.uid).snapshots().listen((snapshot) {
+      setState(() {
+        appUser.username = snapshot.get("username");
+        appUser.email = snapshot.get("email");
+        appUser.photoUrl = snapshot.get("photoUrl");
+        appUser.displayName = snapshot.get("displayName");
+        appUser.bio = snapshot.get("bio");
+        userLoaded = true;
+        return appUser;
+      });
+    });
+  }
+
+  FirebaseAuth auth = FirebaseAuth.instance;
+  User user;
+  AppUser appUser = AppUser();
+
+  bool userLoaded = false;
+
+  String content;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    size = MediaQuery.of(context).size;
+
+    user = auth.currentUser;
+    if(!userLoaded)
+      getUser();
+
+
+    return Scaffold(
+    body: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildBack(),
+        _buildNewPost(),
+      ],
+    ),
+    );
+
+
+  }
 
   Future<void> _setLogEvent() async{
     await widget.analytics.logEvent(
@@ -36,31 +94,6 @@ class _NewPostState extends State<NewPost> {
     );
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _setLogEvent();
-    _setCurrentScreen();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    size = MediaQuery.of(context).size;
-    return Scaffold(
-    body: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildBack(),
-        _buildNewPost(),
-      ],
-    ),
-    );
-
-
-  }
-
   _buildBack()
   {
     return AppBar(
@@ -68,12 +101,13 @@ class _NewPostState extends State<NewPost> {
       title: Text("Create New Post"),
       leading: IconButton(
         icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white),
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () {
+          content = null;
+          Navigator.of(context).pop();},
       ),
       centerTitle: true,
     );
   }
-
 
   _buildNewPost()
   {
@@ -93,6 +127,7 @@ class _NewPostState extends State<NewPost> {
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: 10,),
@@ -103,10 +138,11 @@ class _NewPostState extends State<NewPost> {
                               CircleAvatar(backgroundImage: AssetImage('assets/images/John.jpeg'), radius: 20,),
                               SizedBox(width: 10,),
                               Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('John F.', style: TextStyle(color: Colors.grey[700] ,fontWeight: FontWeight.bold, fontSize: 18),),
+                                  Text(appUser.displayName, style: TextStyle(color: Colors.grey[700] ,fontWeight: FontWeight.bold, fontSize: 18),),
                                   SizedBox(height: 4),
-                                  Text('@JohnF', style: TextStyle(color: Colors.grey[500] ,fontWeight: FontWeight.bold, fontSize: 14),),
+                                  Text('@${appUser.username}', style: TextStyle(color: Colors.grey[500] ,fontWeight: FontWeight.bold, fontSize: 14),),
                                 ],
                               ),
                               Spacer(),
@@ -126,16 +162,6 @@ class _NewPostState extends State<NewPost> {
                                     onPressed: () {} ),
                               ),
                               SizedBox(width: 15,),
-                              RaisedButton(
-                                  color: AppColors.primary,
-                                  child: Text('Post',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  //child: Icon(Icons.add),
-                                  onPressed: () => Navigator.of(context).pop()),
                             ],
                           ),
                         ),
@@ -147,6 +173,12 @@ class _NewPostState extends State<NewPost> {
                   width: 360,
                   //height: 150,
                   child: TextField(
+                    onChanged: (value)
+                    {
+                      setState(() {
+                        content = value;
+                      });
+                    },
                     minLines: 3,
                     maxLines: 8,
                     autofocus: false,
@@ -172,15 +204,40 @@ class _NewPostState extends State<NewPost> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20,),
+                SizedBox(height: 10,),
+                Container(
+                  width: size.width*0.85,
+                  height: 40,
+                  child: RaisedButton(
+                      color: AppColors.primary,
+                      child: Text('Post',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                      //child: Icon(Icons.add),
+                      onPressed: () {
+                        post();
+                      }),
+                ),
+                SizedBox(height: 10,),
+
               ],
             ),
           ),
         ),
-
       ],
     );
 
+  }
+
+  Future<void> post() async {
+    if (content!=null) {
+      await DatabaseService(uid: user.uid).createTextPost(content, DateFormat.yMd().format(DateTime.now()));
+      content = null;
+      Navigator.of(context).pop();
+    }
   }
 
 
