@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AppUser {
-  final String username;
-  final String email;
-  final String photoUrl;
-  final String displayName;
-  final String bio;
+  String username = "";
+  String email = "";
+  String photoUrl = "";
+  String displayName = "";
+  String bio = "";
 
   AppUser ({
     this.username,
@@ -13,4 +15,12 @@ class AppUser {
     this.bio,
     }
    );
+
+  AppUser.toAppUser(DocumentSnapshot doc) {
+    username= doc['name'] ?? '';
+    email= doc['email'] ?? '';
+    photoUrl= doc['photoUrl'] ?? '';
+    displayName= doc['displayName'] ?? '';
+    bio= doc['bio'] ?? '';
+  }
  }

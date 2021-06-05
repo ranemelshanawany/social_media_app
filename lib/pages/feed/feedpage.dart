@@ -8,6 +8,7 @@ import 'package:project_socialmedia/services/database.dart';
 import 'package:provider/provider.dart';
 import '../../utils/color.dart';
 import 'post_card.dart';
+import '../../services/location.dart';
 
 class Feed extends StatefulWidget {
 
@@ -50,11 +51,26 @@ class _FeedState extends State<Feed> {
     );
   }
 
-  List<bool> _selection = [true, false];
-  final _formKey = GlobalKey<FormState>();
+  AppUser getUser()
+  {
+    DatabaseService(uid: user.uid).userCollection.doc(user.uid).snapshots().listen((snapshot) {
+      setState(() {
+        appUser.username = snapshot.get("username");
+        appUser.email = snapshot.get("email");
+        appUser.photoUrl = snapshot.get("photoUrl");
+        appUser.displayName = snapshot.get("displayName");
+        appUser.bio = snapshot.get("bio");
+        userLoaded = true;
+        return appUser;
+      });
+    });
+  }
 
   FirebaseAuth auth = FirebaseAuth.instance;
   User user;
+  AppUser appUser = AppUser();
+
+  bool userLoaded = false;
 
   get onPressed => null;
 
@@ -62,6 +78,8 @@ class _FeedState extends State<Feed> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     user = auth.currentUser;
+    if(!userLoaded)
+      getUser();
 
       return StreamProvider<List<AppUser>>.value(
         value: DatabaseService().users,
@@ -115,9 +133,9 @@ class _FeedState extends State<Feed> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(user.displayName, style: TextStyle(color: Colors.grey[700] ,fontWeight: FontWeight.bold, fontSize: 18),),
+                      Text(appUser.displayName == null? "": appUser.displayName , style: TextStyle(color: Colors.grey[700] ,fontWeight: FontWeight.bold, fontSize: 18),),
                       SizedBox(height: 4),
-                      Text('@JohnF', style: TextStyle(color: Colors.grey[500] ,fontWeight: FontWeight.bold, fontSize: 14),),
+                      Text(appUser.username == null? "" : appUser.username , style: TextStyle(color: Colors.grey[500] ,fontWeight: FontWeight.bold, fontSize: 14),),
                     ],
                   ),
                 ),

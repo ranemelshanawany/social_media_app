@@ -27,6 +27,7 @@ class NotificationStreamWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return StreamBuilder(
       stream: stream,
       builder: (context, snapshot) {
@@ -55,7 +56,9 @@ class NotificationStreamWrapper extends StatelessWidget {
             },
           );
         } else {
-          return circularProgress(context);
+          return Container(
+            height: size.height,
+              child: Center(child: circularProgress(context)));
         }
       },
     );
