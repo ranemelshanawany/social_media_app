@@ -12,10 +12,12 @@ class Profile extends StatefulWidget {
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
+  final profileID;
+
   @override
   _ProfileState createState() => _ProfileState();
 
-  Profile({this.analytics, this.observer});
+  Profile({this.profileID, this.analytics, this.observer});
 }
 
 class _ProfileState extends State<Profile> {

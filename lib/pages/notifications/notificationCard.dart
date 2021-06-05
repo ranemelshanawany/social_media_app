@@ -2,195 +2,135 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_socialmedia/utils/color.dart';
 import '../../models/Notifications.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:project_socialmedia/services/database.dart';
+import 'notificationDetails.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import 'package:project_socialmedia/utils/indicator.dart';
 
-class NotificationCard extends StatelessWidget {
+class NotificationCard extends StatefulWidget {
+  final Notifications notifications;
 
-  final Notifications notification;
-  NotificationCard({this.notification});
+  NotificationCard({this.notifications});
 
   @override
+  _NotificationCardState createState() => _NotificationCardState();
+}
+
+class _NotificationCardState extends State<NotificationCard> {
+  @override
   Widget build(BuildContext context) {
-    return Card( // wrap it (padding) with widget
-      margin:EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 8.0),
-      child: Padding(
-        padding: EdgeInsets.all(14.0), // changes the size of card
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget> [
-                Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: CircleAvatar(
-                    backgroundImage: notification.avatar,
-                    radius: 26.0,
+    return Dismissible(
+      key: ObjectKey("${widget.notifications}"),
+      background: stackBehindDismiss(),
+      direction: DismissDirection.endToStart,
+      onDismissed: (v) {
+        delete();
+      },
+      child: Column(
+        children: [
+          ListTile(
+            onTap: () {
+              Navigator.of(context).push(CupertinoPageRoute(
+                builder: (_) => NotificationDetails(notifications: widget.notifications),
+              ));
+            },
+            leading: CircleAvatar(
+              radius: 25.0,
+              backgroundImage: NetworkImage(widget.notifications.profilePic),
+            ),
+            title: RichText(
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14.0,
+                ),
+                children: [
+                  TextSpan(
+                    text: '${widget.notifications.username} ',
+                    style:
+                    TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
                   ),
-                ),
-              ],
+                  TextSpan(
+                    text: buildTextConfiguration(),
+                    style: TextStyle(fontSize: 10.0),
+                  ),
+                ],
+              ),
             ),
-            SizedBox(
-              width:200,
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(8.0,0.0,0.0,0.0),
-                          child: _buildTextContent(),
-                        ),
-                  ],
-                ),
+            subtitle: Text(
+              timeago.format(widget.notifications.date.toDate()),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                _buildInteractiveContent(),
-              ],
-            ),
-          ],
-        )
+            trailing: previewConfiguration(),
+          ),
+          Divider(),
+        ],
       ),
     );
   }
 
-  Widget _buildTextContent(){
-
-    String notificationContent;
-
-    if(notification.type == NotificationType.followBack){
-
-      notificationContent = " is now following you.";
-    }
-    else if(notification.type == NotificationType.message){
-
-      notificationContent = " sent you a new message.";
-    }
-    else if(notification.type == NotificationType.like){
-
-      notificationContent = " liked your post.";
-    }
-    else if(notification.type == NotificationType.comment){
-
-      notificationContent = " commented on your post.";
-
-    }
-    else if(notification.type == NotificationType.reshare){
-
-      notificationContent = " reshared your post.";
-    }
-    else
-      notificationContent = " is now following you.";
-
-    return RichText(
-      overflow: TextOverflow.ellipsis,
-      maxLines: 2,
-      text: TextSpan(
-        children: <TextSpan>[
-          TextSpan(
-          text: notification.username,
-          style: TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textColor)
-          ),
-          TextSpan(
-            text: notificationContent + ' ',
-            style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.w400,
-                color: AppColors.textColor)
-            ),
-          TextSpan(text: notification.date,
-                   style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.grey[600])
-          ),
-        ]
-      )
+  Widget stackBehindDismiss() {
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: EdgeInsets.only(right: 20.0),
+      color: Theme.of(context).accentColor,
+      child: Icon(
+        CupertinoIcons.delete,
+        color: Colors.white,
+      ),
     );
   }
 
-  Widget _buildInteractiveContent(){
-
-    if(notification.type == NotificationType.followBack){
-
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
-        child: OutlineButton(
-            color: Colors.white,
-            onPressed: (){},
-            child: Text('Following')
-        ),
-      );
-    }
-    else if(notification.type == NotificationType.message){
-
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(54.0, 0.0, 0.0, 0.0),
-        child: IconButton(
-            onPressed: (){},
-            icon: Icon(Icons.chat, color: AppColors.primary, size: 34.0),
-        ),
-      );
-    }
-    else if(notification.type == NotificationType.like){
-
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(52.0, 0.0, 0.0, 0.0),
-        child: SizedBox(
-          height: 52.0,
-          width: 52.0,
-          child: Image(
-              image: NetworkImage(
-              'https://i.pinimg.com/originals/a2/e2/62/a2e262ea209788c48cb41d8696b29ea4.jpg',
-              )),
-        ),
-      );
-    }
-    else if(notification.type == NotificationType.comment){
-
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(52.0, 0.0, 0.0, 0.0),
-        child: SizedBox(
-          height: 52.0,
-          width: 52.0,
-          child: Image(
-              image: NetworkImage(
-                'https://i.pinimg.com/originals/a2/e2/62/a2e262ea209788c48cb41d8696b29ea4.jpg',
-              )),
-        ),
-      );
-    }
-    else if(notification.type == NotificationType.reshare){
-
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(52.0, 0.0, 0.0, 0.0),
-        child: SizedBox(
-          height: 52.0,
-          width: 52.0,
-          child: Image(
-              image: NetworkImage(
-                'https://i.pinimg.com/originals/a2/e2/62/a2e262ea209788c48cb41d8696b29ea4.jpg',
-              )),
-        ),
-      );
-    }
-    else{
-
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(18.0, 0.0, 0.0, 0.0),
-        child: FlatButton(
-            color: Colors.blue,
-            onPressed: (){},
-            child: Text('Follow', style: TextStyle(color: Colors.white,))
-        ),
-      );
-
-    }
-
-
-
+  delete() {
+    DatabaseService(uid: firebaseAuth.currentUser.uid).notificationCollection
+        .doc(firebaseAuth.currentUser.uid)
+        .collection('notifications')
+        .doc(widget.notifications.postID)
+        .get()
+        .then((doc) => {
+      if (doc.exists)
+        {
+          doc.reference.delete(),
+        }
+    });
   }
 
+  previewConfiguration() {
+    if (widget.notifications.notificationType == "like" || widget.notifications.notificationType == "comment") {
+      return buildPreviewImage();
+    } else {
+      return Text('');
+    }
+  }
+
+  buildTextConfiguration() {
+    if (widget.notifications.notificationType == "like") {
+      return "liked your post";
+    } else if (widget.notifications.notificationType == "follow") {
+      return "is following you";
+    } else if (widget.notifications.notificationType == "comment") {
+      return "commented '${widget.notifications.notificationCont}'";
+    } else {
+      return "Error: Unknown type '${widget.notifications.notificationType}'";
+    }
+  }
+
+  buildPreviewImage() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(5.0),
+      child: CachedNetworkImage(
+        imageUrl: widget.notifications.mediaURL,
+        placeholder: (context, url) {
+          return circularProgress(context);
+        },
+        errorWidget: (context, url, error) {
+          return Icon(Icons.error);
+        },
+        height: 40.0,
+        fit: BoxFit.cover,
+        width: 40.0,
+      ),
+    );
+  }
 }
