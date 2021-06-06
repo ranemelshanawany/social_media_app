@@ -1,22 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/models/Comments.dart';
+import 'package:project_socialmedia/models/User.dart';
 import '../../utils/color.dart';
 import '../../models/Post.dart';
+import 'package:project_socialmedia/services/database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PostPage extends StatefulWidget {
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
-  final ImagePost post;
+  final ImagePost imagePost;
 
-  PostPage(this.post, this.analytics,this.observer);
+  PostPage(this.imagePost, this.analytics,this.observer);
 
   @override
-  _PostPageState createState() => _PostPageState(post);
+  _PostPageState createState() => _PostPageState(imagePost);
 }
 
 class _PostPageState extends State<PostPage> {
@@ -24,23 +27,31 @@ class _PostPageState extends State<PostPage> {
 
   _PostPageState(this.post);
 
+  User user;
   int likes = 0;
   int commentsNo = 0;
+  List<Comment> comments = [];
 
   bool liked = false;
+  bool likeFetched = false;
+
+  TextEditingController commentsController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
 
     post.likes = likes;
     post.comments = commentsNo;
+    post.commentsList = comments;
+    user = FirebaseAuth.instance.currentUser;
+    if (!likeFetched)
+      getLikedStatus(post.postID);
 
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      body: SingleChildScrollView(
+        child: Column(children: [
           _buildBack(),
           Card(
             elevation: 0,
@@ -56,29 +67,64 @@ class _PostPageState extends State<PostPage> {
               ],
             ),
           ),
-          _buildCommentsContainer(),
-          //_buildCommentsList()
-
-        ],
+          post.commentsList != null? _buildCommentsList() : Container(),
+          _buildCommenting(),
+        ],),
       ),
     );
   }
 
-  _buildCommentsContainer()
+  _buildCommenting()
   {
-    return Expanded(
-      flex: 1,
-      child: Container(
-          child: Padding(
-            padding: const EdgeInsets.only(top:12.0, left: 12, right: 12),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                post.commentsList != null? _buildCommentsList() : Container()
-              ],
-            ),
-          )
-      ),
+    return Container(
+      width: MediaQuery.of(context).size.width*0.95,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    contentPadding: EdgeInsets.all(0),
+                    title: TextField(
+                      controller: commentsController,
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        color: Colors.grey[700],
+                      ),
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(10.0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                          borderSide: BorderSide(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: AppColors.primary,
+                          ),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        hintText: "Write your comment...",
+                        hintStyle: TextStyle(
+                          fontSize: 15.0,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      maxLines: null,
+                    ),
+                    trailing: IconButton(
+                      onPressed: (){
+                        sendComment();
+                        commentsController.clear();
+                      },
+                      icon: Icon(Icons.send, color: AppColors.primary, size: 30,),
+                      padding: EdgeInsets.all(0),
+                    ),
+                  ),])
+          ],
+        )
     );
   }
 
@@ -97,20 +143,23 @@ class _PostPageState extends State<PostPage> {
 
   _buildCommentsList()
   {
-    return ListView.builder(
-      itemCount: post.commentsList.length,
-      scrollDirection: Axis.vertical,
-      shrinkWrap: true,
-      padding: EdgeInsets.all(0),
-      itemBuilder: (context, index) {
-        return Row(
-          children: [
-            Text(post.commentsList[index].user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
-            SizedBox(width: 10,),
-            Text(post.commentsList[index].content, style: TextStyle(fontSize: 16),),
-          ],
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: ListView.builder(
+        itemCount: post.commentsList.length,
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        padding: EdgeInsets.all(0),
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Text(post.commentsList[index].userCommentedOn.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+              SizedBox(width: 10,),
+              Text(post.commentsList[index].content, style: TextStyle(fontSize: 16),),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -141,6 +190,7 @@ class _PostPageState extends State<PostPage> {
           //TODO notify likee
           setState(() {
             liked = !liked;
+            sendLike();
           });
         }),
       ],
@@ -183,11 +233,35 @@ class _PostPageState extends State<PostPage> {
     );
   }
 
+  sendComment() async
+  {
+    if (commentsController.text.isNotEmpty) {
+      await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).createComment(
+        postID: post.postID,
+          content: commentsController.text,
+          userCommented: post.user.UID,
+          date: DateTime.now());
+      //DateFormat.yMd().format(DateTime.now())
+    }
+  }
+
+  sendLike() async {
+    if (liked)
+    {
+      await DatabaseService(uid: user.uid).sendLike(post.postID, post.user.UID);
+    }
+    else {
+      await DatabaseService(uid: user.uid).deleteLike(post.postID, post.user.UID);
+    }
+  }
+
+
   getLikes()
   {
     CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
     likesCollection.where("postID", isEqualTo: post.postID).snapshots().listen((value) {
       setState(() {
+        likes = 0;
         for(var doc in value.docs)
         {
           likes++;
@@ -196,16 +270,41 @@ class _PostPageState extends State<PostPage> {
     });
   }
 
-  getComments()
+  getComments() async
   {
     CollectionReference commentsCollection = FirebaseFirestore.instance.collection('comments');
     commentsCollection.where("postID", isEqualTo: post.postID).snapshots().listen((value) {
       setState(() {
+        comments = [];
+        commentsNo = 0;
         for(var doc in value.docs)
         {
+          Timestamp time = doc['date'];
+          DateTime date = DateTime.fromMicrosecondsSinceEpoch(time.microsecondsSinceEpoch);
+          Comment comment = Comment(postID: post.postID, content: doc['content'], userCommentedOn: AppUser.WithUID(doc['userCommented']),
+              userCommenting: AppUser.WithUID(doc['userCommenting']), date: date);
+          comments.add(comment);
           commentsNo++;
         }
+        comments.sort((a,b) => a.date.compareTo(b.date));
       });
+    });
+  }
+
+  getLikedStatus(String postID)
+  {
+    CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
+    likesCollection.where('liker', isEqualTo: user.uid).where('postID', isEqualTo: postID).snapshots().listen((event) {
+      if (event.size > 0) {
+        setState(() {
+          liked = true;
+          likeFetched = true;
+        });
+      }
+      else {
+        liked = false;
+      likeFetched = false;
+      }
     });
   }
 

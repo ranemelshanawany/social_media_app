@@ -31,6 +31,7 @@ class _NewPostState extends State<NewPost> {
   {
     DatabaseService(uid: user.uid).userCollection.doc(user.uid).snapshots().listen((snapshot) {
       setState(() {
+        appUser.UID = snapshot.get("uid");
         appUser.username = snapshot.get("username");
         appUser.email = snapshot.get("email");
         appUser.photoUrl = snapshot.get("photoUrl");

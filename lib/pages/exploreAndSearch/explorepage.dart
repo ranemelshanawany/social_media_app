@@ -25,21 +25,6 @@ class Explore extends StatefulWidget {
 class _ExploreState extends State<Explore> {
   List<bool> _selection = [true, false];
 
-  static List<Comment> commentsList = [
-    Comment(
-        content: "I agree!",
-        user: AppUser(
-            username: "username2",
-            photoUrl:
-                "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png")),
-    Comment(
-        content: "The best",
-        user: AppUser(
-            username: "username3",
-            photoUrl:
-                "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png")),
-  ];
-
   List<ImagePost> imagePosts = [];
 
   List<Post> posts = [];

@@ -33,6 +33,8 @@ class _ProfileState extends State<Profile> {
     super.initState();
     _setLogEvent();
     _setCurrentScreen();
+    FirebaseAuth auth = FirebaseAuth.instance;
+    user = auth.currentUser;
   }
 
   Future<void> _setCurrentScreen() async{
@@ -54,9 +56,8 @@ class _ProfileState extends State<Profile> {
 
   int postCount = 0;
 
-  FirebaseAuth auth = FirebaseAuth.instance;
   User user;
-  AppUser users;
+  AppUser appUser;
 
   List<Post> posts = [
     Post(text: 'First post', date: '18 April 21', likes: 50, comments: 5),
@@ -77,7 +78,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
-    user = auth.currentUser;
+    appUser = AppUser.WithUID(user.uid);
 
     return Scaffold(
         backgroundColor: Colors.grey[200],
@@ -145,7 +146,7 @@ class _ProfileState extends State<Profile> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  user.displayName,
+                  appUser.displayName,
                   style: TextStyle(
                     fontFamily: 'BrandonText',
                     fontSize: 28.0,
@@ -157,7 +158,7 @@ class _ProfileState extends State<Profile> {
                   height: 10.0,
                 ),
                 Text(
-                  user?.uid,
+                  "@${appUser.username}",
                   style: TextStyle(
                     fontFamily: 'BrandonText',
                     fontSize: 18.0,
@@ -173,7 +174,7 @@ class _ProfileState extends State<Profile> {
                     ),
                     SizedBox(width: 8.0),
                     Text(
-                      user.email,
+                      appUser.email,
                       style: TextStyle(
                         fontFamily: 'BrandonText',
                         fontSize: 14.0,

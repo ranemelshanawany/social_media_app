@@ -22,6 +22,7 @@ class DatabaseService{
 
   Future<void> createUserData(String username, String email, String photoUrl, String displayName, String bio) async{
     return await userCollection.doc(uid).set({
+      'uid':uid,
       'username': username,
       'email' : email,
       'photoUrl': photoUrl,
@@ -40,6 +41,36 @@ class DatabaseService{
 
   }
 
+  Future<void> sendLike(String postID, String postUserID) async
+  {
+    return await likesCollection.doc().set({
+      'date': DateTime.now(),
+      'liked' : postUserID,
+      'liker': uid,
+      'postID':postID,
+    });
+  }
+
+  Future<void> deleteLike(String postID, String postUserID) async
+  {
+    return await likesCollection.where('liker', isEqualTo: uid).where('postID', isEqualTo: postID).get().then((value) {
+      for (var doc in value.docs)
+      {
+        likesCollection.doc(doc.id).delete();
+      }
+    });
+  }
+
+  Future<void> createComment({String content, DateTime date, String userCommented, String postID}) async{
+    return await commentsCollection.doc().set({
+      'date': date,
+      'content': content,
+      'userCommented' : userCommented,
+      'userCommenting': uid,
+      'postID':postID,
+    });
+  }
+
   Future<void> createTextPost(String text, String date) async{
     return await textPostsCollection.doc().set({
       'text': text,
@@ -47,7 +78,6 @@ class DatabaseService{
       'user': uid,
     });
   }
-
 
   Future<void> createImagePost(String text, String date, photoURL) async{
     return await imagePostsCollection.doc().set({
@@ -61,7 +91,8 @@ class DatabaseService{
   List<AppUser> _userListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc){
       return AppUser(
-        username: doc['name'] ?? '',
+        username: doc['username'] ?? '',
+        UID: doc['uid'] ?? '',
         email: doc['email'] ?? '',
         photoUrl: doc['photoUrl'] ?? '',
         displayName: doc['displayName'] ?? '',

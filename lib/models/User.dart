@@ -3,6 +3,7 @@ import 'package:project_socialmedia/services/database.dart';
 
 
 class AppUser {
+  String UID ="";
   String username = "";
   String email = "";
   String photoUrl = "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg";
@@ -11,6 +12,7 @@ class AppUser {
 
 
   AppUser ({
+    this.UID,
     this.username,
     this.email,
     this.photoUrl,
@@ -22,6 +24,7 @@ class AppUser {
   AppUser.WithUID(String uid)
   {
     DatabaseService(uid: uid).userCollection.doc(uid).get().then((snapshot) {
+      UID = uid;
       username = snapshot.get("username");
       email = snapshot.get("email");
       photoUrl = snapshot.get("photoUrl");
@@ -31,6 +34,7 @@ class AppUser {
   }
 
    AppUser.fromJson(Map<String, dynamic> json) {
+    UID = json['uid'];
      username = json['username'];
      email = json['email'];
      photoUrl = json['photoUrl'];
@@ -40,6 +44,7 @@ class AppUser {
 
    Map<String, dynamic> toJson() {
      final Map<String, dynamic> data = new Map<String, dynamic>();
+     data['uid'] = this.UID;
      data['username'] = this.username;
      data['email'] = this.email;
      data['photoUrl'] = this.photoUrl;
