@@ -7,17 +7,17 @@ import 'package:project_socialmedia/services/database.dart';
 import '../../utils/color.dart';
 import '../../models/Post.dart';
 
-class TextPostCard extends StatefulWidget {
+class ImagePostCard extends StatefulWidget {
 
-  final Post post;
-  TextPostCard(this.post);
+  final ImagePost post;
+  ImagePostCard(this.post);
 
   @override
-  _TextPostCardState createState() => _TextPostCardState(post);
+  _ImagePostCardState createState() => _ImagePostCardState(post);
 }
 
-class _TextPostCardState extends State<TextPostCard> {
-  final Post post;
+class _ImagePostCardState extends State<ImagePostCard> {
+  final ImagePost post;
 
   int likes = 0;
   int commentsNo = 0;
@@ -30,7 +30,7 @@ class _TextPostCardState extends State<TextPostCard> {
 
   AppUser appUser;
 
-  _TextPostCardState(this.post);
+  _ImagePostCardState(this.post);
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +78,18 @@ class _TextPostCardState extends State<TextPostCard> {
 
   _buildContent()
   {
-    return Text(post.text, style: TextStyle(fontSize: 16),);
+    Size size = MediaQuery.of(context).size;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(post.text, style: TextStyle(fontSize: 16),),
+        SizedBox(height: 10,),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Image.network(post.imageURL, width: size.width-10, fit: BoxFit.fill,),
+        ),
+      ],
+    );
   }
 
   _buildInteractions()
