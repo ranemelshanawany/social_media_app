@@ -28,6 +28,8 @@ class _TextPostCardState extends State<TextPostCard> {
   bool liked = false;
   bool likeFetched = false;
 
+  AppUser appUser;
+
   _TextPostCardState(this.post);
 
   @override
@@ -36,6 +38,7 @@ class _TextPostCardState extends State<TextPostCard> {
     post.likes = likes;
     post.comments = commentsNo;
     post.commentsList = comments;
+    appUser = AppUser.WithUID(FirebaseAuth.instance.currentUser.uid);
 
     if (!likeFetched)
       getLikedStatus(post.postID);
@@ -139,8 +142,8 @@ class _TextPostCardState extends State<TextPostCard> {
         {
           Timestamp time = doc['date'];
           DateTime date = DateTime.fromMicrosecondsSinceEpoch(time.microsecondsSinceEpoch);
-          Comment comment = Comment(postID: post.postID, content: doc['content'], userCommentedOn: AppUser.WithUID(doc['userCommented']),
-              userCommenting: AppUser.WithUID(doc['userCommenting']), date: date);
+          Comment comment = Comment(postID: post.postID, content: doc['content'], userCommentedOn: doc['userCommented'],
+              userCommenting: doc['userCommenting'], date: date);
           comments.add(comment);
           commentsNo++;
         }
@@ -226,7 +229,7 @@ class _TextPostCardState extends State<TextPostCard> {
         itemBuilder: (context, index) {
           return Row(
             children: [
-              Text(post.commentsList[index].userCommentedOn.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+              Text(post.commentsList[index].userCommentedOn, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
               SizedBox(width: 10,),
               Text(post.commentsList[index].content, style: TextStyle(fontSize: 16),),
             ],
@@ -296,12 +299,10 @@ class _TextPostCardState extends State<TextPostCard> {
       await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).createComment(
           postID: post.postID,
           content: commentsController.text,
-          userCommented: post.user.UID,
+          userCommented: post.user.username,
+          commentingUsername: appUser.username,
           date: DateTime.now());
       //DateFormat.yMd().format(DateTime.now())
-      setState(() {
-        
-      });
     }
   }
 

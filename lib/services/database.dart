@@ -61,12 +61,12 @@ class DatabaseService{
     });
   }
 
-  Future<void> createComment({String content, DateTime date, String userCommented, String postID}) async{
+  Future<void> createComment({String content, DateTime date, String userCommented, String postID, String commentingUsername}) async{
     return await commentsCollection.doc().set({
       'date': date,
       'content': content,
       'userCommented' : userCommented,
-      'userCommenting': uid,
+      'userCommenting': commentingUsername,
       'postID':postID,
     });
   }

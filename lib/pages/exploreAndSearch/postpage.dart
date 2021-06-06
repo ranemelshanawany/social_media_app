@@ -28,6 +28,7 @@ class _PostPageState extends State<PostPage> {
   _PostPageState(this.post);
 
   User user;
+  AppUser appUser;
   int likes = 0;
   int commentsNo = 0;
   List<Comment> comments = [];
@@ -39,7 +40,9 @@ class _PostPageState extends State<PostPage> {
 
   @override
   Widget build(BuildContext context) {
+    user = FirebaseAuth.instance.currentUser;
 
+    appUser = AppUser.WithUID(user.uid);
     post.likes = likes;
     post.comments = commentsNo;
     post.commentsList = comments;
@@ -153,7 +156,7 @@ class _PostPageState extends State<PostPage> {
         itemBuilder: (context, index) {
           return Row(
             children: [
-              Text(post.commentsList[index].userCommentedOn.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+              Text(post.commentsList[index].userCommentedOn, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
               SizedBox(width: 10,),
               Text(post.commentsList[index].content, style: TextStyle(fontSize: 16),),
             ],
@@ -239,7 +242,8 @@ class _PostPageState extends State<PostPage> {
       await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).createComment(
         postID: post.postID,
           content: commentsController.text,
-          userCommented: post.user.UID,
+          userCommented: post.user.username,
+          commentingUsername: appUser.username,
           date: DateTime.now());
       //DateFormat.yMd().format(DateTime.now())
     }
@@ -281,8 +285,8 @@ class _PostPageState extends State<PostPage> {
         {
           Timestamp time = doc['date'];
           DateTime date = DateTime.fromMicrosecondsSinceEpoch(time.microsecondsSinceEpoch);
-          Comment comment = Comment(postID: post.postID, content: doc['content'], userCommentedOn: AppUser.WithUID(doc['userCommented']),
-              userCommenting: AppUser.WithUID(doc['userCommenting']), date: date);
+          Comment comment = Comment(postID: post.postID, content: doc['content'], userCommentedOn: doc['userCommented'],
+              userCommenting: doc['userCommenting'], date: date);
           comments.add(comment);
           commentsNo++;
         }

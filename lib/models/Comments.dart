@@ -4,8 +4,8 @@ import 'User.dart';
 
 class Comment
 {
-  AppUser userCommenting;
-  AppUser userCommentedOn;
+  String userCommenting;
+  String userCommentedOn;
   String postID;
   String content;
   DateTime date;
