@@ -1,8 +1,10 @@
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:project_socialmedia/models/User.dart';
 import 'package:project_socialmedia/services/database.dart';
 import '../../utils/color.dart';
@@ -22,6 +24,8 @@ class NewPost extends StatefulWidget {
 class _NewPostState extends State<NewPost> {
 
   Size size;
+  ImagePicker _picker = ImagePicker();
+  File _imageFile;
 
   AppUser getUser()
   {
@@ -65,12 +69,14 @@ class _NewPostState extends State<NewPost> {
 
 
     return Scaffold(
-    body: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildBack(),
-        _buildNewPost(),
-      ],
+    body: SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildBack(),
+          _buildNewPost(),
+        ],
+      ),
     ),
     );
 
@@ -137,17 +143,20 @@ class _NewPostState extends State<NewPost> {
                             children: [
                               CircleAvatar(backgroundImage: AssetImage('assets/images/John.jpeg'), radius: 20,),
                               SizedBox(width: 10,),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(appUser.displayName, style: TextStyle(color: Colors.grey[700] ,fontWeight: FontWeight.bold, fontSize: 18),),
-                                  SizedBox(height: 4),
-                                  Text('@${appUser.username}', style: TextStyle(color: Colors.grey[500] ,fontWeight: FontWeight.bold, fontSize: 14),),
-                                ],
+                              Container(
+                                width: size.width*0.49,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(appUser.displayName, style: TextStyle(color: Colors.grey[700] ,fontWeight: FontWeight.bold, fontSize: 18), overflow: TextOverflow.fade,),
+                                    SizedBox(height: 4),
+                                    Text('@${appUser.username}', style: TextStyle(color: Colors.grey[500] ,fontWeight: FontWeight.bold, fontSize: 14),),
+                                  ],
+                                ),
                               ),
                               Spacer(),
                               SizedBox(
-                                width: 30,
+                                width: 40,
                                 child: FloatingActionButton(
                                     backgroundColor: AppColors.primary,
                                     child: Icon(Icons.location_on),
@@ -155,11 +164,13 @@ class _NewPostState extends State<NewPost> {
                               ),
                               SizedBox(width: 15,),
                               SizedBox(
-                                width: 30,
+                                width: 40,
                                 child: FloatingActionButton(
                                     backgroundColor: AppColors.primary,
                                     child: Icon(Icons.add_a_photo),
-                                    onPressed: () {} ),
+                                    onPressed: () {
+                                      pickImage();
+                                    }),
                               ),
                               SizedBox(width: 15,),
                             ],
@@ -169,6 +180,7 @@ class _NewPostState extends State<NewPost> {
                     ),
                   ),
                 ),
+                _buildImage(),
                 Container(
                   width: 360,
                   //height: 150,
@@ -233,12 +245,50 @@ class _NewPostState extends State<NewPost> {
   }
 
   Future<void> post() async {
-    if (content!=null) {
+    if(_imageFile != null)
+    {
+      String url =  await uploadImageToFirebase(context);
+      await DatabaseService(uid: user.uid).createImagePost(content == null? "" : content, DateFormat.yMd().format(DateTime.now()), url);
+      content = null;
+      _imageFile = null;
+      Navigator.of(context).pop();
+    }
+    else if (content!=null) {
       await DatabaseService(uid: user.uid).createTextPost(content, DateFormat.yMd().format(DateTime.now()));
       content = null;
       Navigator.of(context).pop();
     }
   }
 
+  pickImage() async {
 
+    final ImagePicker _imagePicker = ImagePicker();
+    final PickedFile _pickedImage =
+    await _imagePicker.getImage(source: ImageSource.gallery);
+    if (_pickedImage != null) {
+      setState(() {
+        _imageFile = File(_pickedImage.path);
+      });
+
+    }
+  }
+
+  Future<String> uploadImageToFirebase(BuildContext context) async {
+    String fileName = _imageFile.path;
+    Reference firebaseStorageRef = FirebaseStorage.instance.ref().child('uploads$fileName');
+    UploadTask uploadTask = firebaseStorageRef.putFile(_imageFile);
+    await uploadTask.whenComplete(() => null);
+    String fileUrl = await firebaseStorageRef.getDownloadURL();
+    print("***********************************************" + fileUrl);
+    return fileUrl;
+  }
+
+  _buildImage() {
+    if(_imageFile == null)
+      return Container();
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Image.file(_imageFile, height: size.width*0.8,width: size.width*0.8,),
+    );
+  }
 }

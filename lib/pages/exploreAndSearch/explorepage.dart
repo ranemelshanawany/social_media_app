@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_analytics/observer.dart';
@@ -24,31 +25,6 @@ class Explore extends StatefulWidget {
 class _ExploreState extends State<Explore> {
   List<bool> _selection = [true, false];
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _setLogEvent();
-    _setCurrentScreen();
-  }
-
-  Future<void> _setLogEvent() async{
-    await widget.analytics.logEvent(
-        name: 'Explore_page',
-        parameters: <String,dynamic> {
-          'string': 'Explore_page'
-        }
-    );
-  }
-
-  Future<void> _setCurrentScreen() async{
-    await widget.analytics.setCurrentScreen(
-        screenName: 'Explore_page',
-        screenClassOverride: 'Explore_page'
-
-    );
-  }
-
   static List<Comment> commentsList = [
     Comment(
         content: "I agree!",
@@ -64,26 +40,45 @@ class _ExploreState extends State<Explore> {
                 "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png")),
   ];
 
-  List<ImagePost> imagePosts = List.generate(
-      30,
-      (_) => ImagePost(
-          text: "My dog is so cute!",
-          date: "1w",
-          likes: 65,
-          comments: 2,
-          imageURL: "https://picsum.photos/id/237/400",
-          commentsList: commentsList,
-      user: AppUser(
-          username: "username",
-          photoUrl:
-          "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg")));
+  List<ImagePost> imagePosts = [];
 
-  List<Post> Posts = List.generate(
-      10, (_) => Post(text: "This is a text post", date: "2d", likes: 4, comments: 2, commentsList: commentsList,
-      user: AppUser(
-          username: "username",
-          photoUrl:
-          "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg")));
+  List<Post> posts = [];
+
+  fetchTextPosts()
+  {
+    CollectionReference textPostsCollection = FirebaseFirestore.instance.collection('textPost');
+    textPostsCollection.snapshots().listen((snapshot) {
+      setState(() {
+        posts = snapshot.docs.map((doc){
+          return Post(
+            postID: doc.id,
+            text: doc['text'] ?? '',
+            date: doc['date'] ?? '',
+            user: AppUser.WithUID(doc['user']),
+          );
+        }).toList();
+      });
+    });
+
+  }
+
+  fetchImagePosts()
+  {
+    CollectionReference imagePostsCollection = FirebaseFirestore.instance.collection('imagePost');
+    imagePostsCollection.snapshots().listen((snapshot) {
+      setState(() {
+        imagePosts = snapshot.docs.map((doc){
+          return ImagePost(
+            postID: doc.id,
+            text: doc['text'] ?? '',
+            date: doc['date'] ?? '',
+            user: AppUser.WithUID(doc['user']),
+            imageURL: doc['photoAddress'] ?? "https://www.indianhorizons.net/assets/lib/images/default.png"
+          );
+        }).toList();
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +167,7 @@ class _ExploreState extends State<Explore> {
                       closedBuilder: (context, VoidCallback openContainer) =>
                           _buildGridItem(indexx, openContainer),
                       transitionType: ContainerTransitionType.fade,
-                      transitionDuration: Duration(seconds: 1),
+                      transitionDuration: Duration(milliseconds: 900),
                     )),
             crossAxisCount: 3,
             shrinkWrap: true,
@@ -188,8 +183,8 @@ class _ExploreState extends State<Explore> {
         child: Container(
           padding: EdgeInsets.all(8),
           child: ListView.builder(
-            itemCount: Posts.length,
-              itemBuilder: (context, index) => TextPostCard(Posts[index])),
+            itemCount: posts.length,
+              itemBuilder: (context, index) => TextPostCard(posts[index])),
         ),
       );
     }
@@ -207,6 +202,34 @@ class _ExploreState extends State<Explore> {
           child: Image.network(imagePosts[index].imageURL),
         ),
       ),
+    );
+  }
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _setLogEvent();
+    _setCurrentScreen();
+    fetchTextPosts();
+    fetchImagePosts();
+  }
+
+  Future<void> _setLogEvent() async{
+    await widget.analytics.logEvent(
+        name: 'Explore_page',
+        parameters: <String,dynamic> {
+          'string': 'Explore_page'
+        }
+    );
+  }
+
+  Future<void> _setCurrentScreen() async{
+    await widget.analytics.setCurrentScreen(
+        screenName: 'Explore_page',
+        screenClassOverride: 'Explore_page'
+
     );
   }
 }

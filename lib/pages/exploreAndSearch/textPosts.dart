@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../utils/color.dart';
 import '../../models/Post.dart';
@@ -14,10 +15,17 @@ class TextPostCard extends StatefulWidget {
 class _TextPostCardState extends State<TextPostCard> {
   final Post post;
 
+  int likes = 0;
+  int commentsNo = 0;
+
   _TextPostCardState(this.post);
 
   @override
   Widget build(BuildContext context) {
+
+    post.likes = likes;
+    post.comments = commentsNo;
+
     return Card(
       elevation: 0,
       child: Padding(
@@ -40,7 +48,9 @@ class _TextPostCardState extends State<TextPostCard> {
   {
     return Row(
       children: [
-        CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl), radius: 20,),
+        CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl == null?
+        "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg"
+            : post.user.photoUrl), radius: 20,),
         SizedBox(width: 10,),
         Text(post.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
         Spacer(),
@@ -75,6 +85,40 @@ class _TextPostCardState extends State<TextPostCard> {
         )
       ],
     );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getLikes();
+    getComments();
+  }
+
+  getLikes()
+  {
+    CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
+    likesCollection.where("postID", isEqualTo: post.postID).snapshots().listen((value) {
+      setState(() {
+        for(var doc in value.docs)
+        {
+          likes++;
+        }
+      });
+    });
+  }
+
+  getComments()
+  {
+    CollectionReference commentsCollection = FirebaseFirestore.instance.collection('comments');
+    commentsCollection.where("postID", isEqualTo: post.postID).snapshots().listen((value) {
+      setState(() {
+        for(var doc in value.docs)
+        {
+          commentsNo++;
+        }
+      });
+    });
   }
 
 }
