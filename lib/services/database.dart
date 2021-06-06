@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:project_socialmedia/models/Post.dart';
 import 'package:project_socialmedia/models/User.dart'; // add user package
 import 'package:firebase_auth/firebase_auth.dart';
+
 
 FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
@@ -18,6 +18,8 @@ class DatabaseService{
   CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
   CollectionReference commentsCollection = FirebaseFirestore.instance.collection('comments');
 
+  final CollectionReference postCollection = FirebaseFirestore.instance.collection('posts');
+
   Future<void> createUserData(String username, String email, String photoUrl, String displayName, String bio) async{
     return await userCollection.doc(uid).set({
       'username': username,
@@ -26,6 +28,16 @@ class DatabaseService{
       'displayName': displayName,
       'bio': bio
     });
+
+  }
+
+  List<AppUser> _usernameFromSnapshot (QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc){
+      return AppUser(
+        username: doc['name'] ?? '',
+      );
+    }).toList();
+
   }
 
   Future<void> createTextPost(String text, String date) async{
@@ -35,6 +47,7 @@ class DatabaseService{
       'user': uid,
     });
   }
+
 
   Future<void> createImagePost(String text, String date, photoURL) async{
     return await imagePostsCollection.doc().set({
@@ -48,7 +61,7 @@ class DatabaseService{
   List<AppUser> _userListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc){
       return AppUser(
-        username: doc['username'] ?? '',
+        username: doc['name'] ?? '',
         email: doc['email'] ?? '',
         photoUrl: doc['photoUrl'] ?? '',
         displayName: doc['displayName'] ?? '',
@@ -75,3 +88,5 @@ class DatabaseService{
     return userCollection.snapshots().map(_postListFromSnapshot);
   }
 }
+
+
