@@ -32,6 +32,9 @@ class _FeedState extends State<Feed> {
     super.initState();
     _setLogEventFeed();
     _setCurrentScreen();
+    user = FirebaseAuth.instance.currentUser;
+    appUser = AppUser.WithUID(user.uid);
+    //getUser();
   }
 
   Future<void> _setLogEventFeed() async{
@@ -51,10 +54,17 @@ class _FeedState extends State<Feed> {
     );
   }
 
-  AppUser getUser()
+  FirebaseAuth auth = FirebaseAuth.instance;
+  User user;
+  AppUser appUser;
+
+  bool userLoaded = false;
+
+  getUser()
   {
     DatabaseService(uid: user.uid).userCollection.doc(user.uid).snapshots().listen((snapshot) {
       setState(() {
+        appUser.UID = snapshot.get("uid");
         appUser.username = snapshot.get("username");
         appUser.email = snapshot.get("email");
         appUser.photoUrl = snapshot.get("photoUrl");
@@ -66,35 +76,26 @@ class _FeedState extends State<Feed> {
     });
   }
 
-  FirebaseAuth auth = FirebaseAuth.instance;
-  User user;
-  AppUser appUser = AppUser();
-
-  bool userLoaded = false;
-
   get onPressed => null;
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    user = auth.currentUser;
+
     if(!userLoaded)
       getUser();
 
-      return StreamProvider<List<AppUser>>.value(
-        value: DatabaseService().users,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildNewPostCard(size),
-              ],
-            ),
-            Divider(color: AppColors.primary, thickness: 1.0,),
-            _buildContentDisplay(size),
-          ],
-        ),
+      return Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildNewPostCard(size),
+            ],
+          ),
+          Divider(color: AppColors.primary, thickness: 1.0,),
+          _buildContentDisplay(size),
+        ],
       );
   }
 
@@ -135,7 +136,7 @@ class _FeedState extends State<Feed> {
                     children: [
                       Text(appUser.displayName == null? "": appUser.displayName , style: TextStyle(color: Colors.grey[700] ,fontWeight: FontWeight.bold, fontSize: 18),),
                       SizedBox(height: 4),
-                      Text(appUser.username == null? "" : appUser.username , style: TextStyle(color: Colors.grey[500] ,fontWeight: FontWeight.bold, fontSize: 14),),
+                      Text("@"+appUser.username == null? "" : appUser.username , style: TextStyle(color: Colors.grey[500] ,fontWeight: FontWeight.bold, fontSize: 14),),
                     ],
                   ),
                 ),

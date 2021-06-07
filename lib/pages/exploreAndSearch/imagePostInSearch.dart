@@ -6,6 +6,7 @@ import 'package:project_socialmedia/models/User.dart';
 import 'package:project_socialmedia/services/database.dart';
 import '../../utils/color.dart';
 import '../../models/Post.dart';
+import 'package:intl/intl.dart';
 
 class ImagePostCard extends StatefulWidget {
 
@@ -61,6 +62,7 @@ class _ImagePostCardState extends State<ImagePostCard> {
     );
   }
 
+
   _buildUser()
   {
     return Row(
@@ -71,7 +73,7 @@ class _ImagePostCardState extends State<ImagePostCard> {
         SizedBox(width: 10,),
         Text(post.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
         Spacer(),
-        Text(post.date, style: TextStyle(color: Colors.grey),),
+        Text(DateFormat.yMd().format(post.date), style: TextStyle(color: Colors.grey),),
       ],
     );
   }
@@ -149,8 +151,9 @@ class _ImagePostCardState extends State<ImagePostCard> {
       setState(() {
         comments = [];
         commentsNo = 0;
-        for(var doc in value.docs)
+        for(var docc in value.docs)
         {
+          Map doc = docc.data();
           Timestamp time = doc['date'];
           DateTime date = DateTime.fromMicrosecondsSinceEpoch(time.microsecondsSinceEpoch);
           Comment comment = Comment(postID: post.postID, content: doc['content'], userCommentedOn: doc['userCommented'],

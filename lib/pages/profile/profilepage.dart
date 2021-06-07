@@ -60,11 +60,11 @@ class _ProfileState extends State<Profile> {
   AppUser appUser;
 
   List<Post> posts = [
-    Post(text: 'First post', date: '18 April 21', likes: 50, comments: 5),
-    Post(text: 'Second post', date: '20 April 21', likes: 35, comments: 15),
-    Post(text: 'Third post', date: '21 April', likes: 45, comments: 17),
-    Post(text: 'Fourth Post', date: '23 April', likes: 49, comments: 27),
-    Post(text: 'Room for rent', date: '24 April', likes: 120, comments: 64),
+    Post(text: 'First post', likes: 50, comments: 5),
+    Post(text: 'Second post', likes: 35, comments: 15),
+    Post(text: 'Third post',  likes: 45, comments: 17),
+    Post(text: 'Fourth Post', likes: 49, comments: 27),
+    Post(text: 'Room for rent', likes: 120, comments: 64),
   ];
 
   void buttonPressed() {

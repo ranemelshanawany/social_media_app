@@ -12,6 +12,7 @@ class DatabaseService{
   DatabaseService({this.uid});
 
   CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
+  CollectionReference followCollection = FirebaseFirestore.instance.collection('follow');
   CollectionReference textPostsCollection = FirebaseFirestore.instance.collection('textPost');
   CollectionReference imagePostsCollection = FirebaseFirestore.instance.collection('imagePost');
   CollectionReference notificationCollection = FirebaseFirestore.instance.collection('notifications');
@@ -27,7 +28,8 @@ class DatabaseService{
       'email' : email,
       'photoUrl': photoUrl,
       'displayName': displayName,
-      'bio': bio
+      'bio': bio,
+      'private': false
     });
 
   }
@@ -71,7 +73,7 @@ class DatabaseService{
     });
   }
 
-  Future<void> createTextPost(String text, String date) async{
+  Future<void> createTextPost(String text, DateTime date) async{
     return await textPostsCollection.doc().set({
       'text': text,
       'date' : date,
@@ -79,13 +81,48 @@ class DatabaseService{
     });
   }
 
-  Future<void> createImagePost(String text, String date, photoURL) async{
+  Future<void> createImagePost(String text, DateTime date, photoURL) async{
     return await imagePostsCollection.doc().set({
       'text': text,
       'date' : date,
       'photoAddress':photoURL,
       'user': uid,
     });
+  }
+
+  Future<void> follow(String user) async{
+    return await followCollection.doc().set({
+      'follower': uid,
+      'following': user,
+    });
+  }
+  //follower is the person who clicked the follow button
+  //following is the person who is being followed
+
+  Future<void> unfollow(String user) async
+  {
+    print("unfollow");
+    return await followCollection.where('follower', isEqualTo: uid).where('following', isEqualTo: user).get().then((value) {
+      for (var doc in value.docs)
+      {
+        followCollection.doc(doc.id).delete();
+      }
+    });
+  }
+
+
+
+  AppUser _userFromSnapshot(DocumentSnapshot snapshot)
+  {
+    return AppUser(
+        username: snapshot.get('username')?? '',
+        UID: snapshot.get('uid')?? '',
+        email: snapshot.get('email')?? '',
+        photoUrl: snapshot.get('photoUrl')?? '',
+        displayName: snapshot.get('displayName')?? '',
+        bio: snapshot.get('bio')?? '',
+        private: snapshot.get('private')?? false,
+      );
   }
 
   List<AppUser> _userListFromSnapshot(QuerySnapshot snapshot) {
@@ -97,12 +134,17 @@ class DatabaseService{
         photoUrl: doc['photoUrl'] ?? '',
         displayName: doc['displayName'] ?? '',
         bio: doc['bio'] ?? '',
+        private: doc['private'] ?? false,
       );
     }).toList();
   }
 
   Stream<List<AppUser>> get users {
     return userCollection.snapshots().map(_userListFromSnapshot);
+  }
+
+  Stream<AppUser> get currentUser {
+    return userCollection.doc(uid).snapshots().map(_userFromSnapshot);
   }
 
   List<Post> _postListFromSnapshot(QuerySnapshot snapshot) {

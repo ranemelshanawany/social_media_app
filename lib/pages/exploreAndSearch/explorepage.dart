@@ -38,7 +38,7 @@ class _ExploreState extends State<Explore> {
           return Post(
             postID: doc.id,
             text: doc['text'] ?? '',
-            date: doc['date'] ?? '',
+            date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch) ?? '',
             user: AppUser.WithUID(doc['user']),
           );
         }).toList();
@@ -56,7 +56,7 @@ class _ExploreState extends State<Explore> {
           return ImagePost(
             postID: doc.id,
             text: doc['text'] ?? '',
-            date: doc['date'] ?? '',
+            date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch) ?? '',
             user: AppUser.WithUID(doc['user']),
             imageURL: doc['photoAddress'] ?? "https://www.indianhorizons.net/assets/lib/images/default.png"
           );

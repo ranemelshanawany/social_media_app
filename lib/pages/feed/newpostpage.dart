@@ -249,13 +249,13 @@ class _NewPostState extends State<NewPost> {
     if(_imageFile != null)
     {
       String url =  await uploadImageToFirebase(context);
-      await DatabaseService(uid: user.uid).createImagePost(content == null? "" : content, DateFormat.yMd().format(DateTime.now()), url);
+      await DatabaseService(uid: user.uid).createImagePost(content == null? "" : content, DateTime.now(), url);
       content = null;
       _imageFile = null;
       Navigator.of(context).pop();
     }
     else if (content!=null) {
-      await DatabaseService(uid: user.uid).createTextPost(content, DateFormat.yMd().format(DateTime.now()));
+      await DatabaseService(uid: user.uid).createTextPost(content, DateTime.now());
       content = null;
       Navigator.of(context).pop();
     }

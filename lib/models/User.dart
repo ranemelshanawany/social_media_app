@@ -9,6 +9,7 @@ class AppUser {
   String photoUrl = "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg";
   String displayName = "";
   String bio = "";
+  bool private = false;
 
 
   AppUser ({
@@ -18,6 +19,7 @@ class AppUser {
     this.photoUrl,
     this.displayName,
     this.bio,
+    this.private
     }
    );
 
@@ -30,6 +32,7 @@ class AppUser {
       photoUrl = snapshot.get("photoUrl");
       displayName = snapshot.get("displayName");
       bio = snapshot.get("bio");
+      private = snapshot.get("private");
     });
   }
 
@@ -40,6 +43,8 @@ class AppUser {
      photoUrl = json['photoUrl'];
      bio = json['bio'];
      displayName = json['displayname'];
+     private = json['private'];
+
    }
 
    Map<String, dynamic> toJson() {
@@ -50,6 +55,7 @@ class AppUser {
      data['photoUrl'] = this.photoUrl;
      data['bio'] = this.bio;
      data['displayName'] = this.displayName;
+     data['private'] = this.private;
 
      return data;
    }

@@ -4,10 +4,12 @@ import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:project_socialmedia/models/Comments.dart';
 import 'package:project_socialmedia/models/User.dart';
+import 'package:project_socialmedia/pages/otherUserProfile.dart';
 import '../../utils/color.dart';
 import '../../models/Post.dart';
 import 'package:project_socialmedia/services/database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class PostPage extends StatefulWidget {
 
@@ -156,7 +158,7 @@ class _PostPageState extends State<PostPage> {
         itemBuilder: (context, index) {
           return Row(
             children: [
-              Text(post.commentsList[index].userCommentedOn, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+              Text(post.commentsList[index].userCommenting, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
               SizedBox(width: 10,),
               Text(post.commentsList[index].content, style: TextStyle(fontSize: 16),),
             ],
@@ -204,16 +206,24 @@ class _PostPageState extends State<PostPage> {
   {
     return Container(
       padding: EdgeInsets.all(10),
-      child: Row(
-        children: [
-          CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl == null?
-          "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg"
-              : post.user.photoUrl),),
-          SizedBox(width: 10,),
-          Text(post.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
-          Spacer(),
-          Text(post.date, style: TextStyle(color: Colors.grey),),
-        ],
+      child: InkWell(
+        onTap: (){
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProfileBuilder(post.user)),
+          );
+        },
+        child: Row(
+          children: [
+            CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl == null?
+            "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg"
+                : post.user.photoUrl),),
+            SizedBox(width: 10,),
+            Text(post.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+            Spacer(),
+            Text(DateFormat.yMd().format(post.date), style: TextStyle(color: Colors.grey),),
+          ],
+        ),
       ),
     );
   }
@@ -238,6 +248,7 @@ class _PostPageState extends State<PostPage> {
 
   sendComment() async
   {
+    print(appUser.username);
     if (commentsController.text.isNotEmpty) {
       await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).createComment(
         postID: post.postID,

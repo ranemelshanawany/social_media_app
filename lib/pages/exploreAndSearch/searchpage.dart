@@ -248,7 +248,7 @@ class _SearchPageState extends State<SearchPage> {
           Post post = Post(
             postID: doc.id,
             text: doc['text'] ?? '',
-            date: doc['date'] ?? '',
+            date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch) ?? '',
             user: AppUser.WithUID(doc['user']),
           );
           setState(() {
@@ -264,7 +264,7 @@ class _SearchPageState extends State<SearchPage> {
           Post post = ImagePost(
               postID: doc.id,
               text: doc['text'] ?? '',
-              date: doc['date'] ?? '',
+              date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch) ?? '',
               user: AppUser.WithUID(doc['user']),
               imageURL: doc['photoAddress'] ??
                   "https://www.indianhorizons.net/assets/lib/images/default.png");

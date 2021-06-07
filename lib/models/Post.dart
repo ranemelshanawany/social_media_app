@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Post {
   String postID;
   String text;
-  String date;
+  DateTime date;
   int likes;
   int comments;
   List<Comment> commentsList;

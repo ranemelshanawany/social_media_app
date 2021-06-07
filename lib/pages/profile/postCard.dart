@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_socialmedia/utils/color.dart';
 import '../../models/Post.dart';
+import 'package:intl/intl.dart';
 
 class PostCard extends StatelessWidget {
 
@@ -32,7 +33,7 @@ class PostCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 Text(
-                  post.date,
+                  DateFormat.yMd().format(post.date),
                   style: TextStyle(
                     fontFamily: 'BrandonText',
                     fontSize: 16.0,
