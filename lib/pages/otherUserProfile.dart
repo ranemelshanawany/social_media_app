@@ -46,6 +46,7 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
     }
     if(!fetchedStatus)
       getFollowStatus();
+    print(!fetchedFollowers);
     if(!fetchedFollowers)
       getFollowersCount();
 
@@ -356,11 +357,11 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
 
   getFollowersCount()
   {
+    fetchedFollowers = true;
     CollectionReference followPostsCollection = FirebaseFirestore.instance.collection('follow');
     followPostsCollection.where("following", isEqualTo: user.UID).get().then((event) {
       setState(() {
         followersNo = event.size;
-        fetchedFollowers = false;
       });
     });
   }
@@ -386,7 +387,7 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
     }
 
     setState(() {
-      fetchedFollowers = false;
+      fetchedFollowers = true;
     });
 
   }
