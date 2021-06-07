@@ -123,7 +123,7 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
     FirebaseFirestore.instance.collection('textPost');
     CollectionReference imagePostsCollection =
     FirebaseFirestore.instance.collection('imagePost');
-    textPostsCollection.snapshots().listen((event) {
+    textPostsCollection.get().then((event) {
       for (var docc in event.docs) {
         Map doc = docc.data();
         if (doc['user'].contains(user.UID)) {
@@ -133,16 +133,11 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
             date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch)  ?? '',
             user: AppUser.WithUID(doc['user']),
           );
-          setState(() {
-            postsFetched = true;
             posts.add(post);
-            postsLoading = false;
-            posts.sort((a,b) => b.date.compareTo(a.date) );
-          });
         }
       }
     });
-    imagePostsCollection.snapshots().listen((event) {
+    imagePostsCollection.get().then((event) {
       for (var docc in event.docs) {
         Map doc = docc.data();
         if (doc['user'].contains(user.UID)) {
@@ -153,12 +148,8 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
               user: AppUser.WithUID(doc['user']),
               imageURL: doc['photoAddress'] ??
                   "https://www.indianhorizons.net/assets/lib/images/default.png");
-          setState(() {
-            postsFetched = true;
+
             posts.add(post);
-            postsLoading = false;
-            posts.sort((a,b) => b.date.compareTo(a.date) );
-          });
         }
       }
     });
@@ -368,6 +359,7 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
 
   getFollowingCount()
   {
+    postsFetched = true;
     CollectionReference followPostsCollection = FirebaseFirestore.instance.collection('follow');
     followPostsCollection.where("follower", isEqualTo: user.UID).get().then((event) {
       setState(() {
@@ -387,7 +379,7 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
     }
 
     setState(() {
-      fetchedFollowers = true;
+      fetchedFollowers = false;
     });
 
   }

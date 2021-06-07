@@ -275,13 +275,12 @@ class _PostPageState extends State<PostPage> {
   {
     CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
     likesCollection.where("postID", isEqualTo: post.postID).snapshots().listen((value) {
-      setState(() {
         likes = 0;
         for(var doc in value.docs)
         {
           likes++;
         }
-      });
+
     });
   }
 
@@ -289,7 +288,6 @@ class _PostPageState extends State<PostPage> {
   {
     CollectionReference commentsCollection = FirebaseFirestore.instance.collection('comments');
     commentsCollection.where("postID", isEqualTo: post.postID).snapshots().listen((value) {
-      setState(() {
         comments = [];
         commentsNo = 0;
         for(var doc in value.docs)
@@ -302,7 +300,6 @@ class _PostPageState extends State<PostPage> {
           commentsNo++;
         }
         comments.sort((a,b) => a.date.compareTo(b.date));
-      });
     });
   }
 
@@ -311,10 +308,8 @@ class _PostPageState extends State<PostPage> {
     CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
     likesCollection.where('liker', isEqualTo: user.uid).where('postID', isEqualTo: postID).snapshots().listen((event) {
       if (event.size > 0) {
-        setState(() {
           liked = true;
           likeFetched = true;
-        });
       }
       else {
         liked = false;

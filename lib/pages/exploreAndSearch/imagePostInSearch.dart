@@ -134,13 +134,11 @@ class _ImagePostCardState extends State<ImagePostCard> {
   {
     CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
     likesCollection.where("postID", isEqualTo: post.postID).snapshots().listen((value) {
-      setState(() {
         likes = 0;
         for(var doc in value.docs)
         {
           likes++;
         }
-      });
     });
   }
 
@@ -181,10 +179,8 @@ class _ImagePostCardState extends State<ImagePostCard> {
     CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
     likesCollection.where('liker', isEqualTo: FirebaseAuth.instance.currentUser.uid).where('postID', isEqualTo: postID).snapshots().listen((event) {
       if (event.size > 0) {
-        setState(() {
           liked = true;
           likeFetched = true;
-        });
       }
       else {
         liked = false;
