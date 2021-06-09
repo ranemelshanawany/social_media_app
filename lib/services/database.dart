@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project_socialmedia/models/Post.dart';
 import 'package:project_socialmedia/models/User.dart'; // add user package
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:project_socialmedia/utils/shared_prefs.dart';
 
 
 FirebaseAuth firebaseAuth = FirebaseAuth.instance;
@@ -16,12 +17,12 @@ class DatabaseService{
   CollectionReference followRequestCollection = FirebaseFirestore.instance.collection('followRequest');
   CollectionReference textPostsCollection = FirebaseFirestore.instance.collection('textPost');
   CollectionReference imagePostsCollection = FirebaseFirestore.instance.collection('imagePost');
+  CollectionReference sharedPostsCollection = FirebaseFirestore.instance.collection('sharedPost');
   CollectionReference notificationCollection = FirebaseFirestore.instance.collection('notifications');
   CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
   CollectionReference commentsCollection = FirebaseFirestore.instance.collection('comments');
   CollectionReference userReportsCollection = FirebaseFirestore.instance.collection('userReports');
   CollectionReference postReportsCollection = FirebaseFirestore.instance.collection('postReports');
-
   final CollectionReference postCollection = FirebaseFirestore.instance.collection('posts');
 
   Future<void> createUserData(String username, String email, String photoUrl, String displayName, String bio) async{
@@ -36,6 +37,88 @@ class DatabaseService{
     });
 
   }
+
+  Future<void> deleteUser(AppUser user) async{
+    //first delete user
+    MySharedPreferences.setLoginBooleanValue(false);
+    await userCollection.doc(uid).delete();
+    await FirebaseAuth.instance.currentUser.delete();
+
+    deletePostsUser();
+    deleteCommentsUser(user.username);
+    deleteLikesUser();
+    deleteFollowUser();
+    deleteNotificationsUser();
+  }
+
+  //for when user is deleted
+  Future<void> deletePostsUser() async{
+    //delete posts
+    textPostsCollection.where("user", isEqualTo: uid).get().then((event) {
+      for (var doc in event.docs)
+        textPostsCollection.doc(doc.id).delete();
+    });
+    imagePostsCollection.where("user", isEqualTo: uid).get().then((event) {
+      for (var doc in event.docs)
+        imagePostsCollection.doc(doc.id).delete();
+    });
+    sharedPostsCollection..get().then((event) {
+      for (var doc in event.docs) {
+        if (doc.get("userSharing") ==  uid || doc.get('userShared') == uid) {
+          sharedPostsCollection.doc(doc.id).delete();
+        }
+      }
+    });
+  }
+  //for when user is deleted
+  Future<void> deleteFollowUser() async{
+    //delete followers, following, follow requests
+    followCollection.get().then((event) {
+      for (var doc in event.docs) {
+        if (doc.get('follower') == uid || doc.get('following') == uid) {
+          followCollection.doc(doc.id).delete();
+        }
+      }
+    });
+    followRequestCollection.get().then((event) {
+      for (var doc in event.docs) {
+        if (doc.get('personSending') == uid || doc.get('personReceiving') == uid) {
+          followRequestCollection.doc(doc.id).delete();
+        }
+      }
+    });
+  }
+  //for when user is deletedpp
+  Future<void> deleteNotificationsUser() async{
+    notificationCollection.get().then((event) {
+      for (var doc in event.docs) {
+        if (doc.get('ownerID') == uid || doc.get('senderID') == uid) {
+          notificationCollection.doc(doc.id).delete();
+        }
+      }
+    });
+  }
+  //for when user is deleted
+  Future<void> deleteCommentsUser(String uname) async{
+    commentsCollection.get().then((event) {
+      for (var doc in event.docs) {
+        if (doc.get('userCommented') == uname || doc.get('userCommenting') == uname) {
+          commentsCollection.doc(doc.id).delete();
+        }
+      }
+    });
+  }
+  //for when user is deleted
+  Future<void> deleteLikesUser() async{
+    likesCollection.get().then((event) {
+      for (var doc in event.docs) {
+        if (doc.get('liker') == uid || doc.get('liked') == uid) {
+          likesCollection.doc(doc.id).delete();
+        }
+      }
+    });
+  }
+
 
   List<AppUser> _usernameFromSnapshot (QuerySnapshot snapshot) {
     return snapshot.docs.map((doc){

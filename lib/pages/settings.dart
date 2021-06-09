@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/models/User.dart';
+import 'package:project_socialmedia/services/database.dart';
 import '../utils/color.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -128,6 +130,7 @@ class _SettingsPageState extends State<SettingsPage> {
             buildNotificationOptionRow("New for you", true),
             buildNotificationOptionRow("Account activity", true),
             buildNotificationOptionRow("Opportunity", false),
+            buildDeleteAccount(),
             SizedBox(
               height: 50,
             ),
@@ -218,6 +221,53 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
       ),
+    );
+  }
+
+  buildDeleteAccount() {
+    return InkWell(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Text(
+          "Delete Account",
+          style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600]),
+        ),
+      ),
+      onTap: () {
+        showReportDialog();
+      },
+    );
+  }
+
+  Future<void> showReportDialog() async {
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Account'),
+          content: Text('Are you sure you want to delete your account?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Yes'),
+              onPressed: () async {
+                DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).deleteUser(AppUser.WithUID(auth.currentUser.uid));
+                Navigator.of(context).pushNamedAndRemoveUntil('/welcome', (Route r) => r == null);
+              },
+            ),
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
