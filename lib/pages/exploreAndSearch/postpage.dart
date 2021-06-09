@@ -12,6 +12,8 @@ import 'package:project_socialmedia/services/database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
+import '../deleteDialog.dart';
+
 class PostPage extends StatefulWidget {
 
   final FirebaseAnalytics analytics;
@@ -146,8 +148,29 @@ class _PostPageState extends State<PostPage> {
       centerTitle: true,
       actionsIconTheme:  IconThemeData(color: Colors.white),
       actions: [
+        (post.user.UID == appUser.UID) ?
         PopupMenuButton<int>(
-          onSelected: (item) { showReportDialog(context, "post", reportPost); },
+          onSelected: (item) {
+          if (item == 1)
+            showReportDialog(context, "post", reportPost);
+          if (item == 2)
+            showDeleteDialog(context, 'image', user.uid, post.postID);
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem<int>(
+              value: 1,
+              child: Text('Report'),
+            ),
+            PopupMenuItem<int>(
+              value: 2,
+              child: Text('Delete'),
+            )
+          ],) :
+        PopupMenuButton<int>(
+          onSelected: (item) {
+            if (item == 1)
+              showReportDialog(context, "post", reportPost);
+          },
           itemBuilder: (context) => [
             PopupMenuItem<int>(
               value: 1,

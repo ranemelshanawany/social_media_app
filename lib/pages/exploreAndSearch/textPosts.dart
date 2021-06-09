@@ -9,6 +9,7 @@ import '../../utils/color.dart';
 import '../../models/Post.dart';
 import 'package:intl/intl.dart';
 
+import '../deleteDialog.dart';
 import '../otherUserProfile.dart';
 
 class TextPostCard extends StatefulWidget {
@@ -342,17 +343,25 @@ class _TextPostCardState extends State<TextPostCard> {
           Offset.zero & overlay.size // Bigger rect, the entire screen
       ),
       items: [
+        (post.user.UID != appUser.UID) ?
         PopupMenuItem<String>(
-            child: const Text('Report'), value: '1'),
+            child: const Text('Report'), value: '1') :
+        PopupMenuItem<String>(
+          value: "2",
+          child: Text('Delete'),
+        )
       ],
       elevation: 8.0,
     )
         .then<void>((String itemSelected) {
 
+      print(itemSelected);
       if (itemSelected == null) return;
 
       if(itemSelected == "1"){
-        showReportDialog(context, "post", reportPost);
+        showReportDialog(context, "post", reportPost); }
+      if (itemSelected == "2") {
+        DatabaseService(uid: appUser.UID).deleteTextPost(post.postID);
       }
 
     });

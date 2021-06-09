@@ -192,6 +192,33 @@ class DatabaseService{
     });
   }
 
+  Future<void> deleteImagePost(String postID) async{
+    imagePostsCollection.doc(postID).delete();
+    commentsCollection.where("postID", isEqualTo: postID).get().then((value) {
+      for(var doc in value.docs)
+        commentsCollection.doc(doc.id).delete();
+    });
+    likesCollection.where("postID", isEqualTo: postID).get().then((value) {
+      for(var doc in value.docs)
+        likesCollection.doc(doc.id).delete();
+    });
+  }
+
+  Future<void> deleteTextPost(String postID) async{
+
+    textPostsCollection.doc(postID).delete();
+    commentsCollection.where("postID", isEqualTo: postID).get().then((value) {
+      for(var doc in value.docs)
+        commentsCollection.doc(doc.id).delete();
+    });
+    likesCollection.where("postID", isEqualTo: postID).get().then((value) {
+      for(var doc in value.docs)
+        likesCollection.doc(doc.id).delete();
+    });
+  }
+  
+  
+
   Future<void> follow(String user) async{
     return await followCollection.doc().set({
       'follower': uid,
