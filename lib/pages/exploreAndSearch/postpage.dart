@@ -148,7 +148,7 @@ class _PostPageState extends State<PostPage> {
       centerTitle: true,
       actionsIconTheme:  IconThemeData(color: Colors.white),
       actions: [
-        (post.user.UID == appUser.UID) ?
+        (post.user.UID == user.uid) ?
         PopupMenuButton<int>(
           onSelected: (item) {
           if (item == 1)

@@ -343,7 +343,7 @@ class _TextPostCardState extends State<TextPostCard> {
           Offset.zero & overlay.size // Bigger rect, the entire screen
       ),
       items: [
-        (post.user.UID != appUser.UID) ?
+        (post.user.UID != FirebaseAuth.instance.currentUser.uid) ?
         PopupMenuItem<String>(
             child: const Text('Report'), value: '1') :
         PopupMenuItem<String>(
