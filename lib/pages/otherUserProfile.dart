@@ -33,6 +33,7 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
 
   bool fetchedStatus = false;
   bool fetchedFollowers = false;
+  bool fetchedFollowing = false;
 
   bool canSeePosts = true;
   bool requestExists = false;
@@ -46,7 +47,6 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
 
     if(!postsFetched) {
       getPosts();
-      getFollowingCount();
     }
     if(!fetchedStatus) {
       getFollowStatus();
@@ -54,10 +54,8 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
     }
     if(!fetchedFollowers)
       getFollowersCount();
-
-    print(user.private);
-    print(!following );
-    print(currentUser.UID != user.UID);
+    if(!fetchedFollowing)
+      getFollowingCount();
 
     canSeePosts = user.private && !following && (currentUser.UID != user.UID);
 
@@ -362,10 +360,10 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
 
   getFollowingCount()
   {
-    postsFetched = true;
+    fetchedFollowing = true;
     CollectionReference followPostsCollection = FirebaseFirestore.instance.collection('follow');
     followPostsCollection.where("follower", isEqualTo: user.UID).snapshots().listen((event) {
-        followersNo = event.size;
+      followingNo = event.size;
     });
   }
 
