@@ -37,9 +37,9 @@ class _ExploreState extends State<Explore> {
         posts = snapshot.docs.map((doc){
           return Post(
             postID: doc.id,
-            text: doc['text'] ?? '',
-            date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch) ?? '',
-            user: AppUser.WithUID(doc['user']),
+            text: doc.get('text') ?? '',
+            date: DateTime.fromMicrosecondsSinceEpoch(doc.get('date').microsecondsSinceEpoch) ?? '',
+            user: AppUser.WithUID(doc.get('user')),
           );
         }).toList();
       });
@@ -55,10 +55,10 @@ class _ExploreState extends State<Explore> {
         imagePosts = snapshot.docs.map((doc){
           return ImagePost(
             postID: doc.id,
-            text: doc['text'] ?? '',
-            date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch) ?? '',
-            user: AppUser.WithUID(doc['user']),
-            imageURL: doc['photoAddress'] ?? "https://www.indianhorizons.net/assets/lib/images/default.png"
+            text: doc.get('text') ?? '',
+            date: DateTime.fromMicrosecondsSinceEpoch(doc.get('date').microsecondsSinceEpoch) ?? '',
+            user: AppUser.WithUID(doc.get('user')),
+            imageURL: doc.get('photoAddress') ?? "https://www.indianhorizons.net/assets/lib/images/default.png"
           );
         }).toList();
       });

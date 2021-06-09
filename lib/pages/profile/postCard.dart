@@ -33,7 +33,7 @@ class PostCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 Text(
-                  DateFormat.yMd().format(post.date),
+                  DateFormat.yMd().format(post.date ==null? DateTime.now(): post.date),
                   style: TextStyle(
                     fontFamily: 'BrandonText',
                     fontSize: 16.0,

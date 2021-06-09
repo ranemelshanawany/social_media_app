@@ -1,10 +1,14 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/services/database.dart';
 import 'package:project_socialmedia/utils/shared_prefs.dart';
+import 'package:provider/provider.dart';
+import 'models/User.dart';
 import 'pages/feed/feedpage.dart';
 import 'pages/feed/newpostpage.dart';
 import 'pages/bottomNavigationWidget.dart';
@@ -41,22 +45,22 @@ class _BuildAppState extends State<BuildApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-            navigatorObservers: <NavigatorObserver>[observer],
-            initialRoute: getInitialRoute(),
-            theme: ThemeData(primaryColor: AppColors.primary),
-            routes: {
-              '/walkthrough': (context) => WalkThrough(analytics: analytics,observer: observer),
-              '/signup': (context) => SignUpScreen(analytics: analytics,observer: observer),
-              '/login': (context) => LoginScreen(analytics: analytics,observer: observer),
-              '/welcome': (context) => WelcomeScreen(analytics: analytics,observer: observer),
-              '/navigation': (context) => BottomNavigator(analytics: analytics,observer: observer),
-              '/explore/search': (context) => SearchPage(analytics: analytics,observer: observer),
-              '/newpost': (context) => NewPost(analytics: analytics,observer: observer),
-              '/feed': (context) => Feed(analytics: analytics,observer: observer),
-              '/editProfile': (context) => EditProfilePage(analytics: analytics,observer: observer),
-            },
-            debugShowCheckedModeBanner: false,
-          );
+              navigatorObservers: <NavigatorObserver>[observer],
+              initialRoute: getInitialRoute(),
+              theme: ThemeData(primaryColor: AppColors.primary),
+              routes: {
+                '/walkthrough': (context) => WalkThrough(analytics: analytics,observer: observer),
+                '/signup': (context) => SignUpScreen(analytics: analytics,observer: observer),
+                '/login': (context) => LoginScreen(analytics: analytics,observer: observer),
+                '/welcome': (context) => WelcomeScreen(analytics: analytics,observer: observer),
+                '/navigation': (context) => BottomNavigator(analytics: analytics,observer: observer),
+                '/explore/search': (context) => SearchPage(analytics: analytics,observer: observer),
+                '/newpost': (context) => NewPost(analytics: analytics,observer: observer),
+                '/feed': (context) => Feed(analytics: analytics,observer: observer),
+                '/editProfile': (context) => EditProfilePage(analytics: analytics,observer: observer),
+              },
+              debugShowCheckedModeBanner: false,
+    );
   }
 
   String getInitialRoute() {

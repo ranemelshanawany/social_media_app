@@ -41,8 +41,9 @@ class _ImagePostCardState extends State<ImagePostCard> {
     post.commentsList = comments;
     appUser = AppUser.WithUID(FirebaseAuth.instance.currentUser.uid);
 
-    if (!likeFetched)
+    if (!likeFetched) {
       getLikedStatus(post.postID);
+    }
 
     return Card(
       elevation: 0,
@@ -67,9 +68,7 @@ class _ImagePostCardState extends State<ImagePostCard> {
   {
     return Row(
       children: [
-        CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl == null?
-        "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg"
-            : post.user.photoUrl), radius: 20,),
+        CircleAvatar(backgroundImage: post.user.photoUrl == null? NetworkImage(post.user.photoUrl): AssetImage('assets/images/John.jpeg'), radius: 20,),
         SizedBox(width: 10,),
         Text(post.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
         Spacer(),
@@ -104,8 +103,10 @@ class _ImagePostCardState extends State<ImagePostCard> {
           child: IconButton(
               icon: Icon(liked? Icons.favorite : Icons.favorite_border,size: 22, color: Colors.pink[200],),
               onPressed: () {
-                liked = !liked;
-                sendLike();
+                setState(() {
+                  liked = !liked;
+                  sendLike();
+                });
               }),
         ),
         SizedBox(width: 50),
@@ -134,33 +135,12 @@ class _ImagePostCardState extends State<ImagePostCard> {
   {
     CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
     likesCollection.where("postID", isEqualTo: post.postID).snapshots().listen((value) {
-        likes = 0;
-        for(var doc in value.docs)
-        {
-          likes++;
-        }
-    });
-  }
+      likes = 0;
+      for(var doc in value.docs)
+      {
+        likes++;
+      }
 
-  getComments() async
-  {
-    CollectionReference commentsCollection = FirebaseFirestore.instance.collection('comments');
-    commentsCollection.where("postID", isEqualTo: post.postID).snapshots().listen((value) {
-      setState(() {
-        comments = [];
-        commentsNo = 0;
-        for(var docc in value.docs)
-        {
-          Map doc = docc.data();
-          Timestamp time = doc['date'];
-          DateTime date = DateTime.fromMicrosecondsSinceEpoch(time.microsecondsSinceEpoch);
-          Comment comment = Comment(postID: post.postID, content: doc['content'], userCommentedOn: doc['userCommented'],
-              userCommenting: doc['userCommenting'], date: date);
-          comments.add(comment);
-          commentsNo++;
-        }
-        comments.sort((a,b) => a.date.compareTo(b.date));
-      });
     });
   }
 
@@ -178,14 +158,44 @@ class _ImagePostCardState extends State<ImagePostCard> {
   {
     CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
     likesCollection.where('liker', isEqualTo: FirebaseAuth.instance.currentUser.uid).where('postID', isEqualTo: postID).snapshots().listen((event) {
+      print("liked status event count: " + event.size.toString());
       if (event.size > 0) {
-          liked = true;
-          likeFetched = true;
+          setState(() {
+            liked = true;
+            likeFetched = true;
+          });
       }
       else {
-        liked = false;
-        likeFetched = false;
+        setState(() {
+          liked = false;
+          likeFetched = true;
+        });
       }
+    });
+  }
+
+
+  getComments() async
+  {
+    CollectionReference commentsCollection = FirebaseFirestore.instance.collection('comments');
+    commentsCollection.where("postID", isEqualTo: post.postID).get().then((value) {
+      setState(() {
+        comments = [];
+        commentsNo = 0;
+        for(var docc in value.docs)
+        {
+          Map doc = docc.data();
+          Timestamp time = doc['date'];
+          DateTime date = DateTime.fromMicrosecondsSinceEpoch(time.microsecondsSinceEpoch);
+          Comment comment = Comment(postID: post.postID, content: doc['content'], userCommentedOn: doc['userCommented'],
+              userCommenting: doc['userCommenting'], date: date);
+          comments.add(comment);
+          commentsNo++;
+        }
+        setState(() {
+          comments.sort((a,b) => a.date.compareTo(b.date));
+        });
+      });
     });
   }
 
@@ -312,8 +322,10 @@ class _ImagePostCardState extends State<ImagePostCard> {
           userCommented: post.user.username,
           commentingUsername: appUser.username,
           date: DateTime.now());
-      //DateFormat.yMd().format(DateTime.now())
     }
+    setState(() {
+      getComments();
+    });
   }
 
 }

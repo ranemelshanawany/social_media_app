@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 
-Future<void> showMyDialog({context, String title, String message, String closer}) async {
+Future<void> showMyDialog({context, String title, String message, String closer, Function function}) async {
   return showDialog<void>(
     context: context,
     barrierDismissible: false, // user must tap button!
@@ -19,6 +19,8 @@ Future<void> showMyDialog({context, String title, String message, String closer}
           TextButton(
             child: Text(closer),
             onPressed: () {
+              if(function != null)
+                function();
               Navigator.of(context).pop();
             },
           ),

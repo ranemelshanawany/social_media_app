@@ -35,7 +35,7 @@ class _MyAppState extends State<MyApp> {
                 if (snapshot.hasError) {
                   print(
                       'Cannot connect to firebase: ' + snapshot2.data[0].error);
-                  return BuildApp();
+                  return CircularProgressIndicator();
                 }
                 if (snapshot.connectionState == ConnectionState.done) {
                   // FirebaseCrashlytics.instance.crash(); // will crash the currently running application.
@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
                   print("Firebase Connected");
                   return BuildApp();
                 }
-                return BuildApp();
+                return CircularProgressIndicator();
               }
           );
         }

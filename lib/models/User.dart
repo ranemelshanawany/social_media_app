@@ -27,12 +27,12 @@ class AppUser {
   {
     DatabaseService(uid: uid).userCollection.doc(uid).get().then((snapshot) {
       UID = uid;
-      username = snapshot.get("username");
-      email = snapshot.get("email");
-      photoUrl = snapshot.get("photoUrl");
-      displayName = snapshot.get("displayName");
-      bio = snapshot.get("bio");
-      private = snapshot.get("private");
+      username = snapshot.get("username") ?? "";
+      email = snapshot.get("email") ?? "";
+      photoUrl = snapshot.get("photoUrl") ?? "";
+      displayName = snapshot.get("displayName")?? "";
+      bio = snapshot.get("bio")?? "";
+      private = snapshot.get("private")?? false;
     });
   }
 

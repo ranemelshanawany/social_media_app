@@ -215,9 +215,7 @@ class _PostPageState extends State<PostPage> {
         },
         child: Row(
           children: [
-            CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl == null?
-            "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg"
-                : post.user.photoUrl),),
+            CircleAvatar(backgroundImage: post.user.photoUrl == null? NetworkImage(post.user.photoUrl): AssetImage('assets/images/John.jpeg'),),
             SizedBox(width: 10,),
             Text(post.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
             Spacer(),
@@ -258,6 +256,7 @@ class _PostPageState extends State<PostPage> {
           date: DateTime.now());
       //DateFormat.yMd().format(DateTime.now())
     }
+    getComments();
   }
 
   sendLike() async {
@@ -268,6 +267,7 @@ class _PostPageState extends State<PostPage> {
     else {
       await DatabaseService(uid: user.uid).deleteLike(post.postID, post.user.UID);
     }
+    getLikedStatus(post.postID);
   }
 
 
@@ -280,40 +280,45 @@ class _PostPageState extends State<PostPage> {
         {
           likes++;
         }
-
     });
   }
 
   getComments() async
   {
     CollectionReference commentsCollection = FirebaseFirestore.instance.collection('comments');
-    commentsCollection.where("postID", isEqualTo: post.postID).snapshots().listen((value) {
+    commentsCollection.where("postID", isEqualTo: post.postID).get().then((value) {
         comments = [];
         commentsNo = 0;
         for(var doc in value.docs)
         {
-          Timestamp time = doc['date'];
+          Timestamp time = doc.get('date');
           DateTime date = DateTime.fromMicrosecondsSinceEpoch(time.microsecondsSinceEpoch);
-          Comment comment = Comment(postID: post.postID, content: doc['content'], userCommentedOn: doc['userCommented'],
-              userCommenting: doc['userCommenting'], date: date);
+          Comment comment = Comment(postID: post.postID, content: doc.get('content'), userCommentedOn: doc.get('userCommented'),
+              userCommenting: doc.get('userCommenting'), date: date);
           comments.add(comment);
           commentsNo++;
         }
-        comments.sort((a,b) => a.date.compareTo(b.date));
+        setState(() {
+          comments.sort((a,b) => a.date.compareTo(b.date));
+        });
     });
   }
 
   getLikedStatus(String postID)
   {
     CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
-    likesCollection.where('liker', isEqualTo: user.uid).where('postID', isEqualTo: postID).snapshots().listen((event) {
+    likesCollection.where('liker', isEqualTo: user.uid).where('postID', isEqualTo: postID).get().then((event) {
       if (event.size > 0) {
-          liked = true;
-          likeFetched = true;
+          setState(() {
+            liked = true;
+            likeFetched = true;
+          });
       }
       else {
-        liked = false;
-      likeFetched = false;
+        setState(() {
+          liked = false;
+                likeFetched = true;
+        });
       }
     });
   }
@@ -324,8 +329,8 @@ class _PostPageState extends State<PostPage> {
     super.initState();
     _setLogEvent();
     _setCurrentScreen();
-    getLikes();
     getComments();
+    getLikes();
   }
 
   Future<void> _setLogEvent() async{

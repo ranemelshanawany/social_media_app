@@ -135,21 +135,22 @@ class _TextPostCardState extends State<TextPostCard> {
   getComments() async
   {
     CollectionReference commentsCollection = FirebaseFirestore.instance.collection('comments');
-    commentsCollection.where("postID", isEqualTo: post.postID).snapshots().listen((value) {
+    commentsCollection.where("postID", isEqualTo: post.postID).get().then((value) {
       setState(() {
         comments = [];
         commentsNo = 0;
-        for(var docc in value.docs)
+        for(var doc in value.docs)
         {
-          Map doc = docc.data();
-          Timestamp time = doc['date'];
+          Timestamp time = doc.get('date');
           DateTime date = DateTime.fromMicrosecondsSinceEpoch(time.microsecondsSinceEpoch);
-          Comment comment = Comment(postID: post.postID, content: doc['content'], userCommentedOn: doc['userCommented'],
-              userCommenting: doc['userCommenting'], date: date);
+          Comment comment = Comment(postID: post.postID, content: doc.get('content'), userCommentedOn: doc.get('userCommented'),
+              userCommenting: doc.get('userCommenting'), date: date);
           comments.add(comment);
           commentsNo++;
         }
-        comments.sort((a,b) => a.date.compareTo(b.date));
+        setState(() {
+          comments.sort((a,b) => a.date.compareTo(b.date));
+        });
       });
     });
   }
@@ -306,6 +307,7 @@ class _TextPostCardState extends State<TextPostCard> {
           date: DateTime.now());
       //DateFormat.yMd().format(DateTime.now())
     }
+    getComments();
   }
 
 }

@@ -5,6 +5,8 @@ import 'package:project_socialmedia/models/Post.dart';
 import 'package:project_socialmedia/models/User.dart';
 import 'package:project_socialmedia/services/database.dart';
 import 'package:project_socialmedia/utils/color.dart';
+import 'package:project_socialmedia/utils/dialog_widget.dart';
+import 'reportDialog.dart';
 
 import 'exploreAndSearch/imagePostInSearch.dart';
 import 'exploreAndSearch/textPosts.dart';
@@ -23,7 +25,6 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
   AppUser user;
   AppUser currentUser;
 
-  bool samePerson = false;
   bool following = false;
   bool postsLoading = false;
   bool postsFetched = false;
@@ -32,6 +33,9 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
 
   bool fetchedStatus = false;
   bool fetchedFollowers = false;
+
+  bool canSeePosts = true;
+  bool requestExists = false;
 
   List<Post> posts;
 
@@ -44,11 +48,14 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
       getPosts();
       getFollowingCount();
     }
-    if(!fetchedStatus)
+    if(!fetchedStatus) {
       getFollowStatus();
-    print(!fetchedFollowers);
+      getRequestStatus();
+    }
     if(!fetchedFollowers)
       getFollowersCount();
+
+    canSeePosts = user.private && !following && (currentUser.UID != user.UID);
 
     return Scaffold(
       backgroundColor: Colors.grey[300],
@@ -88,7 +95,9 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
   }
 
   _buildPosts(){
-    if(postsLoading)
+    if (canSeePosts)
+      return Expanded(child: Center(child: Text("User Private ", style: TextStyle(fontSize: 20)),));
+    else if(postsLoading)
     {
       return Center(child: CircularProgressIndicator());
     }
@@ -163,41 +172,35 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
 
   _buildFollowButton()
   {
-    if (samePerson)
+    if (currentUser.UID == user.UID)
       return Container();
-    if (following) {
-      return Container(
-        height: 50,
-        child: OutlinedButton(onPressed: () {
-          setState(()  {
-            following = !following;
-          });
-            sendFollow();
-        },
-            style: OutlinedButton.styleFrom(
-              backgroundColor: Colors.grey[100],
-              side: BorderSide(color: AppColors.primary)
-            ),
-            child: Text("Following", style: TextStyle(fontSize: 20, color: AppColors.primary),)),
-      );
-    }
-    if(!following)
+    else if (requestExists)
     {
       return Container(
         height: 50,
         child: OutlinedButton(onPressed: () {
-          setState(()  {
-            following = !following;
-          });
           sendFollow();
         },
             style: OutlinedButton.styleFrom(
-                backgroundColor: AppColors.primary
+                backgroundColor: Colors.grey[100],
+                side: BorderSide(color: Colors.grey[700])
             ),
-            child: Text("Follow", style: TextStyle(fontSize: 20, color: Colors.white))),
+            child: Text("Request Sent", style: TextStyle(fontSize: 20, color:  Colors.grey[700]),)),
       );
     }
-
+    else {
+      return Container(
+        height: 50,
+        child: OutlinedButton(onPressed: () {
+            sendFollow();
+        },
+            style: OutlinedButton.styleFrom(
+              backgroundColor: following? Colors.grey[100] : AppColors.primary,
+              side: BorderSide(color: AppColors.primary)
+            ),
+            child: Text(following? "Following": "Follow", style: TextStyle(fontSize: 20, color: following? AppColors.primary : Colors.white),)),
+      );
+    }
   }
 
   _buildStats()
@@ -302,9 +305,7 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
   {
     return Row(
       children: [
-        CircleAvatar(backgroundImage: NetworkImage(user.photoUrl == null?
-        "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg"
-            : user.photoUrl),
+        CircleAvatar(backgroundImage: user.photoUrl == ""? AssetImage('assets/images/John.jpeg') :NetworkImage(user.photoUrl),
         radius: 40,),
         SizedBox(width: 15,),
         Expanded(
@@ -350,10 +351,8 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
   {
     fetchedFollowers = true;
     CollectionReference followPostsCollection = FirebaseFirestore.instance.collection('follow');
-    followPostsCollection.where("following", isEqualTo: user.UID).get().then((event) {
-      setState(() {
+    followPostsCollection.where("following", isEqualTo: user.UID).snapshots().listen((event) {
         followersNo = event.size;
-      });
     });
   }
 
@@ -361,21 +360,26 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
   {
     postsFetched = true;
     CollectionReference followPostsCollection = FirebaseFirestore.instance.collection('follow');
-    followPostsCollection.where("follower", isEqualTo: user.UID).get().then((event) {
-      setState(() {
+    followPostsCollection.where("follower", isEqualTo: user.UID).snapshots().listen((event) {
         followersNo = event.size;
-      });
     });
   }
 
   sendFollow() async
   {
-    if(!following) {
+    //doesnt make sense but it's reversed for reasons and ch.
+    if(following) {
       await DatabaseService(uid: currentUser.UID).unfollow(user.UID);
     }
 
-    if(following){
-      await DatabaseService(uid: currentUser.UID).follow(user.UID);
+    if(!following){
+      if(user.private) {
+        if (requestExists)
+          await DatabaseService(uid: currentUser.UID).deleteFollowRequest(user.UID);
+        else
+          await DatabaseService(uid: currentUser.UID).sendFollowRequest(user.UID);
+      } else
+        await DatabaseService(uid: currentUser.UID).follow(user.UID);
     }
 
     setState(() {
@@ -393,6 +397,17 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
         icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white,),
         onPressed: () => Navigator.of(context).pop(),
       ),
+      actionsIconTheme:  IconThemeData(color: Colors.white),
+      actions: [
+        PopupMenuButton<int>(
+          onSelected: (item) { showReportDialog(context, "user", reportUser); },
+          itemBuilder: (context) => [
+            PopupMenuItem<int>(
+              value: 1,
+              child: Text('Report'),
+            ),
+          ],)
+      ],
     );
   }
 
@@ -406,17 +421,40 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
   getFollowStatus()
   {
     CollectionReference followCollection = FirebaseFirestore.instance.collection('follow');
-    followCollection.where("follower", isEqualTo: currentUser.UID).where("following", isEqualTo: user.UID).get().then((value) {
-      for (var doc in value.docs)
+    followCollection.where("follower", isEqualTo: FirebaseAuth.instance.currentUser.uid).where("following", isEqualTo: user.UID).snapshots().listen((value) {
+      if(value.size > 0)
         {
           setState(() {
             following = true;
           });
-          break;
-        }
+        } else
+          {
+            setState(() {
+              following = false;
+            });
+          }
     });
-    print(following);
     fetchedStatus = true;
+  }
+
+  getRequestStatus()
+  {
+    CollectionReference followRequestCollection = FirebaseFirestore.instance.collection('followRequest');
+    followRequestCollection.where("personSending", isEqualTo: FirebaseAuth.instance.currentUser.uid).where("personReceiving", isEqualTo: user.UID).snapshots().listen((value) {
+      if(value.size > 0)
+      {
+          requestExists = true;
+      } else if (value.size == 0)
+      {
+          setState(() {
+            requestExists = false;
+          });
+      }
+    });
+  }
+
+  reportUser() async {
+    await DatabaseService(uid: currentUser.UID).sendUserReport(user.UID);
   }
 
 }
