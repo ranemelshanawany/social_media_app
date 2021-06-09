@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/models/Comments.dart';
+import 'package:project_socialmedia/pages/reportDialog.dart';
 import '../../models/Post.dart';
 import '../../models/User.dart';
 import '../../services/database.dart';
@@ -32,14 +34,27 @@ class _PostCardState extends State<PostCard> {
 
   bool userLoaded = false;
   bool postsFetched = false;
+  int commentsNo = 0;
+  List<Comment> comments = [];
+
+  bool liked = false;
+  bool likeFetched = false;
+
+  var _tapPosition;
 
   _PostCardState(this.post);
+
+  TextEditingController commentsController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
 
-    return AspectRatio(
-      aspectRatio: 7 /4,
+    return GestureDetector(
+      onTapDown: _storePosition,
+      child:
+      AspectRatio(
+      aspectRatio: 8.5 /4,
       child: new Card(
         elevation: 1,
         child: Container(
@@ -52,18 +67,18 @@ class _PostCardState extends State<PostCard> {
               SizedBox(height: 50, child: Row(children: <Widget>[_buildPostImage(post), _buildPostTitleAndSummary(post)])),
               Divider(color: Colors.grey),
               _buildPostDetails(post),
-              Divider(color: Colors.grey),
-              Row(
+              //Divider(color: Colors.grey),
+              /*Row(
                 children: [
                   _buildLikeCount(post),
                   _buildCommentCount(post),
                 ],
-              ),
+              ),*/
             ],
           ),
         ),
       ),
-    );
+    ));
 
   }
   @override
@@ -72,7 +87,7 @@ class _PostCardState extends State<PostCard> {
     super.initState();
     user = FirebaseAuth.instance.currentUser;
     appUser = AppUser.WithUID(user.uid);
-    getPosts();
+    //getPosts();
 
     //getUser();
   }
@@ -160,7 +175,7 @@ class _PostCardState extends State<PostCard> {
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             //_buildLocation(post),
-            SizedBox(width: 170),
+            SizedBox(width: 260),
             _buildPostTimeStamp(post)
           ],
         ),
@@ -219,9 +234,9 @@ class _PostCardState extends State<PostCard> {
         children: <Widget>[
           _buildUserImage(post),
           _buildNameAndUsername(post),
-          SizedBox(width: 5,),
-          SizedBox(width: 5,),
-          Container(color: AppColors.primary, height: 48, width: 1.5,),
+          //SizedBox(width: 5,),
+          //SizedBox(width: 5,),
+          //Container(color: AppColors.primary, height: 48, width: 1.5,),
           _buildLikesAndComments(post),
           //Container(color: AppColors.primary, height: 48, width: 1.5,),
           SizedBox(width:10.0,),
@@ -260,7 +275,7 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
-
+  /*
   _buildLikesAndComments (Post post) {
 
     List<String> usernames = ['Claire Boucher','Mark Geller','Lana Greene','Eric Boucher','Isabella Buffay', 'Matthew Stan'];
@@ -279,7 +294,7 @@ class _PostCardState extends State<PostCard> {
             SizedBox(width: 5,),
             Container(color: AppColors.primary, height: 48, width: 1.5,),
             SizedBox(width: 5,),
-            IconButton(icon: Icon(Icons.mode_comment_outlined,size: 27, color: AppColors.primary,), onPressed: (){}),
+            IconButton(icon: Icon(Icons.mode_comment_outlined,size: 27, color: AppColors.primary,), onPressed: (){_showPopUp();}),
             SizedBox(width: 5,),
             Container(color: AppColors.primary, height: 48, width: 1.5,),
             SizedBox(width: 5,),
@@ -288,10 +303,254 @@ class _PostCardState extends State<PostCard> {
 
             Container(color: AppColors.primary, height: 48, width: 1.5,),
 
+
           ]
       ),
 
     );
+  }
+  */
+
+  _buildLikesAndComments (Post post) {
+
+    List<String> usernames = ['Claire Boucher','Mark Geller','Lana Greene','Eric Boucher','Isabella Buffay', 'Matthew Stan'];
+    List<String> userEmails = ['cboucher@gmail.com','markgeller@gmail.com','lanagreene@gmail.com','eboucher@gmail.com','bellabuff@gmail.com', 'mattstan@gmail.com'];
+
+    return Row(
+      children: [
+        Text(post.likes.toString(), style: TextStyle(fontSize: 14), ),
+        Container(
+          width: 18,
+          child: IconButton(
+              icon: Icon(liked? Icons.favorite : Icons.favorite_border,size: 25, color: Colors.pink[200],),
+              onPressed: () {
+                setState(() {
+                  liked = !liked;
+                  sendLike();
+                });
+              }),
+        ),
+        SizedBox(width: 45),
+        Text(post.comments.toString(), style: TextStyle(fontSize: 14), ),
+        Container(
+          width: 18,
+          child: IconButton(
+              icon: Icon(Icons.mode_comment_outlined,size: 25, color: AppColors.primary,),
+              onPressed: (){
+                showComments();
+              }),
+        ),
+        SizedBox(width: 45),
+        Container(
+          width: 18,
+          child: IconButton(icon: Icon(Icons.share,size: 25, color: AppColors.primary,), onPressed: (){}),
+
+        ),
+        SizedBox(width: 10),
+
+      ],
+    );
+  }
+
+  showComments() {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 20,),
+                _buildCaption(),
+                _buildComments(),
+                _buildCommenting()
+              ],
+            ),
+          );
+        });
+  }
+
+  _buildCaption()
+  {
+    if(post.text == "")
+      return Container();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12,0,12,12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          Text(post.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+          SizedBox(width: 10,),
+          Expanded(child: Text(post.text, style: TextStyle(fontSize: 18),)),
+        ],
+      ),
+    );
+  }
+
+  _buildComments()
+  {
+    if(comments.isEmpty)
+      return Container();
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: ListView.builder(
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: post.commentsList.length,
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        padding: EdgeInsets.all(0),
+        itemBuilder: (context, index) {
+          return Row(
+            children: [
+              Text(post.commentsList[index].userCommenting, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+              SizedBox(width: 10,),
+              Text(post.commentsList[index].content, style: TextStyle(fontSize: 16),),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  _buildCommenting()
+  {
+    return Container(
+        width: MediaQuery.of(context).size.width*0.95,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    contentPadding: EdgeInsets.all(0),
+                    title: TextField(
+                      controller: commentsController,
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        color: Colors.grey[700],
+                      ),
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(10.0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                          borderSide: BorderSide(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: AppColors.primary,
+                          ),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        hintText: "Write your comment...",
+                        hintStyle: TextStyle(
+                          fontSize: 15.0,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      maxLines: null,
+                    ),
+                    trailing: IconButton(
+                      onPressed: (){
+                        sendComment();
+                        commentsController.clear();
+                      },
+                      icon: Icon(Icons.send, color: AppColors.primary, size: 30,),
+                      padding: EdgeInsets.all(0),
+                    ),
+                  ),])
+          ],
+        )
+    );
+  }
+
+  sendComment() async
+  {
+    if (commentsController.text.isNotEmpty) {
+      await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).createComment(
+          postID: post.postID,
+          content: commentsController.text,
+          userCommented: post.user.username,
+          commentingUsername: appUser.username,
+          date: DateTime.now());
+      //DateFormat.yMd().format(DateTime.now())
+    }
+    getComments();
+  }
+  sendLike() async {
+    if (liked)
+    {
+      await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).sendLike(post.postID, post.user.UID);
+    }
+    else {
+      await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).deleteLike(post.postID, post.user.UID);
+    }
+  }
+
+  getComments() async
+  {
+    CollectionReference commentsCollection = FirebaseFirestore.instance.collection('comments');
+    commentsCollection.where("postID", isEqualTo: post.postID).get().then((value) {
+      comments = [];
+      commentsNo = 0;
+      for(var doc in value.docs)
+      {
+        Timestamp time = doc.get('date');
+        DateTime date = DateTime.fromMicrosecondsSinceEpoch(time.microsecondsSinceEpoch);
+        Comment comment = Comment(postID: post.postID, content: doc.get('content'), userCommentedOn: doc.get('userCommented'),
+            userCommenting: doc.get('userCommenting'), date: date);
+        comments.add(comment);
+        commentsNo++;
+      }
+      setState(() {
+        comments.sort((a,b) => a.date.compareTo(b.date));
+      });
+    });
+  }
+
+
+
+  void _showPopUp() {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject();
+
+    showMenu<String>(
+      context: context,
+      position:  RelativeRect.fromRect(
+          _tapPosition & Size(1, 1), // smaller rect, the touch area
+          Offset.zero & overlay.size // Bigger rect, the entire screen
+      ),
+      items: [
+        (post.user.UID != FirebaseAuth.instance.currentUser.uid) ?
+        PopupMenuItem<String>(
+            child: const Text('Report'), value: '1') :
+        PopupMenuItem<String>(
+          value: "2",
+          child: Text('Delete'),
+        )
+      ],
+      elevation: 8.0,
+    )
+        .then<void>((String itemSelected) {
+
+      print(itemSelected);
+      if (itemSelected == null) return;
+
+      if(itemSelected == "1"){
+        showReportDialog(context, "post", reportPost); }
+      if (itemSelected == "2") {
+        DatabaseService(uid: appUser.UID).deleteTextPost(post.postID);
+      }
+
+    });
+  }
+  void _storePosition(TapDownDetails details) {
+    _tapPosition = details.globalPosition;
+  }
+
+  reportPost() async {
+    await DatabaseService(uid: appUser.UID).sendPostReport(post.postID);
   }
 
   _buildUserImage (Post post) {
