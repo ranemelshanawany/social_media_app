@@ -89,12 +89,16 @@ class _FeedState extends State<Feed> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
+    print("First length: ");
+    print(posts.length);
     if(!userLoaded)
       getUser();
     if(!postsFetched)
       getPosts();
+    print("Second length: ");
     print(posts.length);
+
+
       return Column(
         children: [
           Row(
@@ -115,10 +119,13 @@ class _FeedState extends State<Feed> {
         return Expanded(
           child: Container(
             padding: EdgeInsets.all(8),
-
-            child: ListView.builder(
-                itemCount: 6,
-                itemBuilder: (BuildContext context, int index) => PostCard(index))),
+              child: SizedBox(
+                height: 8,
+                child: new ListView.builder(
+                    itemCount: posts.length,
+                    itemBuilder: (BuildContext context, int index) => PostCard(posts[index])),
+              ),
+            ),
           );
         }
 

@@ -1,150 +1,228 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../models/Post.dart';
+import '../../models/User.dart';
+import '../../services/database.dart';
 import '../../utils/color.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
-class PostCard extends StatelessWidget {
+class PostCard extends StatefulWidget {
 
-  final int index;
-  PostCard(this.index);
+  final Post post;
+  PostCard(this.post);
+
+  TextEditingController textController = TextEditingController();
+
+  @override
+  _PostCardState createState() => _PostCardState(post);
+}
+
+class _PostCardState extends State<PostCard> {
+  final Post post;
+
+
+  FirebaseAuth auth = FirebaseAuth.instance;
+  User user;
+  AppUser appUser;
+
+  List<Post> posts = [];
+  List<String> friendsUID = [];
+
+  bool userLoaded = false;
+  bool postsFetched = false;
+
+  _PostCardState(this.post);
 
   @override
   Widget build(BuildContext context) {
+
     return AspectRatio(
       aspectRatio: 7 /4,
-      child: Card(
+      child: new Card(
         elevation: 1,
         child: Container(
           margin: const EdgeInsets.all(3.0),
           padding: const EdgeInsets.all(2.0),
           child: Column(
             children: <Widget>[
-              _LocationAndTime(index),
+              _buildLocationAndTime(post),
               Divider(color: Colors.grey),
-              _Post(index),
+              SizedBox(height: 50, child: Row(children: <Widget>[_buildPostImage(post), _buildPostTitleAndSummary(post)])),
               Divider(color: Colors.grey),
-              _PostDetails(index),
+              _buildPostDetails(post),
+              Divider(color: Colors.grey),
+              Row(
+                children: [
+                  _buildLikeCount(post),
+                  _buildCommentCount(post),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    user = FirebaseAuth.instance.currentUser;
+    appUser = AppUser.WithUID(user.uid);
+    getPosts();
+
+    //getUser();
+  }
+
+
+
+  getUser()
+  {
+    DatabaseService(uid: user.uid).userCollection.doc(user.uid).snapshots().listen((snapshot) {
+      setState(() {
+        appUser.UID = snapshot.get("uid");
+        appUser.username = snapshot.get("username");
+        appUser.email = snapshot.get("email");
+        appUser.photoUrl = snapshot.get("photoUrl");
+        appUser.displayName = snapshot.get("displayName");
+        appUser.bio = snapshot.get("bio");
+        userLoaded = true;
+        return appUser;
+      });
+    });
+  }
+
+  getPosts() {
+    friendsUID = [user.uid];
+
+    CollectionReference textPostsCollection = FirebaseFirestore.instance.collection('textPost');
+    CollectionReference imagePostsCollection = FirebaseFirestore.instance.collection('imagePost');
+    CollectionReference followCollection = FirebaseFirestore.instance.collection('follow');
+
+    //getting list of friends
+    followCollection.where('follower', isEqualTo: user.uid).get().then((value) {
+      for(var doc in value.docs)
+      {
+        friendsUID.add(doc.get('following'));
+      }
+    });
+
+
+    textPostsCollection.snapshots().listen((event) {
+      for (var docc in event.docs) {
+        Map doc = docc.data();
+        if (friendsUID.contains(doc['user'])) {
+          Post post = ImagePost(
+            postID: docc.id,
+            text: doc['text'] ?? '',
+            date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch)  ?? '',
+            user: AppUser.WithUID(doc['user']),
+          );
+          posts.add(post);
+        }
+        posts.sort((a,b) => b.date.compareTo(a.date) );
+      }
+    });
+    imagePostsCollection.snapshots().listen((event) {
+      for (var docc in event.docs) {
+        Map doc = docc.data();
+        if (friendsUID.contains(doc['user'])) {
+          Post post = ImagePost(
+            imageURL: doc['photoAddress'],
+            postID: docc.id,
+            text: doc['text'] ?? '',
+            date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch)  ?? '',
+            user: AppUser.WithUID(doc['user']),
+          );
+          posts.add(post);
+        }
+        posts.sort((a,b) => b.date.compareTo(a.date) );
+      }
+    });
+
+    setState(() {
+      posts.sort((a,b) => b.date.compareTo(a.date) );
+    });
+  }
+
+
+  _buildLocationAndTime(Post post) {
+
+      return Container(
+        //width: 400,
+        height: 20,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            //_buildLocation(post),
+            SizedBox(width: 170),
+            _buildPostTimeStamp(post)
+          ],
+        ),
+      );
+
+  }
+
+  _buildPostTitleAndSummary(Post post) {
+
+    //final TextStyle titleTheme = Theme.of(context).textTheme.title;
+    //final TextStyle summaryTheme = Theme.of(context).textTheme.body1;
+
+    List<String> titles = ['Looking for a roommate!'];
+    List<String> summaries = ['Hi! I am looking for a roommate who is clean, animal lover and vegetarian:)'];
+
+    return Expanded(
+      flex: 3,
+      child: SizedBox(
+        height: 20,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 2.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              //SizedBox(height: 2.0),
+              //Text(titles[index], style: TextStyle(fontWeight: FontWeight.w600,fontSize: 18, color: Colors.grey[900])),
+              //SizedBox(height: 4.0),
+              Expanded(
+                child: Text(post.text,
+                  style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15, color: Colors.grey[600]),),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-}
 
-class _Post extends StatelessWidget {
-  final int index;
 
-  _Post(this.index);
+  _buildPostImage(Post post) {
 
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      flex: 3,
-      child: Row(children: <Widget>[_PostImage(index), _PostTitleAndSummary(index)]),
+    return Expanded(flex: 2, child: CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl == null?
+    "https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2"
+        : post.user.photoUrl), radius: 20,),
     );
   }
-}
 
-class _LocationAndTime extends StatelessWidget {
-  final int index;
+  _buildPostDetails(Post post) {
 
-  _LocationAndTime(this.index);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      //width: 400,
-      height: 20,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          _Location(index),
-          SizedBox(width: 170),
-          _PostTimeStamp(index)
-        ],
-      ),
-    );
-  }
-}
-
-
-class _PostTitleAndSummary extends StatelessWidget {
-  final int index;
-
-  _PostTitleAndSummary(this.index);
-
-  @override
-  Widget build(BuildContext context) {
-    final TextStyle titleTheme = Theme.of(context).textTheme.title;
-    final TextStyle summaryTheme = Theme.of(context).textTheme.body1;
-
-    List<String> titles = ['Looking for a roommate!',
-      'Roommate in Kadıköy',
-      'Apartment for rent',
-      'Apartment Free for 8 Months',
-      'Looking for a Roommate ASAP!',
-      'Apartment with Beautiful View'];
-    List<String> summaries = ['Hi! I am looking for a roommate who is clean, animal lover and vegetarian:)',
-      'Hi. I am looking for a roommate for my place in Kadıköy. Contact me if you are interested.',
-      'Sadly, I am leaving my cozy apartment at the end of the month. You can contact me if you are interested in renting.',
-      'I will be out of town for 8 months so if you are looking for a place to rent, contact me.',
-      'I am new in İstanbul and need a place to stay as soon as possible. Please contact me!',
-      'I am looking for a roommate to my apartment with a georgeous view. Contact me!!'];
-
-
-    return Expanded(
-      flex: 3,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 4.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            SizedBox(height: 2.0),
-            Text(titles[index], style: TextStyle(fontWeight: FontWeight.w600,fontSize: 18, color: Colors.grey[900])),
-            SizedBox(height: 4.0),
-            Expanded(
-              child: Text(summaries[index],
-                  style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15, color: Colors.grey[600]),),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PostImage extends StatelessWidget {
-  final int index;
-
-  _PostImage(this.index);
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(flex: 2, child: Image.asset('assets/images/apartments/$index.jpeg'));
-  }
-}
-
-class _PostDetails extends StatelessWidget {
-  final int index;
-
-  _PostDetails(this.index);
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
-          _UserImage(index),
-          _NameAndUsername(index),
+          _buildUserImage(post),
+          _buildNameAndUsername(post),
           SizedBox(width: 5,),
           SizedBox(width: 5,),
           Container(color: AppColors.primary, height: 48, width: 1.5,),
-          _LikesAndComments(index),
+          _buildLikesAndComments(post),
           //Container(color: AppColors.primary, height: 48, width: 1.5,),
           SizedBox(width:10.0,),
           //_PostTimeStamp(index),
@@ -152,21 +230,12 @@ class _PostDetails extends StatelessWidget {
       ),
     );
   }
-}
 
-class _NameAndUsername extends StatelessWidget {
-  final int index;
+  _buildNameAndUsername (Post post) {
 
-  _NameAndUsername(this.index);
+    List<String> names = ['Claire Boucher','Mark Geller','Lana Greene','Eric Boucher','Isabella Buffay', 'Matthew Stan'];
+    List<String> usernames = ['@cboucher','@markgeller','@lanagreene','@eboucher','@bellabuff', '@mattstan'];
 
-  List<String> names = ['Claire Boucher','Mark Geller','Lana Greene','Eric Boucher','Isabella Buffay', 'Matthew Stan'];
-  List<String> usernames = ['@cboucher','@markgeller','@lanagreene','@eboucher','@bellabuff', '@mattstan'];
-
-
-  @override
-  Widget build(BuildContext context) {
-    //final TextStyle nameTheme = Theme.of(context).textTheme.subtitle;
-    //final TextStyle emailTheme = Theme.of(context).textTheme.body1;
 
     return Expanded(
       flex: 5,
@@ -176,111 +245,121 @@ class _NameAndUsername extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(names[index], style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[900]
+            Text(post.user.username, style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[900]
             ),),
             SizedBox(height: 2.0),
-            Text(usernames[index], style:  TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600]
+            Text(post.user.displayName, style:  TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600]
             ),),
           ],
         ),
       ),
     );
   }
-}
-
-class _LikesAndComments extends StatelessWidget {
-  final int index;
-
-  _LikesAndComments(this.index);
-
-  List<String> usernames = ['Claire Boucher','Mark Geller','Lana Greene','Eric Boucher','Isabella Buffay', 'Matthew Stan'];
-  List<String> userEmails = ['cboucher@gmail.com','markgeller@gmail.com','lanagreene@gmail.com','eboucher@gmail.com','bellabuff@gmail.com', 'mattstan@gmail.com'];
 
 
-  @override
-  Widget build(BuildContext context) {
-    //final TextStyle nameTheme = Theme.of(context).textTheme.subtitle;
-    //final TextStyle emailTheme = Theme.of(context).textTheme.body1;
+  _buildLikesAndComments (Post post) {
+
+    List<String> usernames = ['Claire Boucher','Mark Geller','Lana Greene','Eric Boucher','Isabella Buffay', 'Matthew Stan'];
+    List<String> userEmails = ['cboucher@gmail.com','markgeller@gmail.com','lanagreene@gmail.com','eboucher@gmail.com','bellabuff@gmail.com', 'mattstan@gmail.com'];
+
 
     return Expanded(
       //width: 50,
       //height: 50,
       flex: 7,
       child:Row(
-        children: [
-          //SizedBox(width: 10,),
-          SizedBox(width: 5,),
-          IconButton(icon: Icon(Icons.thumb_up_alt_outlined,size: 27, color: AppColors.primary,), onPressed: () {}),
-          SizedBox(width: 5,),
-          Container(color: AppColors.primary, height: 48, width: 1.5,),
-          SizedBox(width: 5,),
-          IconButton(icon: Icon(Icons.mode_comment_outlined,size: 27, color: AppColors.primary,), onPressed: (){}),
-          SizedBox(width: 5,),
-          Container(color: AppColors.primary, height: 48, width: 1.5,),
-          SizedBox(width: 5,),
-          IconButton(icon: Icon(Icons.share,size: 27, color: AppColors.primary,), onPressed: (){}),
-          SizedBox(width: 5,),
+          children: [
+            //SizedBox(width: 10,),
+            SizedBox(width: 5,),
+            IconButton(icon: Icon(Icons.thumb_up_alt_outlined,size: 27, color: AppColors.primary,), onPressed: () {}),
+            SizedBox(width: 5,),
+            Container(color: AppColors.primary, height: 48, width: 1.5,),
+            SizedBox(width: 5,),
+            IconButton(icon: Icon(Icons.mode_comment_outlined,size: 27, color: AppColors.primary,), onPressed: (){}),
+            SizedBox(width: 5,),
+            Container(color: AppColors.primary, height: 48, width: 1.5,),
+            SizedBox(width: 5,),
+            IconButton(icon: Icon(Icons.share,size: 27, color: AppColors.primary,), onPressed: (){}),
+            SizedBox(width: 5,),
 
-          Container(color: AppColors.primary, height: 48, width: 1.5,),
+            Container(color: AppColors.primary, height: 48, width: 1.5,),
 
-        ]
+          ]
       ),
 
     );
   }
-}
 
-class _UserImage extends StatelessWidget {
-  final int index;
+  _buildUserImage (Post post) {
 
-  _UserImage(this.index);
+    List<String> usernames = ['Claire Boucher','Mark Geller','Lana Greene','Eric Boucher','Isabella Buffay', 'Matthew Stan'];
+    List<String> userEmails = ['cboucher@gmail.com','markgeller@gmail.com','lanagreene@gmail.com','eboucher@gmail.com','bellabuff@gmail.com', 'mattstan@gmail.com'];
 
-  @override
-  Widget build(BuildContext context) {
     return Container(
       //flex: 2,
       width: 45,
       height: 50,
-      child: CircleAvatar(
-        backgroundImage: AssetImage('assets/images/users/$index.jpeg'),
-      ),
+      child:
+      CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl == null?
+      "https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2"
+          : post.user.photoUrl), radius: 20,),
     );
   }
-}
 
-class _PostTimeStamp extends StatelessWidget {
-  final int index;
-  _PostTimeStamp(this.index);
+  _buildPostTimeStamp (Post post) {
 
-  List<String> postTimes = ["20 April, 2021","19 April, 2021","18 April, 2021","17 April, 2021","16 April, 2021","15 April, 2021","14 April, 2021",];
+    List<String> postTimes = ["20 April, 2021","19 April, 2021","18 April, 2021","17 April, 2021","16 April, 2021","15 April, 2021","14 April, 2021",];
 
-  @override
-  Widget build(BuildContext context) {
     return SizedBox(
       //flex:2,
       height: 20,
       width: 100,
-      child: Text(postTimes[index], style: TextStyle(
+      child: Text(DateFormat.yMd().format(post.date), style: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: Colors.green[900],
       ),),
     );
   }
-}
 
-class _Location extends StatelessWidget {
-  final int index;
-  _Location(this.index);
+  _buildLikeCount(Post post) {
+    int likes = post.likes;
+    String strLikes = likes.toString();
+    return SizedBox(
 
-  List<String> postTimes = ["İstanbul","Berlin","İstanbul","London","Barcelona","İstanbul","London",];
+      height: 20,
+      width: 100,
+      child: Text(strLikes, style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: Colors.green[900],
+      ),),
+    );
+  }
+  _buildCommentCount(Post post) {
+    int likes = post.comments;
+    String strComments = likes.toString();
+    return SizedBox(
 
-  @override
-  Widget build(BuildContext context) {
+      height: 20,
+      width: 100,
+      child: Text(strComments, style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: Colors.green[900],
+      ),),
+    );
+  }
+
+
+  _buildLocation (Post post) {
+
+    List<String> postTimes = ["İstanbul","Berlin","İstanbul","London","Barcelona","İstanbul","London",];
+
     return Container(
       width: 100,
       height: 20,
@@ -297,7 +376,7 @@ class _Location extends StatelessWidget {
           SizedBox(width:10,),
           Container(
             padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
-            child: Text(postTimes[index], style: TextStyle(
+            child: Text(postTimes[1], style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Colors.green[900],
@@ -309,4 +388,7 @@ class _Location extends StatelessWidget {
       ),
     );
   }
+
 }
+
+
