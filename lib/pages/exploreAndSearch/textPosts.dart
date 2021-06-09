@@ -3,10 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project_socialmedia/models/Comments.dart';
 import 'package:project_socialmedia/models/User.dart';
+import 'package:project_socialmedia/pages/reportDialog.dart';
 import 'package:project_socialmedia/services/database.dart';
 import '../../utils/color.dart';
 import '../../models/Post.dart';
 import 'package:intl/intl.dart';
+
+import '../otherUserProfile.dart';
 
 class TextPostCard extends StatefulWidget {
 
@@ -19,6 +22,8 @@ class TextPostCard extends StatefulWidget {
 
 class _TextPostCardState extends State<TextPostCard> {
   final Post post;
+
+  var _tapPosition;
 
   int likes = 0;
   int commentsNo = 0;
@@ -44,36 +49,50 @@ class _TextPostCardState extends State<TextPostCard> {
     if (!likeFetched)
       getLikedStatus(post.postID);
 
-    return Card(
-      elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildUser(),
-            SizedBox(height: 10,),
-            _buildContent(),
-            _buildInteractions()
-          ],
+    return GestureDetector(
+      onTapDown: _storePosition,
+      child: Card(
+        elevation: 0,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildUser(),
+              SizedBox(height: 10,),
+              _buildContent(),
+              _buildInteractions()
+            ],
+          ),
         ),
-      ),
 
+      ),
     );
   }
 
   _buildUser()
   {
-    return Row(
-      children: [
-        CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl == null?
-        "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg"
-            : post.user.photoUrl), radius: 20,),
-        SizedBox(width: 10,),
-        Text(post.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
-        Spacer(),
-        Text(DateFormat.yMd().format(post.date), style: TextStyle(color: Colors.grey),),
-      ],
+    return InkWell(
+      onTap: (){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProfileBuilder(post.user)),
+        );
+      },
+      child: Row(
+        children: [
+          CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl == null?
+          "https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2"
+              : post.user.photoUrl), radius: 20,),
+          SizedBox(width: 10,),
+          Text(post.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+          Spacer(),
+          Text(DateFormat.yMd().format(post.date), style: TextStyle(color: Colors.grey),),
+          IconButton(icon: Icon(Icons.more_vert), onPressed: () {
+            _showPopUp();
+          })
+        ],
+      ),
     );
   }
 
@@ -136,21 +155,19 @@ class _TextPostCardState extends State<TextPostCard> {
   {
     CollectionReference commentsCollection = FirebaseFirestore.instance.collection('comments');
     commentsCollection.where("postID", isEqualTo: post.postID).get().then((value) {
+      comments = [];
+      commentsNo = 0;
+      for(var doc in value.docs)
+      {
+        Timestamp time = doc.get('date');
+        DateTime date = DateTime.fromMicrosecondsSinceEpoch(time.microsecondsSinceEpoch);
+        Comment comment = Comment(postID: post.postID, content: doc.get('content'), userCommentedOn: doc.get('userCommented'),
+            userCommenting: doc.get('userCommenting'), date: date);
+        comments.add(comment);
+        commentsNo++;
+      }
       setState(() {
-        comments = [];
-        commentsNo = 0;
-        for(var doc in value.docs)
-        {
-          Timestamp time = doc.get('date');
-          DateTime date = DateTime.fromMicrosecondsSinceEpoch(time.microsecondsSinceEpoch);
-          Comment comment = Comment(postID: post.postID, content: doc.get('content'), userCommentedOn: doc.get('userCommented'),
-              userCommenting: doc.get('userCommenting'), date: date);
-          comments.add(comment);
-          commentsNo++;
-        }
-        setState(() {
-          comments.sort((a,b) => a.date.compareTo(b.date));
-        });
+        comments.sort((a,b) => a.date.compareTo(b.date));
       });
     });
   }
@@ -232,7 +249,7 @@ class _TextPostCardState extends State<TextPostCard> {
         itemBuilder: (context, index) {
           return Row(
             children: [
-              Text(post.commentsList[index].userCommentedOn, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+              Text(post.commentsList[index].userCommenting, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
               SizedBox(width: 10,),
               Text(post.commentsList[index].content, style: TextStyle(fontSize: 16),),
             ],
@@ -310,4 +327,38 @@ class _TextPostCardState extends State<TextPostCard> {
     getComments();
   }
 
+
+  reportPost() async {
+    await DatabaseService(uid: appUser.UID).sendPostReport(post.postID);
+  }
+
+  void _showPopUp() {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject();
+
+    showMenu<String>(
+      context: context,
+      position:  RelativeRect.fromRect(
+          _tapPosition & Size(1, 1), // smaller rect, the touch area
+          Offset.zero & overlay.size // Bigger rect, the entire screen
+      ),
+      items: [
+        PopupMenuItem<String>(
+            child: const Text('Report'), value: '1'),
+      ],
+      elevation: 8.0,
+    )
+        .then<void>((String itemSelected) {
+
+      if (itemSelected == null) return;
+
+      if(itemSelected == "1"){
+        showReportDialog(context, "post", reportPost);
+      }
+
+    });
+  }
+
+  void _storePosition(TapDownDetails details) {
+    _tapPosition = details.globalPosition;
+  }
 }

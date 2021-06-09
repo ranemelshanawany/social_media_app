@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:project_socialmedia/models/Comments.dart';
 import 'package:project_socialmedia/models/User.dart';
 import 'package:project_socialmedia/pages/otherUserProfile.dart';
+import 'package:project_socialmedia/pages/reportDialog.dart';
 import '../../utils/color.dart';
 import '../../models/Post.dart';
 import 'package:project_socialmedia/services/database.dart';
@@ -143,6 +144,17 @@ class _PostPageState extends State<PostPage> {
         onPressed: () => Navigator.of(context).pop(),
       ),
       centerTitle: true,
+      actionsIconTheme:  IconThemeData(color: Colors.white),
+      actions: [
+        PopupMenuButton<int>(
+          onSelected: (item) { showReportDialog(context, "post", reportPost); },
+          itemBuilder: (context) => [
+            PopupMenuItem<int>(
+              value: 1,
+              child: Text('Report'),
+            ),
+          ],)
+      ],
     );
   }
 
@@ -246,7 +258,6 @@ class _PostPageState extends State<PostPage> {
 
   sendComment() async
   {
-    print(appUser.username);
     if (commentsController.text.isNotEmpty) {
       await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).createComment(
         postID: post.postID,
@@ -348,6 +359,10 @@ class _PostPageState extends State<PostPage> {
         screenClassOverride: 'Image_post_Page'
 
     );
+  }
+
+  reportPost() async {
+    await DatabaseService(uid: user.uid).sendPostReport(post.postID);
   }
 
 }

@@ -20,6 +20,7 @@ class DatabaseService{
   CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
   CollectionReference commentsCollection = FirebaseFirestore.instance.collection('comments');
   CollectionReference userReportsCollection = FirebaseFirestore.instance.collection('userReports');
+  CollectionReference postReportsCollection = FirebaseFirestore.instance.collection('postReports');
 
   final CollectionReference postCollection = FirebaseFirestore.instance.collection('posts');
 
@@ -49,6 +50,14 @@ class DatabaseService{
   {
     return await userReportsCollection.doc().set({
       'reportedUser':user,
+      'reporter': uid,
+    });
+  }
+
+  Future<void> sendPostReport(String postID) async
+  {
+    return await postReportsCollection.doc().set({
+      'reportedPost':postID,
       'reporter': uid,
     });
   }

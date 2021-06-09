@@ -3,10 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project_socialmedia/models/Comments.dart';
 import 'package:project_socialmedia/models/User.dart';
+import 'package:project_socialmedia/pages/reportDialog.dart';
 import 'package:project_socialmedia/services/database.dart';
 import '../../utils/color.dart';
 import '../../models/Post.dart';
 import 'package:intl/intl.dart';
+
+import '../otherUserProfile.dart';
 
 class ImagePostCard extends StatefulWidget {
 
@@ -45,35 +48,49 @@ class _ImagePostCardState extends State<ImagePostCard> {
       getLikedStatus(post.postID);
     }
 
-    return Card(
-      elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildUser(),
-            SizedBox(height: 10,),
-            _buildContent(),
-            _buildInteractions()
-          ],
+    return GestureDetector(
+      onTapDown: _storePosition,
+      child: Card(
+        elevation: 0,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildUser(),
+              SizedBox(height: 10,),
+              _buildContent(),
+              _buildInteractions()
+            ],
+          ),
         ),
-      ),
 
+      ),
     );
   }
 
 
   _buildUser()
   {
-    return Row(
-      children: [
-        CircleAvatar(backgroundImage: post.user.photoUrl == null? NetworkImage(post.user.photoUrl): AssetImage('assets/images/John.jpeg'), radius: 20,),
-        SizedBox(width: 10,),
-        Text(post.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
-        Spacer(),
-        Text(DateFormat.yMd().format(post.date), style: TextStyle(color: Colors.grey),),
-      ],
+    return InkWell(
+      onTap: (){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProfileBuilder(post.user)),
+        );
+      },
+      child: Row(
+        children: [
+          CircleAvatar(backgroundImage: post.user.photoUrl == null? NetworkImage(post.user.photoUrl): AssetImage('assets/images/John.jpeg'), radius: 20,),
+          SizedBox(width: 10,),
+          Text(post.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+          Spacer(),
+          Text(DateFormat.yMd().format(post.date), style: TextStyle(color: Colors.grey),),
+          IconButton(icon: Icon(Icons.more_vert), onPressed: () {
+            _showPopUp();
+          })
+        ],
+      ),
     );
   }
 
@@ -326,6 +343,41 @@ class _ImagePostCardState extends State<ImagePostCard> {
     setState(() {
       getComments();
     });
+  }
+
+  reportPost() async {
+    await DatabaseService(uid: appUser.UID).sendPostReport(post.postID);
+  }
+
+  var _tapPosition;
+  void _showPopUp() {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject();
+
+    showMenu<String>(
+      context: context,
+      position:  RelativeRect.fromRect(
+          _tapPosition & Size(1, 1), // smaller rect, the touch area
+          Offset.zero & overlay.size // Bigger rect, the entire screen
+      ),
+      items: [
+        PopupMenuItem<String>(
+            child: const Text('Report'), value: '1'),
+      ],
+      elevation: 8.0,
+    )
+        .then<void>((String itemSelected) {
+
+      if (itemSelected == null) return;
+
+      if(itemSelected == "1"){
+        showReportDialog(context, "post", reportPost);
+      }
+
+    });
+  }
+
+  void _storePosition(TapDownDetails details) {
+    _tapPosition = details.globalPosition;
   }
 
 }

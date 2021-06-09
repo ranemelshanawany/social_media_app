@@ -8,7 +8,7 @@ Future<void> showReportDialog(BuildContext context, String item, Function functi
     builder: (BuildContext context) {
       return AlertDialog(
         title: Text('Report ' + item),
-        content: Text('Are you sure you want to report this user?'),
+        content: Text('Are you sure you want to report this $item?'),
         actions: <Widget>[
           TextButton(
             child: Text('Yes'),

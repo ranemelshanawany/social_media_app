@@ -25,17 +25,14 @@ class _MyAppState extends State<MyApp> {
         future: MySharedPreferences.init(),
         builder: (context, snapshot) {
           if(snapshot.data != true)
-            return Container(
-              color: Colors.white,
-              child: CircularProgressIndicator(),
-            );
+            return MaterialApp(home: Scaffold(body: CircularProgressIndicator()));
           return FutureBuilder(
               future: _initialization,
               builder: (context, snapshot2) {
                 if (snapshot.hasError) {
                   print(
                       'Cannot connect to firebase: ' + snapshot2.data[0].error);
-                  return CircularProgressIndicator();
+                  return MaterialApp(home: Scaffold(body: CircularProgressIndicator()));
                 }
                 if (snapshot.connectionState == ConnectionState.done) {
                   // FirebaseCrashlytics.instance.crash(); // will crash the currently running application.
@@ -43,7 +40,7 @@ class _MyAppState extends State<MyApp> {
                   print("Firebase Connected");
                   return BuildApp();
                 }
-                return CircularProgressIndicator();
+                return MaterialApp(home: Scaffold(body: CircularProgressIndicator()));
               }
           );
         }

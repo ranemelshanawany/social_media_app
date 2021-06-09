@@ -6,7 +6,7 @@ class AppUser {
   String UID ="";
   String username = "";
   String email = "";
-  String photoUrl = "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg";
+  String photoUrl = "https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2";
   String displayName = "";
   String bio = "";
   bool private = false;
@@ -29,7 +29,7 @@ class AppUser {
       UID = uid;
       username = snapshot.get("username") ?? "";
       email = snapshot.get("email") ?? "";
-      photoUrl = snapshot.get("photoUrl") ?? "";
+      photoUrl = snapshot.get("photoUrl") ?? "https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2";
       displayName = snapshot.get("displayName")?? "";
       bio = snapshot.get("bio")?? "";
       private = snapshot.get("private")?? false;
