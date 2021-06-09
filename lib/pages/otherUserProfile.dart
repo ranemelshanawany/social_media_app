@@ -169,7 +169,6 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
       posts.sort((a,b) => b.date.compareTo(a.date) );
       postsLoading = false;
     });
-
   }
 
   _buildFollowButton()

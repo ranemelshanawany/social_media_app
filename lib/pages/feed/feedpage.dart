@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/models/Post.dart';
 import 'package:project_socialmedia/models/User.dart';
 import 'package:project_socialmedia/services/database.dart';
 import 'package:project_socialmedia/utils/shared_prefs.dart';
@@ -35,6 +37,7 @@ class _FeedState extends State<Feed> {
     _setCurrentScreen();
     user = FirebaseAuth.instance.currentUser;
     appUser = AppUser.WithUID(user.uid);
+    getPosts();
     //getUser();
   }
 
@@ -58,8 +61,12 @@ class _FeedState extends State<Feed> {
   FirebaseAuth auth = FirebaseAuth.instance;
   User user;
   AppUser appUser;
+  
+  List<Post> posts = [];
+  List<String> friendsUID = [];
 
   bool userLoaded = false;
+  bool postsFetched = false;
 
   getUser()
   {
@@ -85,7 +92,9 @@ class _FeedState extends State<Feed> {
 
     if(!userLoaded)
       getUser();
-
+    if(!postsFetched)
+      getPosts();
+    print(posts.length);
       return Column(
         children: [
           Row(
@@ -165,6 +174,59 @@ class _FeedState extends State<Feed> {
     ),
 
     );
+  }
+
+  getPosts() {
+    friendsUID = [user.uid];
+    
+    CollectionReference textPostsCollection = FirebaseFirestore.instance.collection('textPost');
+    CollectionReference imagePostsCollection = FirebaseFirestore.instance.collection('imagePost');
+    CollectionReference followCollection = FirebaseFirestore.instance.collection('follow');
+    
+    //getting list of friends
+    followCollection.where('follower', isEqualTo: user.uid).get().then((value) {
+      for(var doc in value.docs)
+      {
+        friendsUID.add(doc.get('following'));
+      }
+    });
+    
+    
+    textPostsCollection.snapshots().listen((event) {
+      for (var docc in event.docs) {
+        Map doc = docc.data();
+        if (friendsUID.contains(doc['user'])) {
+          Post post = ImagePost(
+            postID: docc.id,
+            text: doc['text'] ?? '',
+            date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch)  ?? '',
+            user: AppUser.WithUID(doc['user']),
+          );
+          posts.add(post);
+        }
+        posts.sort((a,b) => b.date.compareTo(a.date) );
+      }
+    });
+    imagePostsCollection.snapshots().listen((event) {
+      for (var docc in event.docs) {
+        Map doc = docc.data();
+        if (friendsUID.contains(doc['user'])) {
+          Post post = ImagePost(
+            imageURL: doc['photoAddress'],
+            postID: docc.id,
+            text: doc['text'] ?? '',
+            date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch)  ?? '',
+            user: AppUser.WithUID(doc['user']),
+          );
+          posts.add(post);
+        }
+        posts.sort((a,b) => b.date.compareTo(a.date) );
+      }
+    });
+
+   setState(() {
+      posts.sort((a,b) => b.date.compareTo(a.date) );
+    });
   }
 }
 

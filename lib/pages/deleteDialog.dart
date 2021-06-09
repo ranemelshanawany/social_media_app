@@ -19,6 +19,7 @@ Future<void> showDeleteDialog(BuildContext context, String type, String uid, Str
               else
                 DatabaseService(uid: uid).deleteTextPost(postID);
               Navigator.of(context).pop();
+              Navigator.of(context).pop();
             },
           ),
           TextButton(

@@ -238,10 +238,10 @@ class _SearchPageState extends State<SearchPage> {
       postsLoading = true;
     });
     posts = [];
-    CollectionReference textPostsCollection =
-        FirebaseFirestore.instance.collection('textPost');
-    CollectionReference imagePostsCollection =
-        FirebaseFirestore.instance.collection('imagePost');
+
+    CollectionReference textPostsCollection = FirebaseFirestore.instance.collection('textPost');
+    CollectionReference imagePostsCollection = FirebaseFirestore.instance.collection('imagePost');
+
     textPostsCollection.snapshots().listen((event) {
       for (var doc in event.docs) {
         if (doc['text'].contains(searchController.text)) {
