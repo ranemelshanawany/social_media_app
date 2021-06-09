@@ -55,6 +55,10 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
     if(!fetchedFollowers)
       getFollowersCount();
 
+    print(user.private);
+    print(!following );
+    print(currentUser.UID != user.UID);
+
     canSeePosts = user.private && !following && (currentUser.UID != user.UID);
 
     return Scaffold(

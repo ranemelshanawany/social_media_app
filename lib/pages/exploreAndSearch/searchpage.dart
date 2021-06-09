@@ -297,12 +297,13 @@ class _SearchPageState extends State<SearchPage> {
         String username = doc["username"];
         if (username.contains(searchController.text)) {
           AppUser appUser = AppUser(
-            UID: doc["uid"],
-            username: doc["username"],
-            email: doc["email"],
-            photoUrl: doc["photoUrl"],
-            displayName: doc["displayName"],
-            bio: doc["bio"],
+            UID: doc["uid"] ??"",
+            username: doc["username"]??"",
+            email: doc["email"]??"",
+            photoUrl: doc["photoUrl"]??"https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2",
+            displayName: doc["displayName"]??"",
+            bio: doc["bio"]??"",
+            private: doc["private"]?? false,
           );
           setState(() {
             users.add(appUser);
