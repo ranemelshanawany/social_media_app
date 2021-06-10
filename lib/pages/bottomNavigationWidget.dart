@@ -1,8 +1,10 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:project_socialmedia/services/database.dart';
 import '../utils/color.dart';
 import 'exploreandsearch/explorepage.dart';
 import '../pages/feed/feedpage.dart';
@@ -24,6 +26,8 @@ class BottomNavigator extends StatefulWidget {
 class _BottomNavigatorState extends State<BottomNavigator> {
   _BottomNavigatorState(this.analytics,this.observer);
 
+  User user;
+
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
 
@@ -41,6 +45,8 @@ class _BottomNavigatorState extends State<BottomNavigator> {
   @override
   Widget build(BuildContext context) {
 
+    user = FirebaseAuth.instance.currentUser;
+
     final List<Widget> _widgetOptions = <Widget>[
       Feed(analytics: analytics,observer: observer),
       Explore(analytics: analytics,observer: observer),
@@ -51,7 +57,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
     final List<Widget> appBars = [
       AppBar(title: Center(child: Text("Feed")), backgroundColor: AppColors.primary,),
       AppBar(title: Center(child: Text("Explore")), backgroundColor: AppColors.primary,),
-      AppBar(title: Center(child: Text("Notifications")), backgroundColor: AppColors.primary,),
+      AppBar(title: Center(child: Text("Notifications")), backgroundColor: AppColors.primary, centerTitle: true, actions: <Widget>[_buildClearNotifications()],),
       AppBar(title: Center(child: Text("Profile")), backgroundColor: AppColors.primary, actions: <Widget>[_buildEditProfileButton()],),
     ];
 
@@ -117,6 +123,20 @@ class _BottomNavigatorState extends State<BottomNavigator> {
         onPressed: (){
           Navigator.of(context).pushNamed('/editProfile');
         });
+  }
+
+  _buildClearNotifications(){
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: GestureDetector(
+        onTap: () => clearNotifications(),
+        child: Icon(Icons.delete_rounded, color: Colors.white,),
+          ),
+    );
+  }
+
+  clearNotifications() async {
+    await DatabaseService(uid: user.uid).deleteNotificationsFromPage();
   }
 
 }

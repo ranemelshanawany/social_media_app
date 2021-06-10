@@ -1,14 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_socialmedia/models/User.dart';
 import 'package:project_socialmedia/utils/color.dart';
 import '../../models/Notifications.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:project_socialmedia/services/database.dart';
-import 'notificationDetails.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import 'package:project_socialmedia/utils/indicator.dart';
 
 class NotificationCard extends StatefulWidget {
+
   final Notifications notifications;
 
   NotificationCard({this.notifications});
@@ -18,119 +17,162 @@ class NotificationCard extends StatefulWidget {
 }
 
 class _NotificationCardState extends State<NotificationCard> {
+
+  Notifications notification;
+
+  User user;
+  AppUser appUser;
+
   @override
   Widget build(BuildContext context) {
-    return Dismissible(
-      key: ObjectKey("${widget.notifications}"),
-      background: stackBehindDismiss(),
-      direction: DismissDirection.endToStart,
-      onDismissed: (v) {
-        delete();
-      },
-      child: Column(
-        children: [
-          ListTile(
-            onTap: () {
-              Navigator.of(context).push(CupertinoPageRoute(
-                builder: (_) => NotificationDetails(notifications: widget.notifications),
-              ));
-            },
-            leading: CircleAvatar(
-              radius: 25.0,
-              backgroundImage: NetworkImage(widget.notifications.profilePic),
-            ),
-            title: RichText(
-              overflow: TextOverflow.ellipsis,
-              text: TextSpan(
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.0,
+    return Card( // wrap it (padding) with widget
+      margin:EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 8.0),
+      child: Padding(
+          padding: EdgeInsets.all(14.0), // changes the size of card
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget> [
+                  _buildsenderImage(),
+                  SizedBox(
+                    width:200,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(8.0,0.0,0.0,0.0),
+                          child: _buildTextContent(),
+                    ),
+                  ],
                 ),
-                children: [
-                  TextSpan(
-                    text: '${widget.notifications.username} ',
-                    style:
-                    TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
-                  ),
-                  TextSpan(
-                    text: buildTextConfiguration(),
-                    style: TextStyle(fontSize: 10.0),
-                  ),
+              ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      _buildInteractiveContent(),
                 ],
               ),
-            ),
-            subtitle: Text(
-              timeago.format(widget.notifications.date.toDate()),
-            ),
-            trailing: previewConfiguration(),
-          ),
-          Divider(),
-        ],
+            ],
+          )
+      ]),
+    ));
+  }
+
+  Widget _buildsenderImage(){
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: CircleAvatar(
+        backgroundImage: notification.sender.photoUrl == null? NetworkImage(notification.sender.photoUrl): AssetImage('assets/images/John.jpeg'),
+        radius: 26.0,
       ),
     );
   }
 
-  Widget stackBehindDismiss() {
-    return Container(
-      alignment: Alignment.centerRight,
-      padding: EdgeInsets.only(right: 20.0),
-      color: Theme.of(context).accentColor,
-      child: Icon(
-        CupertinoIcons.delete,
-        color: Colors.white,
-      ),
-    );
-  }
+  Widget _buildTextContent(){
 
-  delete() {
-    DatabaseService(uid: firebaseAuth.currentUser.uid).notificationCollection
-        .doc(firebaseAuth.currentUser.uid)
-        .collection('notifications')
-        .doc(widget.notifications.postID)
-        .get()
-        .then((doc) => {
-      if (doc.exists)
-        {
-          doc.reference.delete(),
-        }
-    });
-  }
+    String notificationContent;
 
-  previewConfiguration() {
-    if (widget.notifications.notificationType == "like" || widget.notifications.notificationType == "comment") {
-      return buildPreviewImage();
-    } else {
-      return Text('');
+    if(notification.notificationType == "follow"){
+
+      notificationContent = " is now following you.";
     }
-  }
+    else if(notification.notificationType == "like"){
 
-  buildTextConfiguration() {
-    if (widget.notifications.notificationType == "like") {
-      return "liked your post";
-    } else if (widget.notifications.notificationType == "follow") {
-      return "is following you";
-    } else if (widget.notifications.notificationType == "comment") {
-      return "commented '${widget.notifications.notificationCont}'";
-    } else {
-      return "Error: Unknown type '${widget.notifications.notificationType}'";
+      notificationContent = " liked your post.";
     }
+    else if(notification.notificationType == "comment"){
+
+      notificationContent = " commented on your post.";
+
+    }
+    else if(notification.notificationType == "request"){
+
+      notificationContent = " wants to follow you.";
+    }
+
+    return RichText(
+        overflow: TextOverflow.ellipsis,
+        maxLines: 2,
+        text: TextSpan(
+            children: <TextSpan>[
+              TextSpan(
+                  text: notification.sender.username,
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textColor)
+              ),
+              TextSpan(
+                  text: notificationContent + ' ',
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textColor)
+              ),
+              TextSpan(text: timeago.format(notification.date),
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey[600])
+              ),
+            ]
+        )
+    );
   }
 
-  buildPreviewImage() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(5.0),
-      child: CachedNetworkImage(
-        imageUrl: widget.notifications.mediaURL,
-        placeholder: (context, url) {
-          return circularProgress(context);
-        },
-        errorWidget: (context, url, error) {
-          return Icon(Icons.error);
-        },
-        height: 40.0,
-        fit: BoxFit.cover,
-        width: 40.0,
-      ),
-    );
+  Widget _buildInteractiveContent(){
+
+    if(notification.notificationType== "follow"){
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+        child: OutlineButton(
+            color: Colors.white,
+            onPressed: (){},
+            child: Text('Following')
+        ),
+      );
+    }
+    else if(notification.notificationType == "like"){
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(52.0, 0.0, 0.0, 0.0),
+        child: SizedBox(
+          height: 52.0,
+          width: 52.0,
+          child: Image(
+              image: NetworkImage(
+                'https://i.pinimg.com/originals/a2/e2/62/a2e262ea209788c48cb41d8696b29ea4.jpg',
+              )),
+        ),
+      );
+    }
+    else if(notification.notificationType == "comment"){
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(52.0, 0.0, 0.0, 0.0),
+        child: SizedBox(
+          height: 52.0,
+          width: 52.0,
+          child: Image(
+              image: NetworkImage(
+                'https://i.pinimg.com/originals/a2/e2/62/a2e262ea209788c48cb41d8696b29ea4.jpg',
+              )),
+        ),
+      );
+    }
+    else if(notification.notificationType == "request"){
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(52.0, 0.0, 0.0, 0.0),
+        child: SizedBox(
+          height: 52.0,
+          width: 52.0,
+          child: Image(
+              image: NetworkImage(
+                'https://i.pinimg.com/originals/a2/e2/62/a2e262ea209788c48cb41d8696b29ea4.jpg',
+              )),
+        ),
+      );
+    }
+
   }
 }

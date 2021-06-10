@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project_socialmedia/models/Notifications.dart';
 import 'package:project_socialmedia/models/Post.dart';
 import 'package:project_socialmedia/models/User.dart'; // add user package
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project_socialmedia/utils/shared_prefs.dart';
-
 
 FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
@@ -92,7 +92,7 @@ class DatabaseService{
   Future<void> deleteNotificationsUser() async{
     notificationCollection.get().then((event) {
       for (var doc in event.docs) {
-        if (doc.get('ownerID') == uid || doc.get('senderID') == uid) {
+        if (doc.get('owner') == uid || doc.get('sender') == uid) {
           notificationCollection.doc(doc.id).delete();
         }
       }
@@ -147,6 +147,7 @@ class DatabaseService{
 
   Future<void> sendLike(String postID, String postUserID) async
   {
+    createNotification(postUserID, uid, "like", "", postID, DateTime.now());
     return await likesCollection.doc().set({
       'date': DateTime.now(),
       'liked' : postUserID,
@@ -157,6 +158,7 @@ class DatabaseService{
 
   Future<void> deleteLike(String postID, String postUserID) async
   {
+    deleteLikeNotification(postID);
     return await likesCollection.where('liker', isEqualTo: uid).where('postID', isEqualTo: postID).get().then((value) {
       for (var doc in value.docs)
       {
@@ -165,13 +167,65 @@ class DatabaseService{
     });
   }
 
-  Future<void> createComment({String content, DateTime date, String userCommented, String postID, String commentingUsername}) async{
+  Future<void> deleteLikeNotification(String postID) async
+  {
+    return await notificationCollection.where('sender', isEqualTo: uid).where('postID', isEqualTo: postID).where('notificationType', isEqualTo: "like").get().then((value) {
+      for (var doc in value.docs)
+      {
+        notificationCollection.doc(doc.id).delete();
+      }
+    });
+  }
+
+    Future<void> createComment({String content, DateTime date, String userCommented, String postID, String commentingUsername}) async{
+    createNotification(userCommented,commentingUsername,"comment",content,postID,date);
     return await commentsCollection.doc().set({
       'date': date,
       'content': content,
       'userCommented' : userCommented,
       'userCommenting': commentingUsername,
       'postID':postID,
+    });
+  }
+
+  Future<void> createNotification(String ownerID, String senderID, String type, String commentData, String postID, DateTime date) async{
+    return await notificationCollection.doc().set({
+      'owner': ownerID,
+      'sender': senderID,
+      'notificationType': type,
+      'commentCont': commentData,
+      'postID': postID,
+      'date': date,
+    });
+  }
+
+  Future<void> deleteCommentNotification(String postID) async
+  {
+    return await notificationCollection.where('sender', isEqualTo: uid).where('postID', isEqualTo: postID).where('notificationType', isEqualTo: "comment").get().then((value) {
+      for (var doc in value.docs)
+      {
+        notificationCollection.doc(doc.id).delete();
+      }
+    });
+  }
+
+  Future<void> deleteFollowNotification(String userID) async
+  {
+    return await notificationCollection.where('sender', isEqualTo: uid).where('owner', isEqualTo: userID).where('notificationType', isEqualTo: "follow").get().then((value) {
+      for (var doc in value.docs)
+      {
+        notificationCollection.doc(doc.id).delete();
+      }
+    });
+  }
+
+  Future<void> deleteRequestNotification(String userID) async
+  {
+    return await notificationCollection.where('sender', isEqualTo: uid).where('owner', isEqualTo: userID).where('notificationType', isEqualTo: "request").get().then((value) {
+      for (var doc in value.docs)
+      {
+        notificationCollection.doc(doc.id).delete();
+      }
     });
   }
 
@@ -202,6 +256,10 @@ class DatabaseService{
       for(var doc in value.docs)
         likesCollection.doc(doc.id).delete();
     });
+    notificationCollection.where("postID", isEqualTo: postID).get().then((value) {
+      for(var doc in value.docs)
+        notificationCollection.doc(doc.id).delete();
+    });
   }
 
   Future<void> deleteTextPost(String postID) async{
@@ -215,11 +273,17 @@ class DatabaseService{
       for(var doc in value.docs)
         likesCollection.doc(doc.id).delete();
     });
+    notificationCollection.where("postID", isEqualTo: postID).get().then((value) {
+      for(var doc in value.docs)
+        notificationCollection.doc(doc.id).delete();
+    });
   }
   
   
 
   Future<void> follow(String user) async{
+
+    createNotification(user, uid, "follow", "", "", DateTime.now());
     return await followCollection.doc().set({
       'follower': uid,
       'following': user,
@@ -231,6 +295,7 @@ class DatabaseService{
   Future<void> unfollow(String user) async
   {
     print("unfollow");
+    deleteFollowNotification(user);
     return await followCollection.where('follower', isEqualTo: uid).where('following', isEqualTo: user).get().then((value) {
       for (var doc in value.docs)
       {
@@ -240,6 +305,7 @@ class DatabaseService{
   }
 
   Future<void> sendFollowRequest(String user) async{
+    createNotification(user, uid, "request", "", "", DateTime.now());
     return await followRequestCollection.doc().set({
       'personSending': uid,
       'personReceiving': user,
@@ -247,6 +313,7 @@ class DatabaseService{
   }
 
   Future<void> deleteFollowRequest(String user) async{
+    deleteRequestNotification(user);
     return await followRequestCollection.where('personSending', isEqualTo: uid).where('personReceiving', isEqualTo: user).get().then((value) {
       for (var doc in value.docs)
       {
@@ -321,6 +388,29 @@ class DatabaseService{
   Stream<List<Post>> get posts {
     return userCollection.snapshots().map(_postListFromSnapshot);
   }
+
+  List<Notifications> _notificationListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc){
+      return Notifications(
+          date: doc['date'] ?? '',
+      );
+    }).toList();
+  }
+
+  Stream<List<Notifications>> get notifications {
+    return userCollection.snapshots().map(_notificationListFromSnapshot);
+  }
+
+  Future<void> deleteNotificationsFromPage() async{
+    notificationCollection.get().then((event) {
+      for (var doc in event.docs) {
+        if (doc.get('owner') == uid) {
+          notificationCollection.doc(doc.id).delete();
+        }
+      }
+    });
+  }
+
 }
 
 
