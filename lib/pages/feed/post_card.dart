@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 
 class PostCard extends StatefulWidget {
 
-  final Post post;
+  final ImagePost post;
   PostCard(this.post);
 
   TextEditingController textController = TextEditingController();
@@ -22,7 +22,7 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  final Post post;
+  final ImagePost post;
 
 
   FirebaseAuth auth = FirebaseAuth.instance;
@@ -51,29 +51,56 @@ class _PostCardState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
 
-    return GestureDetector(
-      onTapDown: _storePosition,
-      child:
-      AspectRatio(
-      aspectRatio: 8.5 /4,
-      child: new Card(
-        elevation: 1,
-        child: Container(
-          margin: const EdgeInsets.all(3.0),
-          padding: const EdgeInsets.all(2.0),
-          child: Column(
-            children: <Widget>[
-              _buildDate(post),
-              Divider(color: Colors.grey),
-              SizedBox(height: 65, child: Row(children: <Widget>[_buildPostImage(post), _buildPostTitleAndSummary(post)])),
-              Divider(color: Colors.grey),
-              _buildPostDetails(post)
+    if(post.imageURL == null){
+      return GestureDetector(
+          onTapDown: _storePosition,
+          child:
+          AspectRatio(
+            aspectRatio: 2.5 /1,
+            child: new Card(
+              elevation: 1,
+              child: Container(
+                margin: const EdgeInsets.all(3.0),
+                padding: const EdgeInsets.all(2.0),
+                child: Column(
+                  children: <Widget>[
+                    _buildDate(post),
+                    Divider(color: Colors.grey),
+                    _buildPostContentWithoutImage(post),
+                    Divider(color: Colors.grey),
+                    _buildPostDetails(post)
 
-            ],
-          ),
-        ),
-      ),
-    ));
+                  ],
+                ),
+              ),
+            ),
+          ));
+
+    }
+    else{
+      return GestureDetector(
+          onTapDown: _storePosition,
+          child:
+          AspectRatio(
+            aspectRatio: 12 /8,
+            child: new Card(
+              elevation: 1,
+              child: Container(
+                margin: const EdgeInsets.all(3.0),
+                padding: const EdgeInsets.all(2.0),
+                child: Column(
+                  children: <Widget>[
+                    _buildDate(post),
+                    Divider(color: Colors.grey),
+                    _buildPostContentWithImage(post),
+                    Divider(color: Colors.grey),
+                    _buildPostDetails(post)
+
+                  ],
+                ),
+              ),
+            ),
+          ));}
 
   }
   @override
@@ -159,49 +186,64 @@ class _PostCardState extends State<PostCard> {
   }
 
 
-  _buildDate(Post post) {
+  _buildDate(ImagePost post) {
 
-      return Container(
-        //width: 400,
-        height: 20,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            SizedBox(width: 260),
-            _buildPostTimeStamp(post)
-          ],
-        ),
-      );
+    return Container(
+      //width: 400,
+      height: 16,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          SizedBox(width: 260),
+          _buildPostTimeStamp(post)
+        ],
+      ),
+    );
 
   }
 
-  _buildPostTitleAndSummary(Post post) {
+  _buildPostContentWithImage(ImagePost post) {
 
     //final TextStyle titleTheme = Theme.of(context).textTheme.title;
     //final TextStyle summaryTheme = Theme.of(context).textTheme.body1;
 
     List<String> titles = ['Looking for a roommate!'];
     List<String> summaries = ['Hi! I am looking for a roommate who is clean, animal lover and vegetarian:)'];
+    Size size = MediaQuery.of(context).size;
+
+    return Container(
+        child: Row(children: <Widget>[
+          Image.network(post.imageURL, width: size.width-300, fit: BoxFit.fill,),
+          SizedBox(width: 20,),
+          Expanded(
+            child: Text(post.text,
+              style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15, color: Colors.grey[600]),),
+          ),
+        ]));
+
+
+  }
+
+  _buildPostContentWithoutImage(ImagePost post) {
+
+    List<String> titles = ['Looking for a roommate!'];
+    List<String> summaries = ['Hi! I am looking for a roommate who is clean, animal lover and vegetarian:)'];
 
     return Expanded(
-      flex: 3,
-      child: SizedBox(
-        height: 20,
+      //flex: 3,
+      child: Container(
         child: Padding(
           padding: const EdgeInsets.only(left: 2.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              //SizedBox(height: 2.0),
-              //Text(titles[index], style: TextStyle(fontWeight: FontWeight.w600,fontSize: 18, color: Colors.grey[900])),
-              //SizedBox(height: 4.0),
-              Expanded(
-                child: Text(post.text,
-                  style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15, color: Colors.grey[600]),),
-              ),
+              //SizedBox(height: 2.0)
+              Text(post.text,
+                style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15, color: Colors.grey[600]),),
+
             ],
           ),
         ),
@@ -210,15 +252,15 @@ class _PostCardState extends State<PostCard> {
   }
 
 
-  _buildPostImage(Post post) {
-
+  _buildPostImage(ImagePost post) {
+    //if(post.imageURL == null)
     return Expanded(flex: 2, child: CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl == null?
     "https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2"
         : post.user.photoUrl), radius: 20,),
     );
   }
 
-  _buildPostDetails(Post post) {
+  _buildPostDetails(ImagePost post) {
 
     return Container(
       child: Row(
@@ -240,7 +282,7 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
-  _buildNameAndUsername (Post post) {
+  _buildNameAndUsername (ImagePost post) {
 
     List<String> names = ['Claire Boucher','Mark Geller','Lana Greene','Eric Boucher','Isabella Buffay', 'Matthew Stan'];
     List<String> usernames = ['@cboucher','@markgeller','@lanagreene','@eboucher','@bellabuff', '@mattstan'];
@@ -269,7 +311,7 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
-  _buildLikesAndComments (Post post) {
+  _buildLikesAndComments (ImagePost post) {
 
     List<String> usernames = ['Claire Boucher','Mark Geller','Lana Greene','Eric Boucher','Isabella Buffay', 'Matthew Stan'];
     List<String> userEmails = ['cboucher@gmail.com','markgeller@gmail.com','lanagreene@gmail.com','eboucher@gmail.com','bellabuff@gmail.com', 'mattstan@gmail.com'];
@@ -305,13 +347,31 @@ class _PostCardState extends State<PostCard> {
         SizedBox(width: 45),
         Container(
           width: 15,
-          child: IconButton(icon: Icon(Icons.share,size: 25, color: AppColors.primary,), onPressed: (){}),
+
+          child: IconButton(icon: Icon(Icons.share,size: 25, color: AppColors.primary,), onPressed: (){
+            showRepost();
+          }),
 
         ),
         SizedBox(width: 10),
 
       ],
     );
+  }
+
+  showRepost() {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 20,),
+                TextButton(onPressed: (){ }, child: Text('Repost this post')),
+              ],
+            ),
+          );
+        });
   }
 
   showComments() {
@@ -428,6 +488,38 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
+  _buildUserImage (Post post) {
+
+    List<String> usernames = ['Claire Boucher','Mark Geller','Lana Greene','Eric Boucher','Isabella Buffay', 'Matthew Stan'];
+    List<String> userEmails = ['cboucher@gmail.com','markgeller@gmail.com','lanagreene@gmail.com','eboucher@gmail.com','bellabuff@gmail.com', 'mattstan@gmail.com'];
+
+    return Container(
+      //flex: 2,
+      width: 45,
+      height: 40,
+      child:
+      CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl == null?
+      "https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2"
+          : post.user.photoUrl), radius: 20,),
+    );
+  }
+
+  _buildPostTimeStamp (Post post) {
+
+    List<String> postTimes = ["20 April, 2021","19 April, 2021","18 April, 2021","17 April, 2021","16 April, 2021","15 April, 2021","14 April, 2021",];
+
+    return SizedBox(
+      //flex:2,
+      height: 15,
+      width: 80,
+      child: Text(DateFormat.yMd().format(post.date), style: TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+        color: Colors.green[900],
+      ),),
+    );
+  }
+
   sendComment() async
   {
     if (commentsController.text.isNotEmpty) {
@@ -529,66 +621,7 @@ class _PostCardState extends State<PostCard> {
     await DatabaseService(uid: appUser.UID).sendPostReport(post.postID);
   }
 
-  _buildUserImage (Post post) {
 
-    List<String> usernames = ['Claire Boucher','Mark Geller','Lana Greene','Eric Boucher','Isabella Buffay', 'Matthew Stan'];
-    List<String> userEmails = ['cboucher@gmail.com','markgeller@gmail.com','lanagreene@gmail.com','eboucher@gmail.com','bellabuff@gmail.com', 'mattstan@gmail.com'];
-
-    return Container(
-      //flex: 2,
-      width: 45,
-      height: 40,
-      child:
-      CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl == null?
-      "https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2"
-          : post.user.photoUrl), radius: 20,),
-    );
-  }
-
-  _buildPostTimeStamp (Post post) {
-
-    List<String> postTimes = ["20 April, 2021","19 April, 2021","18 April, 2021","17 April, 2021","16 April, 2021","15 April, 2021","14 April, 2021",];
-
-    return SizedBox(
-      //flex:2,
-      height: 15,
-      width: 80,
-      child: Text(DateFormat.yMd().format(post.date), style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w500,
-        color: Colors.green[900],
-      ),),
-    );
-  }
-
-  _buildLikeCount(Post post) {
-    int likes = post.likes;
-    String strLikes = likes.toString();
-    return SizedBox(
-
-      height: 20,
-      width: 100,
-      child: Text(strLikes, style: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        color: Colors.green[900],
-      ),),
-    );
-  }
-  _buildCommentCount(Post post) {
-    int likes = post.comments;
-    String strComments = likes.toString();
-    return SizedBox(
-
-      height: 20,
-      width: 100,
-      child: Text(strComments, style: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        color: Colors.green[900],
-      ),),
-    );
-  }
 
 
   _buildLocation (Post post) {
