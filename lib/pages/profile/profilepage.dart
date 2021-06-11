@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:project_socialmedia/models/User.dart';
+import 'package:project_socialmedia/pages/exploreAndSearch/imagePostInSearch.dart';
+import 'package:project_socialmedia/pages/exploreAndSearch/textPosts.dart';
 import '../../utils/color.dart';
 import 'postCard.dart';
 import '../../models/Post.dart';
@@ -37,6 +39,314 @@ class _ProfileState extends State<Profile> {
     user = auth.currentUser;
   }
 
+  User user;
+  AppUser appUser = AppUser();
+  bool userLoaded = false;
+
+  int followersNo = 0;
+  int followingNo = 0;
+  bool fetchedFollowers = false;
+  bool fetchedFollowing = false;
+
+  bool postsLoading = false;
+  bool postsFetched = false;
+  List<Post> posts;
+
+  Size size;
+
+  @override
+  Widget build(BuildContext context) {
+
+    if(!userLoaded)
+      getUser();
+    if(!postsFetched) {
+      getPosts();
+    }
+    if(!fetchedFollowers)
+      getFollowersCount();
+    if(!fetchedFollowing)
+      getFollowingCount();
+
+    size = MediaQuery.of(context).size;
+
+    return Scaffold(
+      backgroundColor: Colors.grey[300],
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            color: Colors.grey[100],
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildImageRow(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(appUser.bio == null? "" : appUser.bio, style: TextStyle(fontSize: 16),),
+                  ),
+                  _buildStats()
+                ],
+              ),
+            ),
+          ),
+          _buildPosts()
+        ],
+      ),
+    );
+  }
+
+  _buildPosts(){
+    if(postsLoading)
+    {
+      return Center(child: CircularProgressIndicator());
+    }
+    else if (posts.isEmpty)
+      return Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Center(child: Text("No posts found", style: TextStyle(fontSize: 20),)),
+      );
+    else {
+      return Container(
+        height: MediaQuery.of(context).size.height-350,
+        child: ListView.builder(
+            itemCount: posts.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              if (posts[index].runtimeType == ImagePost)
+              { return ImagePostCard(posts[index]);}
+              else {
+                return TextPostCard(posts[index]);
+              }
+            }),
+      );
+    }
+  }
+
+  _buildImageRow()
+  {
+    return Row(
+      children: [
+        CircleAvatar(backgroundImage: appUser.photoUrl == null? NetworkImage("https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2") :NetworkImage(appUser.photoUrl),
+          radius: 40,),
+        SizedBox(width: 15,),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                appUser.displayName == null? "" : appUser.displayName,
+                style: TextStyle(
+                  fontFamily: 'BrandonText',
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.headingColor,
+                ),
+              ),
+              Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.email,
+                    color: AppColors.primary,
+                  ),
+                  SizedBox(width: 8.0),
+                  Text(
+                    appUser.email == null? "" : appUser.email,
+                    style: TextStyle(
+                      fontFamily: 'BrandonText',
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textColor,
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+
+      ],
+    );
+  }
+
+  getUser() async
+  {
+    await DatabaseService(uid: user.uid).userCollection.doc(user.uid).get().then((snapshot) {
+      setState(() {
+        appUser.UID = snapshot.get("uid");
+        appUser.username = snapshot.get("username");
+        appUser.email = snapshot.get("email");
+        appUser.photoUrl = snapshot.get("photoUrl") != null? snapshot.get("photoUrl") : "https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2";
+        appUser.displayName = snapshot.get("displayName");
+        appUser.bio = snapshot.get("bio");
+        userLoaded = true;
+      });
+    });
+  }
+
+  _buildStats()
+  {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildPostNumberColumn(),
+        Container(
+          width: 1,
+          height: 50,
+          color: Colors.grey,
+        ),
+        _buildFollowersColumn(),
+        Container(
+          width: 1,
+          height: 50,
+          color: Colors.grey,
+        ),
+        _buildFollowingColumn(),
+
+      ],
+    );
+  }
+
+  _buildPostNumberColumn() {
+    return Column(
+      children: <Widget>[
+        Text(
+          posts.length.toString(),
+          style: TextStyle(
+            fontFamily: 'BrandonText',
+            fontSize: 20.0,
+            fontWeight: FontWeight.w800,
+            color: AppColors.primary,
+          ),
+        ),
+        Text(
+          'Posts',
+          style: TextStyle(
+            color: AppColors.textColor,
+            fontFamily: 'BrandonText',
+            fontSize: 18.0,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ],
+    );
+  }
+
+  _buildFollowersColumn() {
+    return Column(
+      children: <Widget>[
+        Text(
+          followersNo.toString(),
+          style: TextStyle(
+            fontFamily: 'BrandonText',
+            fontSize: 20.0,
+            fontWeight: FontWeight.w800,
+            color: AppColors.primary,
+          ),
+        ),
+        Text(
+          'Followers',
+          style: TextStyle(
+            fontFamily: 'BrandonText',
+            fontSize: 18.0,
+            fontWeight: FontWeight.w400,
+            color: AppColors.textColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  _buildFollowingColumn() {
+    return Column(
+      children: <Widget>[
+        Text(
+          followingNo.toString(),
+          style: TextStyle(
+            fontFamily: 'BrandonText',
+            fontSize: 20.0,
+            fontWeight: FontWeight.w800,
+            color: AppColors.primary,
+          ),
+        ),
+        Text(
+          'Following',
+          style: TextStyle(
+            fontFamily: 'BrandonText',
+            fontSize: 18.0,
+            fontWeight: FontWeight.w400,
+            color: AppColors.textColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  getFollowersCount()
+  {
+    fetchedFollowers = true;
+    CollectionReference followPostsCollection = FirebaseFirestore.instance.collection('follow');
+    followPostsCollection.where("following", isEqualTo: user.uid).snapshots().listen((event) {
+      followersNo = event.size;
+    });
+  }
+
+  getFollowingCount()
+  {
+    fetchedFollowing = true;
+    CollectionReference followPostsCollection = FirebaseFirestore.instance.collection('follow');
+    followPostsCollection.where("follower", isEqualTo: user.uid).snapshots().listen((event) {
+      followingNo = event.size;
+    });
+  }
+
+  getPosts() {
+    setState(() {
+      postsLoading = true;
+    });
+    posts = [];
+    CollectionReference textPostsCollection =
+    FirebaseFirestore.instance.collection('textPost');
+    CollectionReference imagePostsCollection =
+    FirebaseFirestore.instance.collection('imagePost');
+    textPostsCollection.get().then((event) {
+      for (var docc in event.docs) {
+        Map doc = docc.data();
+          if (doc['user'].contains(user.uid)) {
+            Post post = Post(
+              postID: docc.id,
+              text: doc['text'] ?? '',
+              date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch)  ?? '',
+              user: AppUser.WithUID(doc['user']),
+            );
+            posts.add(post);
+          }
+      }
+    });
+    imagePostsCollection.get().then((event) {
+      for (var docc in event.docs) {
+        Map doc = docc.data();
+        if (doc['user'].contains(user.uid)) {
+          Post post = ImagePost(
+              postID: docc.id,
+              text: doc['text'] ?? '',
+              date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch)  ?? '',
+              user: AppUser.WithUID(doc['user']),
+              imageURL: doc['photoAddress'] ??
+                  "https://www.indianhorizons.net/assets/lib/images/default.png");
+
+          posts.add(post);
+        }
+      }
+    });
+    postsFetched = true;
+    setState(() {
+      posts.sort((a,b) => b.date.compareTo(a.date) );
+      postsLoading = false;
+    });
+  }
+
   Future<void> _setCurrentScreen() async{
     await widget.analytics.setCurrentScreen(
         screenName: 'Profile_Page',
@@ -54,242 +364,5 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  int postCount = 0;
 
-  User user;
-  AppUser appUser;
-
-  List<Post> posts = [
-    Post(text: 'First post', likes: 50, comments: 5),
-    Post(text: 'Second post', likes: 35, comments: 15),
-    Post(text: 'Third post',  likes: 45, comments: 17),
-    Post(text: 'Fourth Post', likes: 49, comments: 27),
-    Post(text: 'Room for rent', likes: 120, comments: 64),
-  ];
-
-  void buttonPressed() {
-    setState(() {
-      postCount += 1;
-    });
-  }
-
-  Size size;
-
-  @override
-  Widget build(BuildContext context) {
-    size = MediaQuery.of(context).size;
-    appUser = AppUser.WithUID(user.uid);
-
-    return Scaffold(
-        backgroundColor: Colors.grey[200],
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: AppColors.primary,
-          child: Icon(Icons.add),
-          onPressed: buttonPressed,
-        ),
-        body: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(20.0, 24.0, 20.0, 0.0),
-          child: Column(
-            children: [
-              _buildUserInformationRow(),
-              Divider(
-                color: AppColors.primary,
-                height: 30,
-                thickness: 2.0,
-              ),
-              _buildStatisticRow(),
-              Divider(
-                color: AppColors.primary,
-                height: 30,
-                thickness: 2.0,
-              ),
-              _buildPostsList(),
-            ],
-          ),
-        ));
-  }
-
-  _buildUserInformationRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        CircleAvatar(
-          backgroundImage: AssetImage('assets/images/John.jpeg'),
-          radius: 40.0,
-        ),
-        SizedBox(
-          width: 8,
-        ),
-        _buildTextColumnAndEditProfile(),
-      ],
-    );
-  }
-
-  _buildTextColumnAndEditProfile()
-  {
-    return _buildInformationTextColumn();
-  }
-
-
-  _buildInformationTextColumn() {
-    return StreamBuilder(
-      stream: DatabaseService(uid: firebaseAuth.currentUser.uid).userCollection.doc(firebaseAuth.currentUser.uid).snapshots(),
-      builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasData) {
-          AppUser user = AppUser.fromJson(snapshot.data.data());}
-
-
-          return Container(
-            width: size.width - 130,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  appUser.displayName,
-                  style: TextStyle(
-                    fontFamily: 'BrandonText',
-                    fontSize: 28.0,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.headingColor,
-                  ),
-                ),
-                SizedBox(
-                  height: 10.0,
-                ),
-                Text(
-                  "@${appUser.username}",
-                  style: TextStyle(
-                    fontFamily: 'BrandonText',
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.email,
-                      color: AppColors.primary,
-                    ),
-                    SizedBox(width: 8.0),
-                    Text(
-                      appUser.email,
-                      style: TextStyle(
-                        fontFamily: 'BrandonText',
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.textColor,
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            ),
-          );
-
-        }
-    );
-  }
-
-  _buildStatisticRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: <Widget>[
-        _buildPostNumberColumn(),
-        _buildFollowersColumn(),
-        _buildFollowingColumn(),
-      ],
-    );
-  }
-
-  _buildPostsList() {
-    return Column(
-      children: posts
-          .map((post) => PostCard(
-              post: post,
-              delete: () {
-                setState(() {
-                  posts.remove(post);
-                });
-              }))
-          .toList(),
-    );
-  }
-
-  _buildPostNumberColumn() {
-    return Column(
-      children: <Widget>[
-        Text(
-          'Posts',
-          style: TextStyle(
-            color: AppColors.textColor,
-            fontFamily: 'BrandonText',
-            fontSize: 18.0,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        Text(
-          '$postCount',
-          style: TextStyle(
-            fontFamily: 'BrandonText',
-            fontSize: 24.0,
-            fontWeight: FontWeight.w800,
-            color: AppColors.primary,
-          ),
-        ),
-      ],
-    );
-  }
-
-  _buildFollowersColumn() {
-    return Column(
-      children: <Widget>[
-        Text(
-          'Followers',
-          style: TextStyle(
-            fontFamily: 'BrandonText',
-            fontSize: 18.0,
-            fontWeight: FontWeight.w400,
-            color: AppColors.textColor,
-          ),
-        ),
-        Text(
-          '215',
-          style: TextStyle(
-            fontFamily: 'BrandonText',
-            fontSize: 24.0,
-            fontWeight: FontWeight.w800,
-            color: AppColors.primary,
-          ),
-        ),
-      ],
-    );
-  }
-
-  _buildFollowingColumn() {
-    return Column(
-      children: <Widget>[
-        Text(
-          'Following',
-          style: TextStyle(
-            fontFamily: 'BrandonText',
-            fontSize: 18.0,
-            fontWeight: FontWeight.w400,
-            color: AppColors.textColor,
-          ),
-        ),
-        Text(
-          '679',
-          style: TextStyle(
-            fontFamily: 'BrandonText',
-            fontSize: 24.0,
-            fontWeight: FontWeight.w800,
-            color: AppColors.primary,
-          ),
-        ),
-      ],
-    );
-  }
 }
