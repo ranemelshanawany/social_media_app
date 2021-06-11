@@ -35,6 +35,7 @@ class _PostCardState extends State<PostCard> {
   bool userLoaded = false;
   bool postsFetched = false;
   int commentsNo = 0;
+  int likes = 0;
   List<Comment> comments = [];
 
   bool liked = false;
@@ -62,18 +63,12 @@ class _PostCardState extends State<PostCard> {
           padding: const EdgeInsets.all(2.0),
           child: Column(
             children: <Widget>[
-              _buildLocationAndTime(post),
+              _buildDate(post),
               Divider(color: Colors.grey),
-              SizedBox(height: 50, child: Row(children: <Widget>[_buildPostImage(post), _buildPostTitleAndSummary(post)])),
+              SizedBox(height: 65, child: Row(children: <Widget>[_buildPostImage(post), _buildPostTitleAndSummary(post)])),
               Divider(color: Colors.grey),
-              _buildPostDetails(post),
-              //Divider(color: Colors.grey),
-              /*Row(
-                children: [
-                  _buildLikeCount(post),
-                  _buildCommentCount(post),
-                ],
-              ),*/
+              _buildPostDetails(post)
+
             ],
           ),
         ),
@@ -164,7 +159,7 @@ class _PostCardState extends State<PostCard> {
   }
 
 
-  _buildLocationAndTime(Post post) {
+  _buildDate(Post post) {
 
       return Container(
         //width: 400,
@@ -174,7 +169,6 @@ class _PostCardState extends State<PostCard> {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-            //_buildLocation(post),
             SizedBox(width: 260),
             _buildPostTimeStamp(post)
           ],
@@ -239,7 +233,7 @@ class _PostCardState extends State<PostCard> {
           //Container(color: AppColors.primary, height: 48, width: 1.5,),
           _buildLikesAndComments(post),
           //Container(color: AppColors.primary, height: 48, width: 1.5,),
-          SizedBox(width:10.0,),
+          SizedBox(width:20.0,),
           //_PostTimeStamp(index),
         ],
       ),
@@ -275,52 +269,20 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
-  /*
   _buildLikesAndComments (Post post) {
 
     List<String> usernames = ['Claire Boucher','Mark Geller','Lana Greene','Eric Boucher','Isabella Buffay', 'Matthew Stan'];
     List<String> userEmails = ['cboucher@gmail.com','markgeller@gmail.com','lanagreene@gmail.com','eboucher@gmail.com','bellabuff@gmail.com', 'mattstan@gmail.com'];
-
-
-    return Expanded(
-      //width: 50,
-      //height: 50,
-      flex: 7,
-      child:Row(
-          children: [
-            //SizedBox(width: 10,),
-            SizedBox(width: 5,),
-            IconButton(icon: Icon(Icons.thumb_up_alt_outlined,size: 27, color: AppColors.primary,), onPressed: () {}),
-            SizedBox(width: 5,),
-            Container(color: AppColors.primary, height: 48, width: 1.5,),
-            SizedBox(width: 5,),
-            IconButton(icon: Icon(Icons.mode_comment_outlined,size: 27, color: AppColors.primary,), onPressed: (){_showPopUp();}),
-            SizedBox(width: 5,),
-            Container(color: AppColors.primary, height: 48, width: 1.5,),
-            SizedBox(width: 5,),
-            IconButton(icon: Icon(Icons.share,size: 27, color: AppColors.primary,), onPressed: (){}),
-            SizedBox(width: 5,),
-
-            Container(color: AppColors.primary, height: 48, width: 1.5,),
-
-
-          ]
-      ),
-
-    );
-  }
-  */
-
-  _buildLikesAndComments (Post post) {
-
-    List<String> usernames = ['Claire Boucher','Mark Geller','Lana Greene','Eric Boucher','Isabella Buffay', 'Matthew Stan'];
-    List<String> userEmails = ['cboucher@gmail.com','markgeller@gmail.com','lanagreene@gmail.com','eboucher@gmail.com','bellabuff@gmail.com', 'mattstan@gmail.com'];
+    getLikes();
+    getComments();
+    String strLikes = likes.toString();
+    String strComments = commentsNo.toString();
 
     return Row(
       children: [
-        Text(post.likes.toString(), style: TextStyle(fontSize: 14), ),
+        Text(strLikes, style: TextStyle(fontSize: 14), ),
         Container(
-          width: 18,
+          width: 15,
           child: IconButton(
               icon: Icon(liked? Icons.favorite : Icons.favorite_border,size: 25, color: Colors.pink[200],),
               onPressed: () {
@@ -331,9 +293,9 @@ class _PostCardState extends State<PostCard> {
               }),
         ),
         SizedBox(width: 45),
-        Text(post.comments.toString(), style: TextStyle(fontSize: 14), ),
+        Text(strComments, style: TextStyle(fontSize: 14), ),
         Container(
-          width: 18,
+          width: 15,
           child: IconButton(
               icon: Icon(Icons.mode_comment_outlined,size: 25, color: AppColors.primary,),
               onPressed: (){
@@ -342,7 +304,7 @@ class _PostCardState extends State<PostCard> {
         ),
         SizedBox(width: 45),
         Container(
-          width: 18,
+          width: 15,
           child: IconButton(icon: Icon(Icons.share,size: 25, color: AppColors.primary,), onPressed: (){}),
 
         ),
@@ -510,6 +472,20 @@ class _PostCardState extends State<PostCard> {
     });
   }
 
+  getLikes()
+  {
+    CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
+    likesCollection.where("postID", isEqualTo: post.postID).snapshots().listen((value) {
+      setState(() {
+        likes = 0;
+        for(var doc in value.docs)
+        {
+          likes++;
+        }
+      });
+    });
+  }
+
 
 
   void _showPopUp() {
@@ -561,7 +537,7 @@ class _PostCardState extends State<PostCard> {
     return Container(
       //flex: 2,
       width: 45,
-      height: 50,
+      height: 40,
       child:
       CircleAvatar(backgroundImage: NetworkImage(post.user.photoUrl == null?
       "https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2"
@@ -575,10 +551,10 @@ class _PostCardState extends State<PostCard> {
 
     return SizedBox(
       //flex:2,
-      height: 20,
-      width: 100,
+      height: 15,
+      width: 80,
       child: Text(DateFormat.yMd().format(post.date), style: TextStyle(
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: FontWeight.w500,
         color: Colors.green[900],
       ),),

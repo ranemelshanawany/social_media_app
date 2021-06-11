@@ -37,6 +37,7 @@ class _FeedState extends State<Feed> {
     _setCurrentScreen();
     user = FirebaseAuth.instance.currentUser;
     appUser = AppUser.WithUID(user.uid);
+    posts = [];
     getPosts();
     //getUser();
   }
@@ -146,6 +147,7 @@ class _FeedState extends State<Feed> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 CircleAvatar(backgroundImage: AssetImage('assets/images/John.jpeg'), radius: 20,),
+                //Image.network(user.photoURL, width: size.width-10, fit: BoxFit.fill,),
                 SizedBox(width: 10,),
                 Expanded(
                   child: Column(
@@ -184,6 +186,7 @@ class _FeedState extends State<Feed> {
   }
 
   getPosts() {
+
     friendsUID = [user.uid];
     
     CollectionReference textPostsCollection = FirebaseFirestore.instance.collection('textPost');
@@ -200,6 +203,7 @@ class _FeedState extends State<Feed> {
     
     
     textPostsCollection.snapshots().listen((event) {
+      posts = [];
       for (var docc in event.docs) {
         Map doc = docc.data();
         if (friendsUID.contains(doc['user'])) {
@@ -208,6 +212,7 @@ class _FeedState extends State<Feed> {
             text: doc['text'] ?? '',
             date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch)  ?? '',
             user: AppUser.WithUID(doc['user']),
+            //likes: doc.likes;
           );
           posts.add(post);
         }
@@ -224,6 +229,7 @@ class _FeedState extends State<Feed> {
             text: doc['text'] ?? '',
             date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch)  ?? '',
             user: AppUser.WithUID(doc['user']),
+            //likes: docc.likes;
           );
           posts.add(post);
         }
@@ -233,6 +239,7 @@ class _FeedState extends State<Feed> {
 
    setState(() {
       posts.sort((a,b) => b.date.compareTo(a.date) );
+      //initState();
     });
   }
 }
