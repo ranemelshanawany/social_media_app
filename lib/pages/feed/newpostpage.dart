@@ -142,7 +142,7 @@ class _NewPostState extends State<NewPost> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              CircleAvatar(backgroundImage: AssetImage('assets/images/John.jpeg'), radius: 20,),
+                              CircleAvatar(backgroundImage: NetworkImage(appUser.photoUrl), radius: 20,),
                               SizedBox(width: 10,),
                               Container(
                                 width: size.width*0.49,

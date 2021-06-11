@@ -149,7 +149,7 @@ class _FeedState extends State<Feed> {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                CircleAvatar(backgroundImage: AssetImage('assets/images/John.jpeg'), radius: 20,),
+                CircleAvatar(backgroundImage: NetworkImage(appUser.photoUrl), radius: 20,),
                 //Image.network(user.photoURL, width: size.width-10, fit: BoxFit.fill,),
                 SizedBox(width: 10,),
                 Expanded(

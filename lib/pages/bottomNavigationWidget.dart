@@ -1,8 +1,11 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:project_socialmedia/models/User.dart';
+import 'package:project_socialmedia/pages/profile/editProfile.dart';
 import '../utils/color.dart';
 import 'exploreandsearch/explorepage.dart';
 import '../pages/feed/feedpage.dart';
@@ -26,6 +29,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
+  AppUser user;
 
   DateTime currentBackPressTime;
 
@@ -34,6 +38,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
     // TODO: implement initState
     super.initState();
     MySharedPreferences.setLoginBooleanValue(true);
+    user = AppUser.WithUID( FirebaseAuth.instance.currentUser.uid);
   }
 
   int _selectedIndex = 0;
@@ -115,7 +120,10 @@ class _BottomNavigatorState extends State<BottomNavigator> {
     return IconButton(
         icon: Icon(Icons.edit, color: Colors.white,),
         onPressed: (){
-          Navigator.of(context).pushNamed('/editProfile');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EditProfilePage(user:user)),
+          );
         });
   }
 

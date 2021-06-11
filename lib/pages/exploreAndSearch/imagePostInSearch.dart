@@ -81,7 +81,7 @@ class _ImagePostCardState extends State<ImagePostCard> {
       },
       child: Row(
         children: [
-          CircleAvatar(backgroundImage: post.user.photoUrl == null? NetworkImage(post.user.photoUrl): AssetImage('assets/images/John.jpeg'), radius: 20,),
+          CircleAvatar(backgroundImage: post.user.photoUrl == null? NetworkImage("https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2"):  NetworkImage(post.user.photoUrl), radius: 20,),
           SizedBox(width: 10,),
           Text(post.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
           Spacer(),
