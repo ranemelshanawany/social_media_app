@@ -52,7 +52,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
       AppBar(title: Center(child: Text("Feed")), backgroundColor: AppColors.primary,),
       AppBar(title: Center(child: Text("Explore")), backgroundColor: AppColors.primary,),
       AppBar(title: Center(child: Text("Notifications")), backgroundColor: AppColors.primary,),
-      AppBar(title: Center(child: Text("Profile")), backgroundColor: AppColors.primary, actions: <Widget>[_buildEditProfileButton()],),
+      AppBar(title: Center(child: Text("Profile")), backgroundColor: AppColors.primary, actions: <Widget>[_buildEditProfileButton()],centerTitle: true,),
     ];
 
 

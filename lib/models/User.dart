@@ -11,7 +11,6 @@ class AppUser {
   String bio = "";
   bool private = false;
 
-
   AppUser ({
     this.UID,
     this.username,
