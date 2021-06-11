@@ -37,10 +37,13 @@ class _FeedState extends State<Feed> {
     _setCurrentScreen();
     user = FirebaseAuth.instance.currentUser;
     appUser = AppUser.WithUID(user.uid);
-    posts = [];
+    //posts = [];
     getPosts();
     //getUser();
+    setState(() {});
   }
+
+
 
   Future<void> _setLogEventFeed() async{
     await widget.analytics.logEvent(
@@ -62,8 +65,8 @@ class _FeedState extends State<Feed> {
   FirebaseAuth auth = FirebaseAuth.instance;
   User user;
   AppUser appUser;
-  
-  List<Post> posts = [];
+
+  List<ImagePost> posts = [];
   List<String> friendsUID = [];
 
   bool userLoaded = false;
@@ -100,35 +103,35 @@ class _FeedState extends State<Feed> {
     print(posts.length);
 
 
-      return Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildNewPostCard(size),
-            ],
-          ),
-          Divider(color: AppColors.primary, thickness: 1.0,),
-          _buildContentDisplay(size),
-        ],
-      );
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildNewPostCard(size),
+          ],
+        ),
+        Divider(color: AppColors.primary, thickness: 1.0,),
+        _buildContentDisplay(size),
+      ],
+    );
   }
 
 
   _buildContentDisplay(Size size) {
-
-        return Expanded(
-          child: Container(
-            padding: EdgeInsets.all(8),
-              child: SizedBox(
-                height: 8,
-                child: new ListView.builder(
-                    itemCount: posts.length,
-                    itemBuilder: (BuildContext context, int index) => PostCard(posts[index])),
-              ),
-            ),
-          );
-        }
+    int len = posts.length;
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.all(8),
+        child: SizedBox(
+          height: 8,
+          child: new ListView.builder(
+              itemCount: len,
+              itemBuilder: (BuildContext context, int index) => PostCard(posts[index])),
+        ),
+      ),
+    );
+  }
 
 
   _buildNewPostCard(Size size) {
@@ -180,7 +183,7 @@ class _FeedState extends State<Feed> {
                 onPressed: () {Navigator.of(context).pushNamed("/newpost");} )
           ],
         ),
-    ),
+      ),
 
     );
   }
@@ -188,11 +191,11 @@ class _FeedState extends State<Feed> {
   getPosts() {
 
     friendsUID = [user.uid];
-    
+
     CollectionReference textPostsCollection = FirebaseFirestore.instance.collection('textPost');
     CollectionReference imagePostsCollection = FirebaseFirestore.instance.collection('imagePost');
     CollectionReference followCollection = FirebaseFirestore.instance.collection('follow');
-    
+
     //getting list of friends
     followCollection.where('follower', isEqualTo: user.uid).get().then((value) {
       for(var doc in value.docs)
@@ -200,14 +203,15 @@ class _FeedState extends State<Feed> {
         friendsUID.add(doc.get('following'));
       }
     });
-    
-    
+
     textPostsCollection.snapshots().listen((event) {
       posts = [];
       for (var docc in event.docs) {
         Map doc = docc.data();
         if (friendsUID.contains(doc['user'])) {
           Post post = ImagePost(
+            reposter: AppUser.WithUID(doc['reposter']),
+            imageURL: null,
             postID: docc.id,
             text: doc['text'] ?? '',
             date: DateTime.fromMicrosecondsSinceEpoch(doc['date'].microsecondsSinceEpoch)  ?? '',
@@ -224,6 +228,7 @@ class _FeedState extends State<Feed> {
         Map doc = docc.data();
         if (friendsUID.contains(doc['user'])) {
           Post post = ImagePost(
+            reposter: AppUser.WithUID(doc['reposter']),
             imageURL: doc['photoAddress'],
             postID: docc.id,
             text: doc['text'] ?? '',
@@ -237,7 +242,7 @@ class _FeedState extends State<Feed> {
       }
     });
 
-   setState(() {
+    setState(() {
       posts.sort((a,b) => b.date.compareTo(a.date) );
       //initState();
     });
