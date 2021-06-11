@@ -10,7 +10,7 @@ class NotificationCard extends StatefulWidget {
 
   final Notifications notifications;
 
-  NotificationCard({this.notifications});
+  NotificationCard(this.notifications);
 
   @override
   _NotificationCardState createState() => _NotificationCardState();
