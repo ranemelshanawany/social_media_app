@@ -51,64 +51,128 @@ class _PostCardState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
 
-    if(post.imageURL == null){
-      return GestureDetector(
-          onTapDown: _storePosition,
-          child:
-          AspectRatio(
-            aspectRatio: 2.5 /1,
-            child: new Card(
-              elevation: 1,
-              child: Container(
-                margin: const EdgeInsets.all(3.0),
-                padding: const EdgeInsets.all(2.0),
-                child: Column(
-                  children: <Widget>[
-                    _buildDate(post),
-                    Divider(color: Colors.grey),
-                    _buildPostContentWithoutImage(post),
-                    Divider(color: Colors.grey),
-                    _buildPostDetails(post)
+    if (!likeFetched)
+      getLikedStatus(post.postID);
 
-                  ],
+    if(post.reposter == null){
+      if(post.imageURL == null){
+        return GestureDetector(
+            onTapDown: _storePosition,
+            child:
+            AspectRatio(
+              aspectRatio: 2.5 /1,
+              child: new Card(
+                elevation: 1,
+                child: Container(
+                  margin: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
+                  child: Column(
+
+                    children: <Widget>[
+                      _buildReposter(post),
+                      Divider(color: Colors.grey),
+                      _buildDate(post),
+                      Divider(color: Colors.grey),
+                      _buildPostContentWithoutImage(post),
+                      Divider(color: Colors.grey),
+                      _buildPostDetails(post)
+
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ));
+            ));
+
+      }
+      else{
+        return GestureDetector(
+            onTapDown: _storePosition,
+            child:
+            AspectRatio(
+              aspectRatio: 12 /8,
+              child: new Card(
+                elevation: 1,
+                child: Container(
+                  margin: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
+                  child: Column(
+                    children: <Widget>[
+                      _buildReposter(post),
+                      Divider(color: Colors.grey),
+                      _buildDate(post),
+                      Divider(color: Colors.grey),
+                      _buildPostContentWithImage(post),
+                      Divider(color: Colors.grey),
+                      _buildPostDetails(post)
+
+                    ],
+                  ),
+                ),
+              ),
+            ));}
 
     }
     else{
-      return GestureDetector(
-          onTapDown: _storePosition,
-          child:
-          AspectRatio(
-            aspectRatio: 12 /8,
-            child: new Card(
-              elevation: 1,
-              child: Container(
-                margin: const EdgeInsets.all(3.0),
-                padding: const EdgeInsets.all(2.0),
-                child: Column(
-                  children: <Widget>[
-                    _buildDate(post),
-                    Divider(color: Colors.grey),
-                    _buildPostContentWithImage(post),
-                    Divider(color: Colors.grey),
-                    _buildPostDetails(post)
+      if(post.imageURL == null){
+        return GestureDetector(
+            onTapDown: _storePosition,
+            child:
+            AspectRatio(
+              aspectRatio: 2.5 /1,
+              child: new Card(
+                elevation: 1,
+                child: Container(
+                  margin: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
+                  child: Column(
+                    children: <Widget>[
+                      _buildDate(post),
+                      Divider(color: Colors.grey),
+                      _buildPostContentWithoutImage(post),
+                      Divider(color: Colors.grey),
+                      _buildPostDetails(post)
 
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ));}
+            ));
 
-  }
+      }
+      else{
+        return GestureDetector(
+            onTapDown: _storePosition,
+            child:
+            AspectRatio(
+              aspectRatio: 12 /8,
+              child: new Card(
+                elevation: 1,
+                child: Container(
+                  margin: const EdgeInsets.all(3.0),
+                  padding: const EdgeInsets.all(2.0),
+                  child: Column(
+                    children: <Widget>[
+                      _buildDate(post),
+                      Divider(color: Colors.grey),
+                      _buildPostContentWithImage(post),
+                      Divider(color: Colors.grey),
+                      _buildPostDetails(post)
+
+                    ],
+                  ),
+                ),
+              ),
+            ));}
+
+    }}
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     user = FirebaseAuth.instance.currentUser;
     appUser = AppUser.WithUID(user.uid);
+    getLikes();
+    getComments();
     //getPosts();
 
     //getUser();
@@ -186,6 +250,33 @@ class _PostCardState extends State<PostCard> {
   }
 
 
+  _buildReposter(ImagePost post) {
+
+    return Container(
+      //width: 400,
+      height: 16,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          SizedBox(width: 30),
+          SizedBox(
+            //flex:2,
+            height: 15,
+            width: 80,
+            child: Text((post.reposter.displayName), style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[900],
+            ),),
+          ),
+        ],
+      ),
+    );
+
+  }
+
   _buildDate(ImagePost post) {
 
     return Container(
@@ -230,24 +321,36 @@ class _PostCardState extends State<PostCard> {
 
     List<String> titles = ['Looking for a roommate!'];
     List<String> summaries = ['Hi! I am looking for a roommate who is clean, animal lover and vegetarian:)'];
+    return Container(
+      width: 350,
+      height: 35,
+      child: Text(post.text, maxLines: 4,
+        overflow: TextOverflow.ellipsis,
+        //textDirection: TextDirection.rtl,
+        textAlign: TextAlign.left,),
 
+      /*
     return Expanded(
       //flex: 3,
-      child: Container(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 2.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              //SizedBox(height: 2.0)
-              Text(post.text,
-                style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15, color: Colors.grey[600]),),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            //SizedBox(height: 2.0)
+            Wrap(
+              alignment: WrapAlignment.start,
+              children: [
+                Container(
+                  child: Text(post.text,
+                  maxLines: 2,
+                  //overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontWeight: FontWeight.w500,fontSize: 15, color: Colors.grey[600]),),),
+              ],
+            ),
 
-            ],
-          ),
-        ),
-      ),
+          ],
+        ),*/
+
     );
   }
 
@@ -375,6 +478,7 @@ class _PostCardState extends State<PostCard> {
   }
 
   showComments() {
+    print("commenttesin");
     showModalBottomSheet(
         context: context,
         builder: (context) {
@@ -562,6 +666,23 @@ class _PostCardState extends State<PostCard> {
       setState(() {
         comments.sort((a,b) => a.date.compareTo(b.date));
       });
+    });
+  }
+
+  getLikedStatus(String postID)
+  {
+    CollectionReference likesCollection = FirebaseFirestore.instance.collection('likes');
+    likesCollection.where('liker', isEqualTo: FirebaseAuth.instance.currentUser.uid).where('postID', isEqualTo: postID).snapshots().listen((event) {
+      if (event.size > 0) {
+        setState(() {
+          liked = true;
+          likeFetched = true;
+        });
+      }
+      else {
+        liked = false;
+        likeFetched = false;
+      }
     });
   }
 

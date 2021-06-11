@@ -120,13 +120,15 @@ class _FeedState extends State<Feed> {
 
   _buildContentDisplay(Size size) {
     int len = posts.length;
+    print("İŞTE BURADASIN");
+    print(len);
     return Expanded(
       child: Container(
         padding: EdgeInsets.all(8),
         child: SizedBox(
-          height: 8,
+          height: 10,
           child: new ListView.builder(
-              itemCount: len,
+              itemCount: 8,
               itemBuilder: (BuildContext context, int index) => PostCard(posts[index])),
         ),
       ),
@@ -180,7 +182,7 @@ class _FeedState extends State<Feed> {
                     Icon(Icons.add,color: Colors.white,),
                   ],
                 ),
-                onPressed: () {Navigator.of(context).pushNamed("/newpost");} )
+                onPressed: () {Navigator.of(context).pushNamed("/newpost"); getPosts();} )
           ],
         ),
       ),
@@ -209,7 +211,7 @@ class _FeedState extends State<Feed> {
       for (var docc in event.docs) {
         Map doc = docc.data();
         if (friendsUID.contains(doc['user'])) {
-          Post post = ImagePost(
+          Post post1 = ImagePost(
             reposter: AppUser.WithUID(doc['reposter']),
             imageURL: null,
             postID: docc.id,
@@ -218,7 +220,7 @@ class _FeedState extends State<Feed> {
             user: AppUser.WithUID(doc['user']),
             //likes: doc.likes;
           );
-          posts.add(post);
+          posts.add(post1);
         }
         posts.sort((a,b) => b.date.compareTo(a.date) );
       }
@@ -227,7 +229,7 @@ class _FeedState extends State<Feed> {
       for (var docc in event.docs) {
         Map doc = docc.data();
         if (friendsUID.contains(doc['user'])) {
-          Post post = ImagePost(
+          Post post1 = ImagePost(
             reposter: AppUser.WithUID(doc['reposter']),
             imageURL: doc['photoAddress'],
             postID: docc.id,
@@ -236,7 +238,7 @@ class _FeedState extends State<Feed> {
             user: AppUser.WithUID(doc['user']),
             //likes: docc.likes;
           );
-          posts.add(post);
+          posts.add(post1);
         }
         posts.sort((a,b) => b.date.compareTo(a.date) );
       }
