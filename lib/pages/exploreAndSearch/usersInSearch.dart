@@ -21,25 +21,30 @@ class _UsersSearchCardState extends State<UsersSearchCard> {
 
   _buildUser()
   {
-    return Container(
-      padding: EdgeInsets.all(10),
-      child: InkWell(
-        onTap: (){
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ProfileBuilder(widget.user)),
-          );
-        },
-        child: Row(
-          children: [
-            CircleAvatar(backgroundImage: NetworkImage(widget.user.photoUrl == null?
-            "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg"
-                : widget.user.photoUrl),),
-            SizedBox(width: 10,),
-            Text(widget.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
-          ],
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.all(10),
+          child: InkWell(
+            onTap: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfileBuilder(widget.user)),
+              );
+            },
+            child: Row(
+              children: [
+                CircleAvatar(backgroundImage: NetworkImage(widget.user.photoUrl == null?
+                "https://i.pinimg.com/originals/39/1e/e1/391ee12077ba9cabd10e476d8b8c022b.jpg"
+                    : widget.user.photoUrl),),
+                SizedBox(width: 10,),
+                Text(widget.user.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
+              ],
+            ),
+          ),
         ),
-      ),
+        Divider()
+      ],
     );
   }
 }

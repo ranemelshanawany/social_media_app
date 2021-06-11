@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:project_socialmedia/models/User.dart';
 import 'package:project_socialmedia/pages/exploreAndSearch/imagePostInSearch.dart';
 import 'package:project_socialmedia/pages/exploreAndSearch/textPosts.dart';
+import 'package:project_socialmedia/pages/profile/connectionslist.dart';
 import '../../utils/color.dart';
 import 'postCard.dart';
 import '../../models/Post.dart';
@@ -51,6 +52,8 @@ class _ProfileState extends State<Profile> {
   bool postsLoading = false;
   bool postsFetched = false;
   List<Post> posts;
+  List<AppUser> followers = [];
+  List<AppUser> following = [];
 
   Size size;
 
@@ -234,52 +237,72 @@ class _ProfileState extends State<Profile> {
   }
 
   _buildFollowersColumn() {
-    return Column(
-      children: <Widget>[
-        Text(
-          followersNo.toString(),
-          style: TextStyle(
-            fontFamily: 'BrandonText',
-            fontSize: 20.0,
-            fontWeight: FontWeight.w800,
-            color: AppColors.primary,
+    return InkWell(
+      onTap: () async
+      {
+        await getFollowers();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ConnectionsList(followers)),
+        );
+      },
+      child: Column(
+        children: <Widget>[
+          Text(
+            followersNo.toString(),
+            style: TextStyle(
+              fontFamily: 'BrandonText',
+              fontSize: 20.0,
+              fontWeight: FontWeight.w800,
+              color: AppColors.primary,
+            ),
           ),
-        ),
-        Text(
-          'Followers',
-          style: TextStyle(
-            fontFamily: 'BrandonText',
-            fontSize: 18.0,
-            fontWeight: FontWeight.w400,
-            color: AppColors.textColor,
+          Text(
+            'Followers',
+            style: TextStyle(
+              fontFamily: 'BrandonText',
+              fontSize: 18.0,
+              fontWeight: FontWeight.w400,
+              color: AppColors.textColor,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   _buildFollowingColumn() {
-    return Column(
-      children: <Widget>[
-        Text(
-          followingNo.toString(),
-          style: TextStyle(
-            fontFamily: 'BrandonText',
-            fontSize: 20.0,
-            fontWeight: FontWeight.w800,
-            color: AppColors.primary,
+    return InkWell(
+        onTap: () async
+        {
+          await getFollowing();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ConnectionsList(following)),
+          );
+        },
+      child: Column(
+        children: <Widget>[
+          Text(
+            followingNo.toString(),
+            style: TextStyle(
+              fontFamily: 'BrandonText',
+              fontSize: 20.0,
+              fontWeight: FontWeight.w800,
+              color: AppColors.primary,
+            ),
           ),
-        ),
-        Text(
-          'Following',
-          style: TextStyle(
-            fontFamily: 'BrandonText',
-            fontSize: 18.0,
-            fontWeight: FontWeight.w400,
-            color: AppColors.textColor,
+          Text(
+            'Following',
+            style: TextStyle(
+              fontFamily: 'BrandonText',
+              fontSize: 18.0,
+              fontWeight: FontWeight.w400,
+              color: AppColors.textColor,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -364,5 +387,73 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  getFollowers() async {
+    followers = [];
+    List<String> uids = [];
 
+    CollectionReference followPostsCollection = FirebaseFirestore.instance.collection('follow');
+    await followPostsCollection.where("following", isEqualTo: user.uid).get().then((event) {
+      for (var doc in event.docs)
+      {
+        uids.add(doc.get("follower"));
+      }
+    });
+
+
+    CollectionReference userCollection =
+    FirebaseFirestore.instance.collection('users');
+    await userCollection
+        .get()
+        .then((event) {
+      for (var doc in event.docs) {
+        if (uids.contains(doc["uid"])) {
+          AppUser appUser = AppUser(
+            UID: doc["uid"] ??"",
+            username: doc["username"]??"",
+            email: doc["email"]??"",
+            photoUrl: doc["photoUrl"]??"https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2",
+            displayName: doc["displayName"]??"",
+            bio: doc["bio"]??"",
+            private: doc["private"]?? false,
+          );
+          followers.add(appUser);
+        }
+      }
+    });
+  }
+
+  getFollowing() async {
+    following = [];
+    List<String> uids = [];
+
+    CollectionReference followPostsCollection = FirebaseFirestore.instance.collection('follow');
+    followPostsCollection.where("follower", isEqualTo: user.uid).get().then((event) {
+      for (var doc in event.docs)
+      {
+        uids.add(doc.get("following"));
+      }
+    });
+
+
+    CollectionReference userCollection =
+    FirebaseFirestore.instance.collection('users');
+    await userCollection
+        .get()
+        .then((event) {
+      for (var doc in event.docs) {
+        if (uids.contains(doc["uid"])) {
+          AppUser appUser = AppUser(
+            UID: doc["uid"] ??"",
+            username: doc["username"]??"",
+            email: doc["email"]??"",
+            photoUrl: doc["photoUrl"]??"https://firebasestorage.googleapis.com/v0/b/cs310-project-cc354.appspot.com/o/unknown.jpg?alt=media&token=71503f0d-a3c9-4837-b2e0-30214a02f0e2",
+            displayName: doc["displayName"]??"",
+            bio: doc["bio"]??"",
+            private: doc["private"]?? false,
+          );
+          following.add(appUser);
+        }
+      }
+    });
+  }
 }
