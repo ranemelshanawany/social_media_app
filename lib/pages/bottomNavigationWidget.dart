@@ -122,9 +122,11 @@ class _BottomNavigatorState extends State<BottomNavigator> {
         onPressed: (){
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => EditProfilePage(user:user)),
-          );
+            MaterialPageRoute(builder: (context) => EditProfilePage()),
+          ).then((value) => setState((){}));
         });
   }
+
+
 
 }

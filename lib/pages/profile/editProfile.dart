@@ -27,9 +27,9 @@ class SettingsUI extends StatelessWidget {
 
 class EditProfilePage extends StatefulWidget {
 
-  final AppUser user;
+  final VoidCallback  callback;
 
-  const EditProfilePage({this.analytics,this.observer, this.user});
+  const EditProfilePage({this.analytics,this.observer, this.callback});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -97,7 +97,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) => SettingsPage()));
+                      builder: (BuildContext context) => SettingsPage(user: appUser)));
                 },
               ),
             ],
@@ -182,7 +182,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         padding: EdgeInsets.symmetric(horizontal: 50),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
                         child: Text("CANCEL",
                             style: TextStyle(
                                 fontSize: 14,
@@ -192,6 +194,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       RaisedButton(
                         onPressed: () async {
                           await updateProfile();
+                          Navigator.of(context).pop();
                         },
                         color: AppColors.primary,
                         padding: EdgeInsets.symmetric(horizontal: 50),

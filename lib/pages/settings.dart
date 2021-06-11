@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_socialmedia/models/User.dart';
@@ -10,7 +12,9 @@ import '../utils/color.dart';
 
 class SettingsPage extends StatefulWidget {
 
-  const SettingsPage({this.analytics,this.observer});
+  final AppUser user;
+
+  const SettingsPage({this.analytics,this.observer, this.user});
 
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
@@ -48,8 +52,11 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  bool privateAccount;
+
   @override
   Widget build(BuildContext context) {
+    privateAccount = widget.user.private;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -97,12 +104,12 @@ class _SettingsPageState extends State<SettingsPage> {
             SizedBox(
               height: 10,
             ),
-            buildAccountOptionRow(context, "Change password"),
+            /*buildAccountOptionRow(context, "Change password"),
             buildAccountOptionRow(context, "Content settings"),
             buildAccountOptionRow(context, "Social"),
             buildAccountOptionRow(context, "Language"),
-            buildAccountOptionRow(context, "Privacy and security"),
-            SizedBox(
+            buildAccountOptionRow(context, "Privacy and security"),*/
+            /*SizedBox(
               height: 40,
             ),
             Row(
@@ -128,8 +135,8 @@ class _SettingsPageState extends State<SettingsPage> {
               height: 10,
             ),
             buildNotificationOptionRow("New for you", true),
-            buildNotificationOptionRow("Account activity", true),
-            buildNotificationOptionRow("Opportunity", false),
+            buildNotificationOptionRow("Account activity", true),*/
+            buildNotificationOptionRow("Account Private", privateAccount),
             buildDeleteAccount(),
             SizedBox(
               height: 50,
@@ -169,7 +176,15 @@ class _SettingsPageState extends State<SettingsPage> {
             scale: 0.7,
             child: CupertinoSwitch(
               value: isActive,
-              onChanged: (bool val) {},
+              onChanged: (bool val) async {
+                CollectionReference userCollec = FirebaseFirestore.instance.collection('users');
+                await userCollec.doc(widget.user.UID).update({
+                  'private': val,
+                });
+                setState(() {
+                  widget.user.private = !widget.user.private;
+                });
+              },
             ))
       ],
     );
