@@ -176,7 +176,7 @@ class _TextPostCardState extends State<TextPostCard> {
   sendLike() async {
     if (liked)
     {
-      await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).sendLike(post.postID, post.user.UID);
+      await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).sendLike(post.postID, post.user.UID, post.user.username);
     }
     else {
       await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).deleteLike(post.postID, post.user.UID);
@@ -322,6 +322,7 @@ class _TextPostCardState extends State<TextPostCard> {
           content: commentsController.text,
           userCommented: post.user.username,
           commentingUsername: appUser.username,
+          uid: appUser.UID,
           date: DateTime.now());
       //DateFormat.yMd().format(DateTime.now())
     }

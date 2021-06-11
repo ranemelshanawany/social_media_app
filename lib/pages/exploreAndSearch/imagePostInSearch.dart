@@ -164,7 +164,7 @@ class _ImagePostCardState extends State<ImagePostCard> {
   sendLike() async {
     if (liked)
     {
-      await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).sendLike(post.postID, post.user.UID);
+      await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).sendLike(post.postID, post.user.UID, post.user.username);
     }
     else {
       await DatabaseService(uid: FirebaseAuth.instance.currentUser.uid).deleteLike(post.postID, post.user.UID);
@@ -338,6 +338,7 @@ class _ImagePostCardState extends State<ImagePostCard> {
           content: commentsController.text,
           userCommented: post.user.username,
           commentingUsername: appUser.username,
+          uid: appUser.UID,
           date: DateTime.now());
     }
     setState(() {
@@ -360,17 +361,25 @@ class _ImagePostCardState extends State<ImagePostCard> {
           Offset.zero & overlay.size // Bigger rect, the entire screen
       ),
       items: [
+        (post.user.UID != FirebaseAuth.instance.currentUser.uid) ?
         PopupMenuItem<String>(
-            child: const Text('Report'), value: '1'),
+            child: const Text('Report'), value: '1') :
+        PopupMenuItem<String>(
+          value: "2",
+          child: Text('Delete'),
+        )
       ],
       elevation: 8.0,
     )
-        .then<void>((String itemSelected) {
+        .then<void>((String itemSelected) async {
 
+      print(itemSelected);
       if (itemSelected == null) return;
 
       if(itemSelected == "1"){
-        showReportDialog(context, "post", reportPost);
+        showReportDialog(context, "post", reportPost); }
+      if (itemSelected == "2")  {
+        await DatabaseService(uid: appUser.UID).deleteTextPost(post.postID);
       }
 
     });

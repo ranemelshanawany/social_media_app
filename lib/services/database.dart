@@ -145,7 +145,7 @@ class DatabaseService{
     });
   }
 
-  Future<void> sendLike(String postID, String postUserID) async
+  Future<void> sendLike(String postID, String postUserID, String username) async
   {
     createNotification(postUserID, uid, "like", "", postID, DateTime.now());
     return await likesCollection.doc().set({
@@ -177,7 +177,7 @@ class DatabaseService{
     });
   }
 
-    Future<void> createComment({String content, DateTime date, String userCommented, String postID, String commentingUsername}) async{
+    Future<void> createComment({String content, DateTime date, String userCommented, String postID, String commentingUsername, String uid}) async{
     createNotification(userCommented,commentingUsername,"comment",content,postID,date);
     return await commentsCollection.doc().set({
       'date': date,
@@ -281,7 +281,7 @@ class DatabaseService{
   
   
 
-  Future<void> follow(String user) async{
+  Future<void> follow(String user, String username) async{
 
     createNotification(user, uid, "follow", "", "", DateTime.now());
     return await followCollection.doc().set({
@@ -304,7 +304,7 @@ class DatabaseService{
     });
   }
 
-  Future<void> sendFollowRequest(String user) async{
+  Future<void> sendFollowRequest(String user, String username) async{
     createNotification(user, uid, "request", "", "", DateTime.now());
     return await followRequestCollection.doc().set({
       'personSending': uid,

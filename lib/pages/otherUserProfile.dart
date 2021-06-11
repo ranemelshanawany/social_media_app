@@ -378,9 +378,9 @@ class _ProfileBuilderState extends State<ProfileBuilder> {
         if (requestExists)
           await DatabaseService(uid: currentUser.UID).deleteFollowRequest(user.UID);
         else
-          await DatabaseService(uid: currentUser.UID).sendFollowRequest(user.UID);
+          await DatabaseService(uid: currentUser.UID).sendFollowRequest(user.UID, user.username);
       } else
-        await DatabaseService(uid: currentUser.UID).follow(user.UID);
+        await DatabaseService(uid: currentUser.UID).follow(user.UID, user.username);
     }
 
     setState(() {

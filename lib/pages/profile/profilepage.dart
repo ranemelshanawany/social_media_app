@@ -310,7 +310,7 @@ class _ProfileState extends State<Profile> {
     FirebaseFirestore.instance.collection('textPost');
     CollectionReference imagePostsCollection =
     FirebaseFirestore.instance.collection('imagePost');
-    textPostsCollection.get().then((event) {
+    textPostsCollection.snapshots().listen((event) {
       for (var docc in event.docs) {
         Map doc = docc.data();
           if (doc['user'].contains(user.uid)) {

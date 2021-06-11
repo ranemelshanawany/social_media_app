@@ -287,6 +287,7 @@ class _PostPageState extends State<PostPage> {
           content: commentsController.text,
           userCommented: post.user.username,
           commentingUsername: appUser.username,
+          uid: appUser.UID,
           date: DateTime.now());
       //DateFormat.yMd().format(DateTime.now())
     }
@@ -296,7 +297,7 @@ class _PostPageState extends State<PostPage> {
   sendLike() async {
     if (liked)
     {
-      await DatabaseService(uid: user.uid).sendLike(post.postID, post.user.UID);
+      await DatabaseService(uid: user.uid).sendLike(post.postID, post.user.UID, post.user.username);
     }
     else {
       await DatabaseService(uid: user.uid).deleteLike(post.postID, post.user.UID);
